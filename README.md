@@ -1,22 +1,21 @@
 === Moelog AI Q&A Links ===
-
-*Contributors: horlicks
-*Author link: https://www.moelog.com/
-*Tags: openai, ai, chatbot, q&a, gpt, openai api,
-*Requires at least: 5.0
-*Tested up to: 6.6
-*Requires PHP: 7.4
-*Stable tag: 1.1.0
-*License: GPLv2 or later
-*License URI: https://www.gnu.org/licenses/gpl-2.0.html
-// 這是 Plugin Header 區塊的結束，簡介文字應該放在這裡，並且可以斷行。
+Contributors: Horlicks
+Author link: https://www.moelog.com/
+Tags: openai, ai, chatbot, q&a, gpt, openai api
+Requires at least: 5.0
+Tested up to: 6.6
+Requires PHP: 7.4
+Stable tag: 1.1.0
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Display your own pre-set AI question list under each post, open answers in a new tab, and let OpenAI generate contextual replies automatically. Simple, secure, and fast.
 
 == Description ==
 
-**Moelog AI Q&A Links** is a lightweight plugin that allows authors to predefine questions for each post.
+**Moelog AI Q&A Links** is a lightweight plugin that allows authors to predefine questions for each post.  
 At the bottom of each article, readers can click a question to open a new page where an AI (powered by OpenAI API) generates a contextual answer.
+
 - 🧠 Supports OpenAI models (e.g., `gpt-4o-mini`, `gpt-4-turbo`, etc.)
 - 🗝️ Secure API key management (supports `wp-config.php` constant)
 - 🧩 Works with both posts and pages
@@ -132,7 +131,7 @@ Adds typing effect, bot blocking, and a built-in disclaimer on the answer page w
 
 == Credits ==
 
-Developed by **Horlicks (和製ホーリックス)**  
+Developed by ChatGPT,Gmini Grok and Horlicks
 Blog: https://www.moelog.com/
 
 == License ==
@@ -140,4 +139,3 @@ Blog: https://www.moelog.com/
 This plugin is open-source and distributed under the GPL v2 or later.
 
 Copyright © 2025 Horlicks (moelog.com)
-
