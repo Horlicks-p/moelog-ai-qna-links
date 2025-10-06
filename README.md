@@ -1,7 +1,6 @@
 === Moelog AI Q&A Links ===
 Contributors: horlicks
-Donate link: https://www.moelog.com/
-Tags: openai, ai, chatbot, q&a, gpt, openai api, moelog, disclaimer, translation
+Tags: openai, ai, chatbot, q&a, gpt, openai api,
 Requires at least: 5.0
 Tested up to: 6.6
 Requires PHP: 7.4
@@ -13,23 +12,23 @@ Display your own pre-set AI question list under each post, open answers in a new
 
 == Description ==
 
-**Moelog AI Q&A Links** is a lightweight plugin that allows authors to predefine questions for each post.  
+**Moelog AI Q&A Links** is a lightweight plugin that allows authors to predefine questions for each post.
+
 At the bottom of each article, readers can click a question to open a new page where an AI (powered by OpenAI API) generates a contextual answer.
 
-- 🧠 Supports OpenAI models (e.g., `gpt-4o-mini`, `gpt-4-turbo`, etc.)
-- 🗝️ Secure API key management (supports `wp-config.php` constant)
-- 🧩 Works with both posts and pages
-- 🌏 Multilingual support (auto-detects Chinese / Japanese / English)
-- ⚡ Built-in caching and rate limiting
-- 🧱 Safe HTML rendering (no XSS risk)
-- 🔐 Triple-layer protection (Nonce + Timestamp + HMAC)
-- ⌨️ Typewriter effect on the answer page (progressively reveals sanitized AI output)
-- 🤖 User-Agent bot blocking to avoid unwanted crawler-triggered API calls
-- 📝 **New in 1.2.0: Customizable question list heading (`<h3>`) via Settings**
-- 📜 **New in 1.2.0: Customizable disclaimer on the answer page (supports `{site}` placeholder; `%s` backward-compatible)**
+* 🧠 Supports OpenAI models (e.g., `gpt-4o-mini`, `gpt-4-turbo`, etc.)
+* 🗝️ Secure API key management (supports `wp-config.php` constant)
+* 🧩 Works with both posts and pages
+* 🌏 Multilingual support (auto-detects Chinese / Japanese / English)
+* ⚡ Built-in caching and rate limiting
+* 🧱 Safe HTML rendering (no XSS risk)
+* 🔐 Triple-layer protection (Nonce + Timestamp + HMAC)
+* ⌨️ Typewriter effect on the answer page (progressively reveals sanitized AI output)
+* 🤖 User-Agent bot blocking to avoid unwanted crawler-triggered API calls
+* 📝 **New in 1.2.0: Customizable question list heading (<h3>) via Settings**
+* 📜 **New in 1.2.0: Customizable disclaimer on the answer page** (supports `{site}` placeholder; `%s` backward-compatible)
 
-Built with strict WordPress coding standards and complete security in mind —  
-ready for production and WordPress.org submission.
+Built with strict WordPress coding standards and complete security in mind — ready for production and WordPress.org submission.
 
 == Features ==
 
@@ -42,7 +41,7 @@ ready for production and WordPress.org submission.
 * Strict HTML sanitization for AI output
 * **Typewriter display** for the answer page (adjustable speed)
 * **Bot blocking** for common crawlers (Googlebot/Bingbot/etc.) to protect API usage
-* **Customizable heading (`<h3>`) and disclaimer text** via Settings
+* **Customizable heading and disclaimer text** via Settings
 * Full uninstall cleanup (options, postmeta, transient)
 * Compatible with multilingual content
 
@@ -55,41 +54,40 @@ ready for production and WordPress.org submission.
 5. Save and view your post — questions will appear below your article.
 
 Optional:
-- Add `define('MOELOG_AIQNA_API_KEY', 'sk-xxxxxx');` in `wp-config.php` for higher security.
-- Use `[moelog_aiqna]` shortcode to manually insert question list anywhere.
+
+* Add `define('MOELOG_AIQNA_API_KEY', 'sk-xxxxxx');` in `wp-config.php` for higher security.
+* Use `[moelog_aiqna]` shortcode to manually insert question list anywhere.
 
 == Frequently Asked Questions ==
 
 = Does it require an OpenAI API key? =
-Yes. You can create one at https://platform.openai.com/.  
+Yes. You can create one at https://platform.openai.com/.
 The plugin allows entering it in Settings, or securely defining it in `wp-config.php`.
 
 = Is it safe to expose AI answers to visitors? =
-Yes. All outputs are strictly sanitized using `wp_kses()` with a minimal whitelist to avoid XSS.
-Links and potentially risky tags/attributes are removed.
+Yes. All outputs are strictly sanitized using `wp_kses()` with a minimal whitelist to avoid XSS. Links and potentially risky tags/attributes are removed.
 
 = Can I include the post content as context? =
-Yes. There is an option **“Include post content to AI”** in Settings.  
+Yes. There is an option “Include post content to AI” in Settings.
 It sends a truncated (default 6000 characters) plain-text version of the article to improve contextual accuracy.
 
 = How does rate limiting work? =
-Each visitor’s IP is limited to 10 requests per hour, and each unique question has a 60-second cooldown.  
+Each visitor’s IP is limited to 10 requests per hour, and each unique question has a 60-second cooldown.
 Cached answers are reused to save your OpenAI API quota.
 
 = Will search engine crawlers trigger API calls? =
-The answer page is marked `noindex,nofollow`, and we block common bots via User-Agent on the answer route.  
+The answer page is marked `noindex,nofollow`, and we block common bots via User-Agent on the answer route.
 Additionally, requests must pass nonce/timestamp/HMAC checks; invalid/expired links are rejected before any API call.
 
 = Can I change the typewriter speed? =
 Yes. The speed defaults to 18ms per character. You can adjust the inline JS constant (`SPEED = 18`) on the answer page template.
 
 = Can I customize the question list heading? =
-Yes. From **1.2.0**, go to **Settings → Moelog AI Q&A → Question List Heading** and enter your text (any language).
-Developers may also override via the `moelog_aiqna_list_heading` filter.
+Yes. From 1.2.0, go to **Settings → Moelog AI Q&A → Question List Heading** and enter your text (any language). Developers may also override via the `moelog_aiqna_list_heading` filter.
 
 = Can I customize the disclaimer text on the answer page? =
-Yes. From **1.2.0**, go to **Settings → Moelog AI Q&A → Disclaimer** and edit the text.  
-It supports the `{site}` placeholder (replaced with your site name) and is backward-compatible with `%s`.  
+Yes. From 1.2.0, go to **Settings → Moelog AI Q&A → Disclaimer** and edit the text.
+It supports the `{site}` placeholder (replaced with your site name) and is backward-compatible with `%s`.
 Developers may also filter the final text via `moelog_aiqna_disclaimer_text`.
 
 = How do I completely remove all data? =
@@ -107,8 +105,8 @@ When you uninstall the plugin, all related options, postmeta, and cached transie
 == Changelog ==
 
 = 1.2.0 =
-* New: Customizable question list heading (`<h3>`) in Settings (`list_heading`), filterable via `moelog_aiqna_list_heading`.
-* New: Customizable answer-page disclaimer in Settings (`disclaimer_text`), supports `{site}` placeholder and legacy `%s`, filterable via `moelog_aiqna_disclaimer_text`.
+* New: Customizable question list heading (h3) in Settings (list_heading), filterable via `moelog_aiqna_list_heading`.
+* New: Customizable answer-page disclaimer in Settings (disclaimer_text), supports `{site}` placeholder and legacy `%s`, filterable via `moelog_aiqna_disclaimer_text`.
 * Docs: Added translation section and updated readme.
 
 = 1.1.0 =
@@ -119,10 +117,10 @@ When you uninstall the plugin, all related options, postmeta, and cached transie
 
 = 1.0.8 =
 * Security enhancements:
-  - Fixed SHA-256 regex length to `{64}`
-  - Replaced `wp_generate_password()` with `random_bytes()` for per-site secret
-  - Unified cache key passing between render and API call
-  - Added transient cleanup in uninstall()
+    * Fixed SHA-256 regex length to `{64}`
+    * Replaced `wp_generate_password()` with `random_bytes()` for per-site secret
+    * Unified cache key passing between render and API call
+    * Added transient cleanup in uninstall()
 * Achieved 10/10 security audit score
 
 = 1.0.7 =
@@ -143,20 +141,22 @@ When you uninstall the plugin, all related options, postmeta, and cached transie
 == Upgrade Notice ==
 
 = 1.2.0 =
-Adds customizable `<h3>` heading and a fully editable disclaimer (with `{site}` placeholder) via Settings.  
+Adds customizable `<h3>` heading and a fully editable disclaimer (with `{site}` placeholder) via Settings.
 Also exposes developer filters `moelog_aiqna_list_heading` and `moelog_aiqna_disclaimer_text`. Recommended upgrade.
 
 == Translation & Language Packs ==
 
-**Moelog AI Q&A Links** currently provides two base translation files:  
-`moelog-ai-qna.txt` (default) , `moelog-ai-qna-en_US.txt` (English) and `moelog-ai-qna-ja_JP.txt` (Japanese) .
+**Moelog AI Q&A Links** currently provides three base translation files:
+* `moelog-ai-qna.txt` (default)
+* `moelog-ai-qna-en_US.txt` (English)
+* `moelog-ai-qna-ja_JP.txt` (Japanese)
 
-If you are familiar with creating `.po` / `.mo` language packs, your help is very welcome!  
-You can convert these text sources into proper WordPress language files and share them back with the community.  
+If you are familiar with creating **`.po` / `.mo` language packs**, your help is very welcome!
+You can convert these text sources into proper WordPress language files and share them back with the community.
 
 == Credits ==
 
-Developed by **ChatGPT,Gmini,Grok and Horlicks**
+Developed by **Horlicks**
 
 Blog: https://www.moelog.com/
 
