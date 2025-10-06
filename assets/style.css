@@ -1,164 +1,262 @@
 /* ===================================================
-   Moelog AI Q&A – Consolidated CSS
-   命名空間說明：
+   Moelog AI Q&A – Professional CSS (v1.2)
+   命名空間：
    - 文章內清單：.moe-aiqna-block
    - 答案頁：body.moe-aiqna-answer 下所有樣式
    =================================================== */
 
-/* --- 1. 文章內「問題清單」區塊 (.moe-aiqna-block) --- */
+/* ------ 基礎設計令牌（顏色/尺寸） ------ */
+:root {
+  --moe-fg: #1f2328;
+  --moe-fg-muted: #5b5f66;
+  --moe-bg: #ffffff;
+  --moe-surface: #ffffff;
+  --moe-border: rgba(31,35,40,.12);
+  --moe-accent: #0969da;
+  --moe-accent-hover: #0553b1;
+  --moe-accent-muted: #d0e2ff;
+  --moe-radius: 8px;
+  --moe-radius-sm: 6px;
+  --moe-shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 14px rgba(0,0,0,.06);
+  --moe-font: "Noto Sans TC","Noto Sans JP",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --moe-mono: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
 
-.moe-aiqna-block {
-  margin: -0.2em 0 1.2em 0;
-  padding: 0.5em;
-  border: 0px solid rgba(0, 0, 0, .08);
-  border-radius: 6px;
-  background: #fff;
+  --moe-fs-100: 14px;
+  --moe-fs-200: 15px;
+  --moe-fs-300: 16px;
+  --moe-fs-400: 18px;
+  --moe-fs-500: 20px;
+  --moe-lh: 1.7;
 }
 
+/* 深色模式 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --moe-fg: #e6edf3;
+    --moe-fg-muted: #9da7b3;
+    --moe-bg: #0b0f14;
+    --moe-surface: #11161c;
+    --moe-border: rgba(230,237,243,.12);
+    --moe-accent: #58a6ff;
+    --moe-accent-hover: #79b8ff;
+    --moe-accent-muted: rgba(88,166,255,.18);
+    --moe-shadow: 0 0 0 rgba(0,0,0,0);
+  }
+}
+
+/* ------ 1) 文章內「問題清單」區塊 ------ */
+
+.moe-aiqna-block {
+  margin: .5em 0 1.25em;
+  padding: 1em;
+  border: 1px solid var(--moe-border);
+  border-radius: var(--moe-radius);
+  background: var(--moe-surface);
+  box-shadow: var(--moe-shadow);
+  font-family: var(--moe-font);
+  color: var(--moe-fg);
+}
 
 .moe-aiqna-block h3 {
   margin: 0 0 .6em;
-  font-size: 1.3rem;
+  font-size: clamp(1.05rem, 1vw + .9rem, 1.25rem);
   line-height: 1.4;
-  font-family: "Noto Sans TC", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  
+  letter-spacing: .2px;
+  font-weight: 600;
+}
 
 .moe-aiqna-block ul {
   list-style: none;
-  margin: 0.1em 0 0 0.8em;
+  margin: 0;
   padding: 0;
 }
 
-.moe-aiqna-block li {
-  margin: .3em 0;
-}
+.moe-aiqna-block li + li { margin-top: .35em; }
 
 .moe-aiqna-block .moe-aiqna-link {
-  display: inline-block;             
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: .5em;
+  padding: .15em 0 .15em 1.25em;
   text-decoration: none;
-  color: #1d8ac3;
-  padding-left: 16px;                
-  line-height: 1.6em;                 
+  color: var(--moe-accent);
+  line-height: 1.6;
+  border-radius: 4px;
+  outline: none;
 }
+
+.moe-aiqna-block .moe-aiqna-link::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: .55em;
+  width: .5em;
+  height: .5em;
+  border-radius: 50%;
+  background: var(--moe-accent-muted);
+}
+
 .moe-aiqna-block .moe-aiqna-link:hover {
-  color: #6D6D6D;
+  color: var(--moe-accent-hover);
 }
 
-/* --- 2. 答案頁 (body.moe-aiqna-answer) - 全域設定與排版 --- */
+.moe-aiqna-block .moe-aiqna-link:focus-visible {
+  box-shadow: 0 0 0 3px var(--moe-accent-muted);
+}
 
-/* 答案頁基礎樣式：字型、字體大小、行高、背景 */
+/* ------ 2) 答案頁 – 全域排版 ------ */
+
 body.moe-aiqna-answer,
 body.moe-aiqna-answer * {
-font-family: "Noto Sans TC", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--moe-font);
 }
 
 body.moe-aiqna-answer {
-  /* 整體排版設定 */
-  margin: 24px auto;
-  max-width: 820px;
-  color: #222;
-  background: #ffffff; /* 背景 */
-  font-size: 18px; /* 最終採用 18px */
-  line-height: 1.85; /* 最終採用 1.85 */
+  margin: 0;
+  background: var(--moe-bg);
+  color: var(--moe-fg);
+  font-size: var(--moe-fs-400);
+  line-height: 1.85;
 }
 
-/* 置中容器 (包含左右留白) */
 .moe-aiqna-answer .moe-container {
   max-width: 820px;
   margin: 24px auto;
-  padding: 0 16px; /* 兩側留白，避免小螢幕貼邊 */
+  padding: 0 16px;
 }
 
-/* --- 3. 答案頁標題與提問重現 --- */
+/* ------ 3) 標題與提問回顯 ------ */
 
-/* 標頭 (頁首，只留標題) */
 .moe-aiqna-answer .moe-head {
-  border-bottom: none; /* 移除頁首下方的細線 */
+  border-bottom: none;
   padding-bottom: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
-/* 提問標題 */
 .moe-aiqna-answer .moe-question {
-  font-size: 22px; /* 稍大一點 */
-  margin: 8px 0;
+  font-size: clamp(1.1rem, 1vw + 1rem, 1.375rem);
+  margin: 8px 0 4px;
+  font-weight: 700;
+  letter-spacing: .2px;
 }
 
-/* 再現提問區塊 (引述樣式) */
 .moe-aiqna-answer .moe-question-echo {
-  font-size: 20px;
-  font-weight: 500;
-  margin-top: 1.2em;
-  margin-bottom: 1.2em;
-  padding: .6em .9em;
-  border-left: 4px solid #555;
-  background: #FFFFFF;
-  border-radius: 4px;
+  font-size: var(--moe-fs-500);
+  font-weight: 600;
+  margin: 1.1em 0 1.25em;
+  padding: .7em .95em;
+  border-left: 4px solid var(--moe-fg);
+  background: var(--moe-surface);
+  border-radius: var(--moe-radius-sm);
+  box-shadow: var(--moe-shadow);
 }
 
-/* --- 4. 答案頁內文排版 (.moe-answer-wrap) --- */
+/* ------ 4) 內容排版 ------ */
 
-.moe-aiqna-answer .moe-answer-wrap p {
-  margin: 0 0 1em;
-}
+.moe-aiqna-answer .moe-answer-wrap p { margin: 0 0 1em; }
 
 .moe-aiqna-answer .moe-answer-wrap ul,
 .moe-aiqna-answer .moe-answer-wrap ol {
   margin: .5em 0 1em 1.25em;
 }
 
-/* 程式碼區塊 */
+.moe-aiqna-answer .moe-answer-wrap li { margin: .25em 0; }
+
 .moe-aiqna-answer .moe-answer-wrap pre {
-  padding: .75em 1em;
-  background: #fafafa;
-  border-radius: 6px;
+  padding: .85em 1em;
+  background: color-mix(in srgb, var(--moe-fg) 6%, transparent);
+  border-radius: var(--moe-radius-sm);
   overflow: auto;
+  font-family: var(--moe-mono);
+  font-size: var(--moe-fs-300);
 }
 
-/* 程式碼文字 */
 .moe-aiqna-answer .moe-answer-wrap code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: var(--moe-mono);
+  font-size: 95%;
+  background: color-mix(in srgb, var(--moe-fg) 6%, transparent);
+  padding: .1em .35em;
+  border-radius: 4px;
 }
 
-/* --- 5. 關閉按鈕 --- */
+/* 打字游標（若有啟用） */
+.moe-typing-cursor {
+  display: inline-block;
+  width: 1px;
+  height: 1.1em;
+  background: var(--moe-fg-muted);
+  margin-left: 2px;
+  vertical-align: baseline;
+  animation: moe-blink 1s step-end infinite;
+}
+@keyframes moe-blink { 50% { background: transparent; } }
+@media (prefers-reduced-motion: reduce) {
+  .moe-typing-cursor { animation: none; }
+}
 
-/* 關閉按鈕容器 (置中在最下方) */
+/* ------ 5) 關閉區域與免責 ------ */
+
 .moe-aiqna-answer .moe-close-area {
-  margin-top: 20px;
+  margin-top: 22px;
   text-align: center;
 }
 
-/* 關閉按鈕樣式 */
 .moe-aiqna-answer .moe-close-btn {
   display: inline-block;
-  padding: .45em .9em;
-  border: none !important;
-  outline: none !important;
-  border-radius: 6px;
+  padding: .5em 1em;
+  border: 1px solid var(--moe-border) !important;
+  border-radius: var(--moe-radius-sm);
   text-decoration: none;
-  background: #f5f5f5;
-  color: #333;
-  transition: background .2s, transform .05s ease-in-out;
+  background: var(--moe-surface);
+  color: var(--moe-fg);
+  transition: background .2s, transform .06s ease-in-out, box-shadow .2s, border-color .2s;
+  outline: none !important;
+  box-shadow: var(--moe-shadow);
 }
 
 .moe-aiqna-answer .moe-close-btn:hover {
-  background: #e7e7e7;
+  background: color-mix(in srgb, var(--moe-accent) 6%, var(--moe-surface));
+  border-color: color-mix(in srgb, var(--moe-accent) 25%, var(--moe-border));
 }
 
-.moe-aiqna-answer .moe-close-btn:active {
-  transform: scale(0.98);
+.moe-aiqna-answer .moe-close-btn:active { transform: translateY(1px); }
+
+.moe-aiqna-answer .moe-close-btn:focus-visible {
+  box-shadow: 0 0 0 3px var(--moe-accent-muted);
+  border-color: var(--moe-accent);
 }
 
-.moe-aiqna-answer .moe-close-btn:focus,
-.moe-aiqna-answer .moe-close-btn:active {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-/* 關閉失敗備援文字 */
 .moe-aiqna-answer .moe-fallback {
   display: none;
   margin-top: 8px;
-  font-size: 13px;
-  color: #666;
+  font-size: var(--moe-fs-100);
+  color: var(--moe-fg-muted);
+}
+
+.moe-aiqna-answer .moe-disclaimer {
+  margin-top: 16px;
+  font-size: var(--moe-fs-200);
+  color: var(--moe-fg-muted);
+  line-height: 1.65;
+}
+
+/* ------ 6) 小螢幕優化 ------ */
+@media (max-width: 420px) {
+  .moe-aiqna-answer .moe-question     { font-size: 1.05rem; }
+  .moe-aiqna-answer .moe-question-echo{ font-size: 1rem; }
+  .moe-aiqna-answer .moe-close-btn    { width: 100%; }
+}
+
+/* ------ 7) 列印樣式（只印內容，隱藏按鈕） ------ */
+@media print {
+  .moe-aiqna-answer .moe-close-area,
+  .moe-aiqna-answer .moe-fallback { display: none !important; }
+  body.moe-aiqna-answer {
+    background: #fff;
+    color: #000;
+    font-size: 12pt;
+    line-height: 1.6;
+  }
+  .moe-aiqna-answer .moe-container { box-shadow: none; padding: 0; margin: 0; }
 }
