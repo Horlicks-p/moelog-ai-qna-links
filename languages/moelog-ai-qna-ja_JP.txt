@@ -1,0 +1,185 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Moelog AI Q&A Links 1.2.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-06 00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ja_JP\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: moelog-ai-qna\n"
+
+#: admin
+msgid "設定"
+msgstr "設定"
+
+msgid "Moelog AI Q&A 需 WordPress 5.0 或以上版本。"
+msgstr "Moelog AI Q&A は WordPress 5.0 以降が必要です。"
+
+msgid "Moelog AI Q&A 尚未設定 API Key，請至「設定 → Moelog AI Q&A」完成設定。"
+msgstr "Moelog AI Q&A の API キーが設定されていません。「設定 → Moelog AI Q&A」で設定してください。"
+
+msgid "一般設定"
+msgstr "一般設定"
+
+msgid "AI 供應商"
+msgstr "AI プロバイダー"
+
+msgid "OpenAI"
+msgstr "OpenAI"
+
+msgid "API Key"
+msgstr "API キー"
+
+msgid "已使用 wp-config.php 設定 MOELOG_AIQNA_API_KEY。若要改用此處，請先移除常數定義。"
+msgstr "wp-config.php で MOELOG_AIQNA_API_KEY が定義されています。ここで設定するには定数を削除してください。"
+
+msgid "如已設定，出於安全僅顯示遮罩；要更換請直接輸入新 Key。"
+msgstr "安全のため保存済みキーはマスク表示です。変更する場合は新しいキーを入力してください。"
+
+msgid "建議改用 wp-config.php 定義 MOELOG_AIQNA_API_KEY。"
+msgstr "wp-config.php に MOELOG_AIQNA_API_KEY を定義する方法を推奨します。"
+
+msgid "模型（OpenAI）"
+msgstr "モデル (OpenAI)"
+
+msgid "Temperature"
+msgstr "温度 (Temperature)"
+
+msgid "是否附上文章內容給 AI"
+msgstr "記事本文を AI に送信する"
+
+msgid "啟用（可提升貼文脈絡）"
+msgstr "有効 (文脈精度が向上します)"
+
+msgid "文章內容截斷長度（字元）"
+msgstr "本文の最大文字数"
+
+msgid "System Prompt（可選）"
+msgstr "システムプロンプト (任意)"
+
+msgid "你是嚴謹的專業編輯，提供簡潔準確的答案。"
+msgstr "あなたはプロで専門的な編集者として、簡潔で正確な回答を提供します。"
+
+msgid "問題清單抬頭（前台）"
+msgstr "質問リストの見出し (記事ページ)"
+
+msgid "會顯示在問題清單上方的標題。可輸入任意語言。"
+msgstr "質問リスト上部に表示されるタイトルです。任意の言語で入力できます。"
+
+msgid "回答頁免責聲明"
+msgstr "回答ページの免責事項"
+
+msgid "支援 {site} 代表網站名稱，亦相容舊式 %s。可多行。"
+msgstr "{site} でサイト名を挿入可能です。旧式 %s にも対応。複数行可。"
+
+msgid "Moelog AI Q&A"
+msgstr "Moelog AI Q&A"
+
+msgid "使用說明："
+msgstr "使い方："
+
+msgid "在「設定 → Moelog AI Q&A」填入 API Key / 模型等。"
+msgstr "「設定 → Moelog AI Q&A」で API キーやモデルを入力します。"
+
+msgid "編輯文章時，於右側/下方的「AI 問題清單」每行輸入一題並選擇語言（可選自動）。"
+msgstr "投稿編集画面の「AI 質問リスト」に1行1質問で入力し、言語を選択します（自動可）。"
+
+msgid "前台文章底部會顯示問題列表（抬頭可自訂）。點擊後開新分頁顯示 AI 答案與免責聲明（可自訂）。"
+msgstr "投稿の下部に質問リストが表示されます（見出しと免責文は設定で変更可）。クリックすると別タブで AI 回答を表示します。"
+
+msgid "或使用短碼 [moelog_aiqna] 手動插入問題清單。"
+msgstr "ショートコード [moelog_aiqna] で手動挿入も可能です。"
+
+msgid "AI 問題清單（每行一題；會顯示在文章底部）"
+msgstr "AI 質問リスト (1行に1質問 – 記事の下に表示)"
+
+msgid "例：為何科技新創偏好使用「.io」？"
+msgstr "例：なぜテック系スタートアップは “.io” を好むのか？"
+
+msgid "自動偵測"
+msgstr "自動判定"
+
+msgid "繁體中文"
+msgstr "繁体字中国語"
+
+msgid "日文"
+msgstr "日本語"
+
+msgid "英文"
+msgstr "英語"
+
+msgid "提示：每行一題，建議 3–8 題，每題最多 200 字。語言選擇「自動偵測」時，AI 會根據問題文字判斷語言。"
+msgstr "ヒント：3〜8 問推奨、各質問は 200 文字以内。自動判定時は質問内容から言語を判断します。"
+
+msgid "新增問題"
+msgstr "質問を追加"
+
+msgid "參數錯誤或連結已失效。"
+msgstr "パラメータが不正、またはリンクが無効です。"
+
+msgid "錯誤"
+msgstr "エラー"
+
+msgid "連結驗證失敗或已過期。"
+msgstr "リンクの検証に失敗、または期限切れです。"
+
+msgid "連結已過期，請回原文重新點擊問題。"
+msgstr "リンクの有効期限が切れました。元の記事から再度クリックしてください。"
+
+msgid "簽章檢核失敗。"
+msgstr "署名の検証に失敗しました。"
+
+msgid "找不到文章。"
+msgstr "記事が見つかりません。"
+
+msgid "AI 解答"
+msgstr "AI 回答"
+
+msgid "抱歉，目前無法取得 AI 回答，請稍後再試。"
+msgstr "申し訳ありません。AI の回答を取得できませんでした。後ほどお試しください。"
+
+msgid "← 關閉此頁"
+msgstr "← このページを閉じる"
+
+msgid "若瀏覽器不允許自動關閉視窗，請點此回到文章："
+msgstr "自動で閉じられない場合は、こちらをクリックして記事に戻ってください："
+
+msgid "尚未設定 API Key。"
+msgstr "API キーが設定されていません。"
+
+msgid "呼叫 OpenAI 失敗，請稍後再試。"
+msgstr "OpenAI へのリクエストに失敗しました。後でもう一度お試しください。"
+
+msgid "API Key 無效，請檢查設定。"
+msgstr "API キーが無効です。設定を確認してください。"
+
+msgid "API 信用已用盡或過期，請檢查 OpenAI 帳戶並添加信用。"
+msgstr "API クレジットが上限に達するか期限切れです。OpenAI アカウントをご確認ください。"
+
+msgid "請求過於頻繁，請稍候再試。"
+msgstr "リクエストが多すぎます。しばらくしてからお試しください。"
+
+msgid "OpenAI 回傳異常，請稍後再試。"
+msgstr "OpenAI から異常な応答がありました。後ほど再試行してください。"
+
+msgid "以下為原文脈絡（可能已截斷）：\n%s\n\n"
+msgstr "以下は元記事の文脈です（省略されている場合があります）：\n%s\n\n"
+
+msgid "請盡量簡潔作答；涉及數據與時序請給年份/日期。原文連結：%s"
+msgstr "できるだけ簡潔に回答し、データや時系列には年・日付を明記してください。元記事：%s"
+
+msgid "Have more questions? Ask the AI below."
+msgstr "他に気になることがありますか？下の AI に聞いてみましょう。"
+
+msgid ""
+"本頁面由AI生成，可能會發生錯誤，請查核重要資訊。\n"
+"使用本AI生成內容服務即表示您同意此內容僅供個人參考，且您了解輸出內容可能不準確。\n"
+"所有爭議內容{site}保有最終解釋權。"
+msgstr ""
+"このページは AI によって自動生成されています。誤りを含む場合がありますので重要事項は必ずご確認ください。\n"
+"本サービスを利用することで、内容が参考目的であり、必ずしも正確でない可能性があることに同意したものとみなされます。\n"
+"すべての解釈権は {site} に帰属します。"
