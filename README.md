@@ -131,7 +131,7 @@ Adds typing effect, bot blocking, and a built-in disclaimer on the answer page w
 
 == Credits ==
 
-Developed by ChatGPT,Gmini Grok and Horlicks
+Developed by **ChatGPT,Gmini Grok and Horlicks**
 Blog: https://www.moelog.com/
 
 == License ==
