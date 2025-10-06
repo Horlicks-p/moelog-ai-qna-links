@@ -9,14 +9,14 @@
 *Stable tag: 1.1.0
 *License: GPLv2 or later
 *License URI: https://www.gnu.org/licenses/gpl-2.0.html
+// 這是 Plugin Header 區塊的結束，簡介文字應該放在這裡，並且可以斷行。
 
 Display your own pre-set AI question list under each post, open answers in a new tab, and let OpenAI generate contextual replies automatically. Simple, secure, and fast.
 
 == Description ==
 
-**Moelog AI Q&A Links** is a lightweight plugin that allows authors to predefine questions for each post.  
+**Moelog AI Q&A Links** is a lightweight plugin that allows authors to predefine questions for each post.
 At the bottom of each article, readers can click a question to open a new page where an AI (powered by OpenAI API) generates a contextual answer.
-
 - 🧠 Supports OpenAI models (e.g., `gpt-4o-mini`, `gpt-4-turbo`, etc.)
 - 🗝️ Secure API key management (supports `wp-config.php` constant)
 - 🧩 Works with both posts and pages
