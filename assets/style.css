@@ -57,7 +57,7 @@ body.moe-aiqna-answer {
   margin: 24px auto;
   max-width: 820px;
   color: #222;
-  background: #f8f6f0; /* 確保背景為白色 */
+  background: #ffffff; /* 背景 */
   font-size: 18px; /* 最終採用 18px */
   line-height: 1.85; /* 最終採用 1.85 */
 }
