@@ -1,7 +1,7 @@
 === Moelog AI Q&A Links ===
 Contributors: horlicks
-Author link: https://www.moelog.com/
-Tags: openai, ai, chatbot, q&a, gpt, openai api, moelog, disclaimer
+Donate link: https://www.moelog.com/
+Tags: openai, ai, chatbot, q&a, gpt, openai api, moelog, disclaimer, translation
 Requires at least: 5.0
 Tested up to: 6.6
 Requires PHP: 7.4
@@ -83,7 +83,7 @@ Additionally, requests must pass nonce/timestamp/HMAC checks; invalid/expired li
 = Can I change the typewriter speed? =
 Yes. The speed defaults to 18ms per character. You can adjust the inline JS constant (`SPEED = 18`) on the answer page template.
 
-= Can I customize the question list heading (<h3>)? =
+= Can I customize the question list heading? =
 Yes. From **1.2.0**, go to **Settings → Moelog AI Q&A → Question List Heading** and enter your text (any language).
 Developers may also override via the `moelog_aiqna_list_heading` filter.
 
@@ -109,7 +109,7 @@ When you uninstall the plugin, all related options, postmeta, and cached transie
 = 1.2.0 =
 * New: Customizable question list heading (`<h3>`) in Settings (`list_heading`), filterable via `moelog_aiqna_list_heading`.
 * New: Customizable answer-page disclaimer in Settings (`disclaimer_text`), supports `{site}` placeholder and legacy `%s`, filterable via `moelog_aiqna_disclaimer_text`.
-* Docs: Updated readme and screenshots to reflect 1.2.0 features.
+* Docs: Added translation section and updated readme.
 
 = 1.1.0 =
 * New: Typewriter (progressive typing) effect on the answer page.
@@ -145,6 +145,15 @@ When you uninstall the plugin, all related options, postmeta, and cached transie
 = 1.2.0 =
 Adds customizable `<h3>` heading and a fully editable disclaimer (with `{site}` placeholder) via Settings.  
 Also exposes developer filters `moelog_aiqna_list_heading` and `moelog_aiqna_disclaimer_text`. Recommended upgrade.
+
+== Translation & Language Packs ==
+
+**Moelog AI Q&A Links** currently provides two base translation files:  
+`moelog-ai-qna.txt` (default) , `moelog-ai-qna-en_US.txt` (English) and `moelog-ai-qna-ja_JP.txt` (Japanese) .
+
+If you are familiar with creating `.po` / `.mo` language packs, your help is very welcome!  
+You can convert these text sources into proper WordPress language files and share them back with the community.  
+
 == Credits ==
 
 Developed by **ChatGPT,Gmini,Grok and Horlicks**
