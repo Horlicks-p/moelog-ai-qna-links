@@ -25,7 +25,7 @@ At the bottom of each article, readers can click a question to open a new page w
 * 🔐 Triple-layer protection (Nonce + Timestamp + HMAC)
 * ⌨️ Typewriter effect on the answer page (progressively reveals sanitized AI output)
 * 🤖 User-Agent bot blocking to avoid unwanted crawler-triggered API calls
-* 📝 **New in 1.2.0: Customizable question list heading (<h3>) via Settings**
+* 📝 **New in 1.2.0: Customizable question list heading (h3) via Settings**
 * 📜 **New in 1.2.0: Customizable disclaimer on the answer page** (supports `{site}` placeholder; `%s` backward-compatible)
 
 Built with strict WordPress coding standards and complete security in mind — ready for production and WordPress.org submission.
