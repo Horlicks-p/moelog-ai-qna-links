@@ -1,14 +1,14 @@
 === Moelog AI Q&A Links ===
 
--Contributors: horlicks
--Author link: https://www.moelog.com/
--Tags: openai, ai, chatbot, q&a, gpt, openai api,
--Requires at least: 5.0
--Tested up to: 6.6
--Requires PHP: 7.4
--Stable tag: 1.1.0
--License: GPLv2 or later
--License URI: https://www.gnu.org/licenses/gpl-2.0.html
+*Contributors: horlicks
+*Author link: https://www.moelog.com/
+*Tags: openai, ai, chatbot, q&a, gpt, openai api,
+*Requires at least: 5.0
+*Tested up to: 6.6
+*Requires PHP: 7.4
+*Stable tag: 1.1.0
+*License: GPLv2 or later
+*License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Display your own pre-set AI question list under each post, open answers in a new tab, and let OpenAI generate contextual replies automatically. Simple, secure, and fast.
 
