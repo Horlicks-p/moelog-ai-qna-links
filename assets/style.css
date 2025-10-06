@@ -1,0 +1,164 @@
+/* ===================================================
+   Moelog AI Q&A – Consolidated CSS
+   命名空間說明：
+   - 文章內清單：.moe-aiqna-block
+   - 答案頁：body.moe-aiqna-answer 下所有樣式
+   =================================================== */
+
+/* --- 1. 文章內「問題清單」區塊 (.moe-aiqna-block) --- */
+
+.moe-aiqna-block {
+  margin: -0.2em 0 1.2em 0;
+  padding: 0.5em;
+  border: 0px solid rgba(0, 0, 0, .08);
+  border-radius: 6px;
+  background: #fff;
+}
+
+
+.moe-aiqna-block h3 {
+  margin: 0 0 .6em;
+  font-size: 1.3rem;
+  line-height: 1.4;
+  font-family: "Noto Sans TC", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  
+
+.moe-aiqna-block ul {
+  list-style: none;
+  margin: 0.1em 0 0 0.8em;
+  padding: 0;
+}
+
+.moe-aiqna-block li {
+  margin: .3em 0;
+}
+
+.moe-aiqna-block .moe-aiqna-link {
+  display: inline-block;             
+  text-decoration: none;
+  color: #1d8ac3;
+  padding-left: 16px;                
+  line-height: 1.6em;                 
+}
+.moe-aiqna-block .moe-aiqna-link:hover {
+  color: #6D6D6D;
+}
+
+/* --- 2. 答案頁 (body.moe-aiqna-answer) - 全域設定與排版 --- */
+
+/* 答案頁基礎樣式：字型、字體大小、行高、背景 */
+body.moe-aiqna-answer,
+body.moe-aiqna-answer * {
+font-family: "Noto Sans TC", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body.moe-aiqna-answer {
+  /* 整體排版設定 */
+  margin: 24px auto;
+  max-width: 820px;
+  color: #222;
+  background: #f8f6f0; /* 確保背景為白色 */
+  font-size: 18px; /* 最終採用 18px */
+  line-height: 1.85; /* 最終採用 1.85 */
+}
+
+/* 置中容器 (包含左右留白) */
+.moe-aiqna-answer .moe-container {
+  max-width: 820px;
+  margin: 24px auto;
+  padding: 0 16px; /* 兩側留白，避免小螢幕貼邊 */
+}
+
+/* --- 3. 答案頁標題與提問重現 --- */
+
+/* 標頭 (頁首，只留標題) */
+.moe-aiqna-answer .moe-head {
+  border-bottom: none; /* 移除頁首下方的細線 */
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+/* 提問標題 */
+.moe-aiqna-answer .moe-question {
+  font-size: 22px; /* 稍大一點 */
+  margin: 8px 0;
+}
+
+/* 再現提問區塊 (引述樣式) */
+.moe-aiqna-answer .moe-question-echo {
+  font-size: 20px;
+  font-weight: 500;
+  margin-top: 1.2em;
+  margin-bottom: 1.2em;
+  padding: .6em .9em;
+  border-left: 4px solid #555;
+  background: #FFFFFF;
+  border-radius: 4px;
+}
+
+/* --- 4. 答案頁內文排版 (.moe-answer-wrap) --- */
+
+.moe-aiqna-answer .moe-answer-wrap p {
+  margin: 0 0 1em;
+}
+
+.moe-aiqna-answer .moe-answer-wrap ul,
+.moe-aiqna-answer .moe-answer-wrap ol {
+  margin: .5em 0 1em 1.25em;
+}
+
+/* 程式碼區塊 */
+.moe-aiqna-answer .moe-answer-wrap pre {
+  padding: .75em 1em;
+  background: #fafafa;
+  border-radius: 6px;
+  overflow: auto;
+}
+
+/* 程式碼文字 */
+.moe-aiqna-answer .moe-answer-wrap code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* --- 5. 關閉按鈕 --- */
+
+/* 關閉按鈕容器 (置中在最下方) */
+.moe-aiqna-answer .moe-close-area {
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* 關閉按鈕樣式 */
+.moe-aiqna-answer .moe-close-btn {
+  display: inline-block;
+  padding: .45em .9em;
+  border: none !important;
+  outline: none !important;
+  border-radius: 6px;
+  text-decoration: none;
+  background: #f5f5f5;
+  color: #333;
+  transition: background .2s, transform .05s ease-in-out;
+}
+
+.moe-aiqna-answer .moe-close-btn:hover {
+  background: #e7e7e7;
+}
+
+.moe-aiqna-answer .moe-close-btn:active {
+  transform: scale(0.98);
+}
+
+.moe-aiqna-answer .moe-close-btn:focus,
+.moe-aiqna-answer .moe-close-btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 關閉失敗備援文字 */
+.moe-aiqna-answer .moe-fallback {
+  display: none;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #666;
+}
