@@ -157,6 +157,7 @@ You can convert these text sources into proper WordPress language files and shar
 == Credits ==
 
 Developed by **ChatGPT,Gmini,Grok and Horlicks**
+
 Blog: https://www.moelog.com/
 
 == License ==
