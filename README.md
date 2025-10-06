@@ -1,11 +1,11 @@
 === Moelog AI Q&A Links ===
-Contributors: Horlicks
+Contributors: horlicks
 Author link: https://www.moelog.com/
-Tags: openai, ai, chatbot, q&a, gpt, openai api
+Tags: openai, ai, chatbot, q&a, gpt, openai api, moelog, disclaimer
 Requires at least: 5.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,12 +23,13 @@ At the bottom of each article, readers can click a question to open a new page w
 - ⚡ Built-in caching and rate limiting
 - 🧱 Safe HTML rendering (no XSS risk)
 - 🔐 Triple-layer protection (Nonce + Timestamp + HMAC)
-- ⌨️ **New in 1.1.0: Typewriter effect on the answer page** (progressively reveals the sanitized AI output)
-- 🤖 **New in 1.1.0: User-Agent bot blocking** to avoid unwanted crawler-triggered API calls
-- 📜 **New in 1.1.0: Optional disclaimer block** shown below the close button
+- ⌨️ Typewriter effect on the answer page (progressively reveals sanitized AI output)
+- 🤖 User-Agent bot blocking to avoid unwanted crawler-triggered API calls
+- 📝 **New in 1.2.0: Customizable question list heading (`<h3>`) via Settings**
+- 📜 **New in 1.2.0: Customizable disclaimer on the answer page (supports `{site}` placeholder; `%s` backward-compatible)**
 
 Built with strict WordPress coding standards and complete security in mind —  
-ready for production and even WordPress.org submission.
+ready for production and WordPress.org submission.
 
 == Features ==
 
@@ -41,7 +42,7 @@ ready for production and even WordPress.org submission.
 * Strict HTML sanitization for AI output
 * **Typewriter display** for the answer page (adjustable speed)
 * **Bot blocking** for common crawlers (Googlebot/Bingbot/etc.) to protect API usage
-* **Inline legal disclaimer** beneath the “Close this page” button
+* **Customizable heading (`<h3>`) and disclaimer text** via Settings
 * Full uninstall cleanup (options, postmeta, transient)
 * Compatible with multilingual content
 
@@ -76,11 +77,20 @@ Each visitor’s IP is limited to 10 requests per hour, and each unique question
 Cached answers are reused to save your OpenAI API quota.
 
 = Will search engine crawlers trigger API calls? =
-The answer page is marked `noindex,nofollow`, and from 1.1.0 we block common bots via User-Agent on the answer route.  
+The answer page is marked `noindex,nofollow`, and we block common bots via User-Agent on the answer route.  
 Additionally, requests must pass nonce/timestamp/HMAC checks; invalid/expired links are rejected before any API call.
 
 = Can I change the typewriter speed? =
-Yes. In 1.1.0, the speed defaults to 18ms per character. You can adjust the constant in the inline JS (`SPEED = 18`).
+Yes. The speed defaults to 18ms per character. You can adjust the inline JS constant (`SPEED = 18`) on the answer page template.
+
+= Can I customize the question list heading (<h3>)? =
+Yes. From **1.2.0**, go to **Settings → Moelog AI Q&A → Question List Heading** and enter your text (any language).
+Developers may also override via the `moelog_aiqna_list_heading` filter.
+
+= Can I customize the disclaimer text on the answer page? =
+Yes. From **1.2.0**, go to **Settings → Moelog AI Q&A → Disclaimer** and edit the text.  
+It supports the `{site}` placeholder (replaced with your site name) and is backward-compatible with `%s`.  
+Developers may also filter the final text via `moelog_aiqna_disclaimer_text`.
 
 = How do I completely remove all data? =
 When you uninstall the plugin, all related options, postmeta, and cached transients are automatically deleted.
@@ -91,9 +101,15 @@ When you uninstall the plugin, all related options, postmeta, and cached transie
 2. Post Editor Metabox (AI Question List)
 3. Front-end Display of Question List
 4. AI Answer Page with Typewriter Effect & Close Button
-5. Inline Disclaimer under the Close Button
+5. Customizable Disclaimer under the Close Button
+6. New in 1.2.0: Customizable `<h3>` heading via Settings
 
 == Changelog ==
+
+= 1.2.0 =
+* New: Customizable question list heading (`<h3>`) in Settings (`list_heading`), filterable via `moelog_aiqna_list_heading`.
+* New: Customizable answer-page disclaimer in Settings (`disclaimer_text`), supports `{site}` placeholder and legacy `%s`, filterable via `moelog_aiqna_disclaimer_text`.
+* Docs: Updated readme and screenshots to reflect 1.2.0 features.
 
 = 1.1.0 =
 * New: Typewriter (progressive typing) effect on the answer page.
@@ -126,9 +142,9 @@ When you uninstall the plugin, all related options, postmeta, and cached transie
 
 == Upgrade Notice ==
 
-= 1.1.0 =
-Adds typing effect, bot blocking, and a built-in disclaimer on the answer page while keeping all security protections. Recommended upgrade.
-
+= 1.2.0 =
+Adds customizable `<h3>` heading and a fully editable disclaimer (with `{site}` placeholder) via Settings.  
+Also exposes developer filters `moelog_aiqna_list_heading` and `moelog_aiqna_disclaimer_text`. Recommended upgrade.
 == Credits ==
 
 Developed by **ChatGPT,Gmini,Grok and Horlicks**
