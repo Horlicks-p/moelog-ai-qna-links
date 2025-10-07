@@ -1,5 +1,5 @@
 === Moelog AI Q&A Links ===  
-Contributors: horlicks  
+Contributors: Horlicks  
 Author link: https://www.moelog.com/  
 Tags: AI, OpenAI, Gemini, ChatGPT, Q&A, GPT, AI Answer  
 Requires at least: 5.0  
