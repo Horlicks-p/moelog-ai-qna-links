@@ -1,167 +1,127 @@
-=== Moelog AI Q&A Links ===
-Contributors: horlicks
-Tags: openai, ai, chatbot, q&a, gpt, openai api,
-Requires at least: 5.0
-Tested up to: 6.6
-Requires PHP: 7.4
-Stable tag: 1.2.0
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
+=== Moelog AI Q&A Links ===  
+Contributors: horlicks  
+Author link: https://www.moelog.com/  
+Tags: AI, OpenAI, Gemini, ChatGPT, Q&A, GPT, AI Answer  
+Requires at least: 5.0  
+Tested up to: 6.7  
+Requires PHP: 7.4  
+Stable tag: 1.4.3a  
+License: GPLv2 or later  
+License URI: https://www.gnu.org/licenses/gpl-2.0.html  
 
-Display your own pre-set AI question list under each post, open answers in a new tab, and let OpenAI generate contextual replies automatically. Simple, secure, and fast.
+== Description ==  
 
-== Description ==
+Moelog AI Q&A Links is a WordPress plugin that enhances your posts and pages by appending a customizable list of questions at the bottom of each article.  
+When users click on these questions, a new tab opens with AI-generated answers powered by **OpenAI** or **Google Gemini**.  
+The plugin allows customization of AI models, prompts, and languages, making it versatile for multilingual content.  
 
-**Moelog AI Q&A Links** is a lightweight plugin that allows authors to predefine questions for each post.
+== Key Features ==  
 
-At the bottom of each article, readers can click a question to open a new page where an AI (powered by OpenAI API) generates a contextual answer.
+- **Dynamic Question Lists:** Add a list of questions to posts or pages via a metabox in the WordPress editor.  
+  Each question is displayed at the article's bottom, with customizable headings.  
 
-* 🧠 Supports OpenAI models (e.g., `gpt-4o-mini`, `gpt-4-turbo`, etc.)
-* 🗝️ Secure API key management (supports `wp-config.php` constant)
-* 🧩 Works with both posts and pages
-* 🌏 Multilingual support (auto-detects Chinese / Japanese / English)
-* ⚡ Built-in caching and rate limiting
-* 🧱 Safe HTML rendering (no XSS risk)
-* 🔐 Triple-layer protection (Nonce + Timestamp + HMAC)
-* ⌨️ Typewriter effect on the answer page (progressively reveals sanitized AI output)
-* 🤖 User-Agent bot blocking to avoid unwanted crawler-triggered API calls
-* 📝 **New in 1.2.0: Customizable question list heading `<h3>` via Settings**
-* 📜 **New in 1.2.0: Customizable disclaimer on the answer page** (supports `{site}` placeholder; `%s` backward-compatible)
+- **AI-Powered Answers:** Supports OpenAI (default: `gpt-4o-mini`) and Google Gemini (default: `gemini-2.5-flash`) for generating answers.  
+  Users can specify models and adjust parameters like temperature.  
 
-Built with strict WordPress coding standards and complete security in mind — ready for production and WordPress.org submission.
+- **Multilingual Support:** Questions can be set to auto-detect language or manually specified (English, Chinese, or Japanese),  
+  ensuring accurate AI responses in the desired language.  
 
-== Features ==
+- **Customizable Prompts:** Define system prompts to tailor AI behavior, ensuring concise and professional answers.  
 
-* Add AI question list per post (metabox editor)
-* Auto append or manually insert via `[moelog_aiqna]` shortcode
-* Each question opens in a new secure tab for AI-generated answer
-* Per-site secret key + nonce + timestamp verification
-* Automatic caching to reduce API calls
-* IP-based rate limiting and per-question cooldown control
-* Strict HTML sanitization for AI output
-* **Typewriter display** for the answer page (adjustable speed)
-* **Bot blocking** for common crawlers (Googlebot/Bingbot/etc.) to protect API usage
-* **Customizable heading and disclaimer text** via Settings
-* Full uninstall cleanup (options, postmeta, transient)
-* Compatible with multilingual content
+- **Content Context:** Optionally include post content (up to a configurable character limit) as context for more relevant AI answers.  
 
-== Installation ==
+- **Shortcode Support:** Use `[moelog_aiqna]` to manually insert question lists anywhere in your content.  
 
-1. Upload `moelog-ai-qna-links` to your `/wp-content/plugins/` directory, or install directly via the WordPress Plugin Directory.
-2. Activate the plugin through **Plugins → Installed Plugins**.
-3. Go to **Settings → Moelog AI Q&A** and enter your OpenAI API Key and model name.
-4. When editing a post, scroll down to **AI 問題清單 (AI Question List)** and add your questions (one per line).
-5. Save and view your post — questions will appear below your article.
+- **Pretty URLs:** Generates clean, readable URLs for answer pages (e.g., `/ai-answer/question-slug-postid/`).  
 
-Optional:
+- **Caching:** Answers are cached for **12 hours** to reduce API calls and improve performance.  
 
-* Add `define('MOELOG_AIQNA_API_KEY', 'sk-xxxxxx');` in `wp-config.php` for higher security.
-* Use `[moelog_aiqna]` shortcode to manually insert question list anywhere.
+- **Customizable Disclaimer:** Display a customizable disclaimer on answer pages, supporting placeholders like `{site}` for the site name.  
 
-== Frequently Asked Questions ==
+== Installation ==  
 
-= Does it require an OpenAI API key? =
-Yes. You can create one at https://platform.openai.com/.
-The plugin allows entering it in Settings, or securely defining it in `wp-config.php`.
+1. Upload the `moelog-ai-qna` folder to the `/wp-content/plugins/` directory.  
+2. Activate the plugin through the **Plugins** menu in WordPress.  
+3. Go to **Settings → Moelog AI Q&A** to configure the API key, AI provider, model, and other options.  
+4. In the post or page editor, use the **AI Questions** metabox to add questions (one per line, up to 8 questions, 200 characters each).  
+5. Optionally, insert the `[moelog_aiqna]` shortcode in your content to display the question list manually.  
 
-= Is it safe to expose AI answers to visitors? =
-Yes. All outputs are strictly sanitized using `wp_kses()` with a minimal whitelist to avoid XSS. Links and potentially risky tags/attributes are removed.
+== Configuration ==  
 
-= Can I include the post content as context? =
-Yes. There is an option “Include post content to AI” in Settings.
-It sends a truncated (default 6000 characters) plain-text version of the article to improve contextual accuracy.
+- **API Key:** Enter your OpenAI or Google Gemini API key on the settings page,  
+  or define `MOELOG_AIQNA_API_KEY` in `wp-config.php` for enhanced security.  
+- **AI Provider:** Choose between OpenAI or Google Gemini.  
+- **Model:** Specify the AI model (e.g., `gpt-4o-mini` or `gemini-2.5-flash`).  
+- **Temperature:** Adjust the creativity of AI responses (0–2, default: 0.3).  
+- **Include Post Content:** Send post content as context (default: 6000 characters, configurable).  
+- **System Prompt:** Customize the AI’s tone or role (e.g., “You are a professional editor providing concise and accurate answers.”).  
+- **List Heading:** Customize the title displayed above the question list.  
+- **Disclaimer Text:** Customize the disclaimer shown on answer pages, supporting `{site}` or `%s` placeholders.  
 
-= How does rate limiting work? =
-Each visitor’s IP is limited to 10 requests per hour, and each unique question has a 60-second cooldown.
-Cached answers are reused to save your OpenAI API quota.
+== Usage ==  
 
-= Will search engine crawlers trigger API calls? =
-The answer page is marked `noindex,nofollow`, and we block common bots via User-Agent on the answer route.
-Additionally, requests must pass nonce/timestamp/HMAC checks; invalid/expired links are rejected before any API call.
+1. **Add Questions:** In the post/page editor, use the **AI Questions** metabox to input questions and select their language (auto, zh, ja, en).  
+2. **View Questions:** Questions appear at the bottom of posts/pages or where the `[moelog_aiqna]` shortcode is used.  
+3. **Access Answers:** Clicking a question opens a new tab with the AI-generated answer, styled with a typing animation and disclaimer.  
+4. **Close Answer Page:** Users can close the answer page using a “← Close this page” button,  
+   with fallback navigation to the original post if the browser blocks window.close().  
 
-= Can I change the typewriter speed? =
-Yes. The speed defaults to 18ms per character. You can adjust the inline JS constant (`SPEED = 18`) on the answer page template.
+== Security Features ==  
 
-= Can I customize the question list heading? =
-Yes. From 1.2.0, go to **Settings → Moelog AI Q&A → Question List Heading** and enter your text (any language). Developers may also override via the `moelog_aiqna_list_heading` filter.
+Moelog AI Q&A Links prioritizes security to protect your site and users:  
 
-= Can I customize the disclaimer text on the answer page? =
-Yes. From 1.2.0, go to **Settings → Moelog AI Q&A → Disclaimer** and edit the text.
-It supports the `{site}` placeholder (replaced with your site name) and is backward-compatible with `%s`.
-Developers may also filter the final text via `moelog_aiqna_disclaimer_text`.
+- **HMAC-Based Token Validation:** Uses HMAC-SHA256 with a per-site secret key to secure question URLs.  
+- **Nonce Protection:** Implements CSP nonces to mitigate XSS risks.  
+- **Input Sanitization:** Sanitizes all user inputs using WordPress functions (`sanitize_text_field`, `wp_kses_post`, etc.).  
+- **Rate Limiting:** Restricts API requests per IP (10/hour) and per question (1 every 60 seconds).  
+- **Bot Blocking:** Blocks known crawlers (e.g., Googlebot, Bingbot) from loading answer pages.  
+- **Referrer Policy:** Sets `strict-origin-when-cross-origin` to prevent sensitive data leakage.  
+- **Safe HTML Output:** Filters AI answers through `wp_kses` with a strict whitelist.  
+- **Secure API Key Storage:** Supports defining API keys in `wp-config.php`; masks saved keys in the admin panel.  
+- **Pretty URL Compatibility:** Backward compatible with older 6-character salted slugs.  
+- **Cache Security:** Uses transient-based caching with hashed keys to prevent cache poisoning.  
+- **Uninstallation Cleanup:** Removes all plugin data, post meta, and transients on uninstall.  
 
-= How do I completely remove all data? =
-When you uninstall the plugin, all related options, postmeta, and cached transients are automatically deleted.
+== Frequently Asked Questions ==  
 
-== Screenshots ==
+**Q: How do I get an API key?**  
+A: Obtain a key from [OpenAI](https://platform.openai.com) or [Google Gemini](https://cloud.google.com/gemini).  
+Enter it on the settings page or define it in `wp-config.php`.  
 
-1. Admin Settings Page (API Key, Model, Temperature)
-2. Post Editor Metabox (AI Question List)
-3. Front-end Display of Question List
-4. AI Answer Page with Typewriter Effect & Close Button
-5. Customizable Disclaimer under the Close Button
-6. New in 1.2.0: Customizable `<h3>` heading via Settings
+**Q: Can I use both OpenAI and Gemini?**  
+A: Yes, but only one provider can be active at a time. You can switch anytime in the settings.  
 
-== Changelog ==
+**Q: Why are my questions not showing?**  
+A: Ensure you’ve added questions in the metabox and that the post is published.  
+If using the shortcode, verify it’s correctly placed in the content.  
 
-= 1.2.0 =
-* New: Customizable question list heading `<h3>` in Settings (list_heading), filterable via `moelog_aiqna_list_heading`.
-* New: Customizable answer-page disclaimer in Settings (disclaimer_text), supports `{site}` placeholder and legacy `%s`, filterable via `moelog_aiqna_disclaimer_text`.
-* Docs: Added translation section and updated readme.
+**Q: How secure is this plugin?**  
+A: The plugin uses HMAC validation, CSP nonces, sanitization, and rate limiting.  
+For maximum security, define your API key in `wp-config.php`.  
 
-= 1.1.0 =
-* New: Typewriter (progressive typing) effect on the answer page.
-* New: Bot blocking by User-Agent on the answer route to reduce unwanted API triggers.
-* New: Inline legal disclaimer below the close button.
-* Security kept intact: strict sanitization, nonce + timestamp + HMAC, caching → cooldown → IP limit, uninstall cleanup.
+== Changelog ==  
 
-= 1.0.8 =
-* Security enhancements:
-    * Fixed SHA-256 regex length to `{64}`
-    * Replaced `wp_generate_password()` with `random_bytes()` for per-site secret
-    * Unified cache key passing between render and API call
-    * Added transient cleanup in uninstall()
-* Achieved 10/10 security audit score
+= 1.4.3a – 2025-10-07 =  
+* Fixed Pretty URL token validation for stateless question restoration.  
+* Enhanced slug compatibility for 6- and 8-character salts.  
+* Improved close-page behavior under strict CSP policies.  
+* Added `window.open()` handling for better browser compatibility.  
+* Optimized caching logic (12-hour default) for faster response and reduced API usage.  
+* Improved overall input sanitization and fallback navigation.  
 
-= 1.0.7 =
-* Added per-site secret HMAC signing
-* Strengthened Nonce + Timestamp + Signature validation
-* Improved cache & rate-limit logic (cache priority)
-* Masked API key display in admin
-* Removed `<a>`, `<code>`, `<pre>` from AI output whitelist
+= 1.4.3 – 2025-10-06 =  
+* Introduced AI answer caching (24 hours, now reduced to 12 hours).  
+* Added CSP Nonce and Referrer Policy.  
+* Updated slug salt from 6 to 8 characters for improved uniqueness.  
 
-= 1.0.6 =
-* Fixed frequency logic to prioritize cache
-* Added IP-based rate limit and per-question cooldown
-* Added error handling for expired nonce or invalid parameters
+= 1.3.2 – 2025-10-05 =  
+* Added Gemini provider support alongside OpenAI.  
+* Introduced customizable list headings and disclaimer text.  
+* Enhanced settings UI and multilingual support.  
 
-= 1.0.5 =
-* Initial public release
+== Author ==  
 
-== Upgrade Notice ==
+**Horlicks**  
+Website: [https://www.moelog.com]
 
-= 1.2.0 =
-Adds customizable `<h3>` heading and a fully editable disclaimer (with `{site}` placeholder) via Settings.
-Also exposes developer filters `moelog_aiqna_list_heading` and `moelog_aiqna_disclaimer_text`. Recommended upgrade.
-
-== Translation & Language Packs ==
-
-**Moelog AI Q&A Links** currently provides three base translation files:
-* `moelog-ai-qna.txt` (default)
-* `moelog-ai-qna-en_US.txt` (English)
-* `moelog-ai-qna-ja_JP.txt` (Japanese)
-
-If you are familiar with creating **`.po` / `.mo` language packs**, your help is very welcome!
-You can convert these text sources into proper WordPress language files and share them back with the community.
-
-== Credits ==
-
-Developed by **Horlicks**
-
-Blog: https://www.moelog.com/
-
-== License ==
-
-This plugin is open-source and distributed under the GPL v2 or later.
-
-Copyright © 2025 Horlicks (moelog.com)
+This plugin is licensed under the GPL v2 or later.  
