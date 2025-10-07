@@ -458,7 +458,7 @@ public function questions_metabox_html($post) {
         }
 
         return sprintf(
-            '<p class="ask_chatgpt" title="%s"></p><div class="moe-aiqna-block"><ul>%s</ul></div>',
+             '<div class="moe-aiqna-block"><h3>%s</h3><ul>%s</ul></div>',
             esc_html($heading),
             $items
         );
