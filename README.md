@@ -24,7 +24,6 @@ You can customize the model, prompt, and language, making it flexible for multil
 - ✅ Built-in rate limit & content cache  
 - ✅ Optional context (include post content in AI query)  
 - ✅ Customizable disclaimer text on answer pages  
-- ✅ URL shortening & backward compatibility (1.3.2 / 1.4.3)  
 - ✅ Full CSP (Content Security Policy) for answer pages  
 - ✅ Cloudflare / proxy compatible IP detection  
 
