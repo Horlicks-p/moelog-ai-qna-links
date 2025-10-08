@@ -57,6 +57,13 @@ In the settings page, modify “回答頁免責聲明”. You can use `{site}` o
 = What about the new short URL format? =  
 Since v1.5.0, all generated URLs are extremely compact (e.g. `/qna/ic-a7-3239`), and remain backward compatible with older `/ai-answer/` links.
 
+= What does the “Temperature” setting do? = 
+
+The “Temperature” value controls how creative or deterministic the AI’s answers will be.
+A lower value (e.g. 0.2–0.3) makes the AI give more focused and consistent answers, suitable for factual or technical topics.
+A higher value (e.g. 0.7–1.0) increases creativity and randomness, which may be useful for brainstorming or open-ended questions.
+For most blog-related Q&A use cases, a setting around 0.3 is recommended.
+
 == Changelog ==
 
 = 1.5.1 =
