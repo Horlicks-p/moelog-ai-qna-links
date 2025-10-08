@@ -32,7 +32,7 @@ You can customize the model, prompt, and language, making it flexible for multil
 1. Upload the plugin folder to `/wp-content/plugins/`  
 2. Activate it from **Plugins → Installed Plugins**  
 3. Go to **Settings → Moelog AI Q&A** and configure your API key and model  
-4. Edit a post and add your Q&A list under “AI 問題清單” meta box (one question per line)  
+4. Edit a post and add your Q&A list under “AI question list” meta box (one question per line)  
 5. The question list will automatically appear at the bottom of each post  
 6. (Optional) Use the `[moelog_aiqna]` shortcode to display it manually  
 
