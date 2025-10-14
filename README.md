@@ -1,4 +1,4 @@
-=== Moelog AI Q&A Links ===
+=== Moelog AI Q&A Links Wordprss plugin===
 Contributors: Horlicks
 Author link: https://www.moelog.com/
 Tags: AI, OpenAI, Gemini, ChatGPT, Q&A, GPT, AI Answer, SEO, Schema, GEO
