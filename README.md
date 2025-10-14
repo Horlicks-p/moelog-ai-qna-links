@@ -118,10 +118,6 @@ GEO (Generative Engine Optimization) helps AI search engines like Google SGE and
 = Where can I find the AI Q&A Sitemap? =
 - Sitemap is not available right now
 
-Submit this URL to:
-- Google Search Console: Search Console → Sitemaps → Add new sitemap
-- Bing Webmaster Tools: Configure My Site → Sitemaps → Submit Sitemap
-
 = How do I clear cached AI answers? =
 Go to Settings → Moelog AI Q&A → Cache Management section.
 
