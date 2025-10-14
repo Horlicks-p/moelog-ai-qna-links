@@ -54,7 +54,6 @@ Generative Engine Optimization (GEO) makes your AI-generated Q&A content more di
 2. Scroll to "GEO (Generative Engine Optimization)" section
 3. Check "Enable structured data, SEO optimization & AI Sitemap"
 4. Go to Settings → Permalinks and click "Save Changes" to refresh rewrite rules
-5. Submit your AI Q&A Sitemap (`/ai-qa-sitemap.xml`) to Google Search Console & Bing Webmaster Tools
 
 == Installation ==
 
