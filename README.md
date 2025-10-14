@@ -11,7 +11,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 == Description ==
 
-This plugin appends a customizable list of AI Q&A links to each post or page.
+This Wordpress plugin appends a customizable list of AI Q&A links to each post or page.
 When a user clicks a question, a new tab opens with an AI-generated answer powered by OpenAI or Gemini.
 You can customize the model, prompt, and language, making it flexible for multilingual sites.
 
