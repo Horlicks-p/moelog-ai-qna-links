@@ -1,17 +1,17 @@
-=== Moelog AI Q&A Links Wordprss plugin===
+=== Moelog AI Q&A Links ===
 Contributors: Horlicks
 Author link: https://www.moelog.com/
-Tags: AI, OpenAI, Gemini, ChatGPT, Q&A, GPT, AI Answer, SEO, Schema, GEO, Wordpress
+Tags: AI, OpenAI, Gemini, ChatGPT, Q&A, GPT, AI Answer, SEO, Schema, GEO
 Requires at least: 5.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.6.2
+Stable tag: 1.6.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 == Description ==
 
-This Wordpress plugin appends a customizable list of AI Q&A links to each post or page.
+This plugin appends a customizable list of AI Q&A links to each post or page.
 When a user clicks a question, a new tab opens with an AI-generated answer powered by OpenAI or Gemini.
 You can customize the model, prompt, and language, making it flexible for multilingual sites.
 
@@ -21,18 +21,18 @@ You can customize the model, prompt, and language, making it flexible for multil
 
 === Key Features ===
 
-✅ Append interactive Q&A list to posts/pages.
-✅ **NEW: Flexible shortcodes** - Insert entire list or individual questions.
-✅ Supports OpenAI & Google Gemini models.
-✅ Customizable system prompt & model settings.
-✅ Multilingual question support (auto / zh / ja / en).
-✅ Built-in rate limit & content cache.
-✅ Optional context (include post content in AI query).
-✅ Customizable disclaimer text on answer pages.
-✅ Full CSP (Content Security Policy) for answer pages.
-✅ Cloudflare / proxy compatible IP detection.
-✅ **GEO Module** - Optimize AI answers for generative search engines.
-✅ **Cache Management** - Clear AI answer cache from admin panel.
+✅ Append interactive Q&A list to posts/pages
+✅ **NEW: Flexible shortcodes** - Insert entire list or individual questions
+✅ Supports OpenAI & Google Gemini models
+✅ Customizable system prompt & model settings
+✅ Multilingual question support (auto / zh / ja / en)
+✅ Built-in rate limit & content cache
+✅ Optional context (include post content in AI query)
+✅ Customizable disclaimer text on answer pages
+✅ Full CSP (Content Security Policy) for answer pages
+✅ Cloudflare / proxy compatible IP detection
+✅ **GEO Module** - Optimize AI answers for generative search engines
+✅ **Cache Management** - Clear AI answer cache from admin panel
 
 === 🚀 GEO Module Features (v1.6.0+) ===
 
@@ -46,6 +46,7 @@ Generative Engine Optimization (GEO) makes your AI-generated Q&A content more di
 ✓ **Breadcrumb navigation** structured data
 ✓ **Removes noindex** restriction - allows search engines to index AI answers
 ✓ **Optimized caching** (24-hour public cache with stale-while-revalidate)
+✓ **AI Q&A Sitemap** - dedicated XML sitemap for all your AI answers
 ✓ **Auto-ping Google & Bing** when new content is published
 ✓ **Major search bot allowlist** - ensures Google/Bing crawlers can access your content
 
@@ -54,6 +55,7 @@ Generative Engine Optimization (GEO) makes your AI-generated Q&A content more di
 2. Scroll to "GEO (Generative Engine Optimization)" section
 3. Check "Enable structured data, SEO optimization & AI Sitemap"
 4. Go to Settings → Permalinks and click "Save Changes" to refresh rewrite rules
+5. Submit your AI Q&A Sitemap (`/ai-qa-sitemap.php`) to Google Search Console & Bing Webmaster Tools
 
 == Installation ==
 
@@ -116,7 +118,12 @@ GEO (Generative Engine Optimization) helps AI search engines like Google SGE and
 - You prefer traditional SEO without structured data
 
 = Where can I find the AI Q&A Sitemap? =
-- Sitemap is not available right now
+After enabling GEO mode, your sitemap is available at:
+`https://yoursite.com/ai-qa-sitemap.php`
+
+Submit this URL to:
+- Google Search Console: Search Console → Sitemaps → Add new sitemap
+- Bing Webmaster Tools: Configure My Site → Sitemaps → Submit Sitemap
 
 = How do I clear cached AI answers? =
 Go to Settings → Moelog AI Q&A → Cache Management section.
@@ -216,6 +223,7 @@ which has minimal impact on page load time. The 24-hour cache actually improves 
 * Schema.org QAPage structured data for each AI answer
 * Open Graph & Twitter Card meta tags
 * Breadcrumb navigation structured data
+* Dedicated AI Q&A Sitemap (`/ai-qa-sitemap.xml`)
 * Auto-ping Google & Bing when new content is published
 * Allowlist for major search engine bots
 * Optimized HTTP headers for public caching (24h CDN cache)
@@ -270,6 +278,7 @@ get discovered by Google SGE, Bing Copilot, and other AI search engines.
 **After upgrading:**
 1. Go to Settings → Permalinks and click "Save Changes"
 2. (Optional) Enable GEO mode in Settings → Moelog AI Q&A
+3. Submit `/ai-qa-sitemap.xml` to search engines
 
 Fully backward compatible with 1.5.x URLs.
 
