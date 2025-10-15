@@ -325,7 +325,7 @@ Cached answers are stored in WordPress transients (database) for 24 hours.
 
 For bug reports, feature requests, or questions:
 - Visit: https://www.moelog.com/
-- GitHub: https://github.com/Horlicks/moelog-ai-qna-links
+- GitHub: [https://github.com/Horlicks/moelog-ai-qna-links](https://github.com/Horlicks-p/moelog-ai-qna-links)
 
 == License ==
 
