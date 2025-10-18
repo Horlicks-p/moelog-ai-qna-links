@@ -21,6 +21,7 @@ Moelog AI Q&A Links 能在文章或頁面底部自動加入互動式的「AI 問
 
 ✨ 主要特色
 
+
 ✅ 自動在文章底部加入 AI 問答清單
 ✅ 支援 [moelog_aiqna index="N"] 短碼，個別插入單一問題
 ✅ 同時支援 OpenAI 與 Gemini 模型
@@ -35,6 +36,7 @@ Moelog AI Q&A Links 能在文章或頁面底部自動加入互動式的「AI 問
 ✅ 完整符合 CSP（Content Security Policy） 安全規範
 ✅ 模組化架構（Core / Router / Renderer / Cache / Admin / Assets / Pregenerate）
 ✅ 相容 Cloudflare / Proxy 架構的 IP 偵測
+
 
 ⚙️ 結構化資料模式
 
@@ -89,28 +91,6 @@ Robots 轉為 index,follow,max-snippet:-1,max-image-preview:large,max-video-prev
 啟用時自動刷新 rewrite 規則
 支援全語系內容（UTF-8）
 
-📦 主要檔案架構
-
-moelog-ai-qna/
-├─ moelog-ai-qna.php          ← 主啟動檔
-├─ moelog-ai-geo.php          ← 結構化資料模組 (Structured Data Mode)
-├─ includes/
-│  ├─ class-core.php          ← 核心控制器
-│  ├─ class-router.php        ← URL 路由與 rewrite rules
-│  ├─ class-renderer.php      ← 前端輸出
-│  ├─ class-ai-client.php     ← AI API 呼叫
-│  ├─ class-cache.php         ← 快取管理
-│  ├─ class-admin.php         ← 後台設定頁
-│  ├─ class-metabox.php       ← 文章問題欄位
-│  ├─ class-assets.php        ← CSS/JS 載入
-│  ├─ class-pregenerate.php   ← 背景預生成任務
-│  ├─ helpers-utils.php       ← 工具函式
-│  └─ helpers-template.php    ← 模板輔助函式（可選）
-├─ templates/
-│  └─ answer-page.php         ← 回答頁模板
-└─ assets/
-   ├─ css/style.css
-   └─ js/typing.js
    
 🔐 安全性
 
@@ -147,7 +127,6 @@ Sitemap 改為 .php 結尾，避免外掛衝突
 
 本外掛採用 GPL v2 或更新版本授權。
 您可自由修改或重新發布。
-
 © 2025 Horlicks / moelog.com
 
 🧭 支援與回報
