@@ -1,4 +1,5 @@
 === Moelog AI Q&A Links ===
+
 Contributors: horlicks  
 Author URI: https://www.moelog.com/  
 Tags: AI, OpenAI, Gemini, ChatGPT, Q&A, GPT, AI Answer, SEO, Schema, GEO, WordPress Plugin  
