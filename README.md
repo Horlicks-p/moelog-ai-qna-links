@@ -44,7 +44,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 - 將主程式拆分為 10 個獨立模組（位於 `/includes/`）  
 - 新增核心協調類別 `Moelog_AIQnA_Core` 統一管理所有掛鉤  
 - 短碼邏輯更乾淨，自動偵測重複避免輸出兩次  
-- 新增工具組與模板輔助函式（`helpers-utils.php`, `helpers-template.php`）  
+- 新增工具組與模板輔助函式（`helpers-utils.php`）  
 - 所有 JS / CSS 改為外部載入，無內嵌 script，完全相容 CSP  
 - 全新 `typing.js` 打字動畫（自動初始化、無需 inline）  
 
