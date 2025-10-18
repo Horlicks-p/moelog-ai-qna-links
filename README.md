@@ -51,7 +51,8 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 **效能與穩定性：**
 - 啟動速度提升約 45%  
 - 後台載入查詢減少 30%  
-- 相容 Slim SEO、All in One SEO、Jetpack  
+- 設計上可與主要 SEO 外掛（Slim SEO、All in One SEO、Jetpack）共存，
+  並自動防止在 AI 回答頁重複輸出 Open Graph 與 meta 標籤。 
 - 自動偵測永久連結變更，重建 rewrite rules  
 
 **GEO 模組升級：**
