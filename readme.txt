@@ -107,7 +107,7 @@ moelog-ai-qna/
 │  ├─ class-pregenerate.php       → Background pregeneration tasks
 │  ├─ helpers-utils.php           → Utility functions
 │  └─ helpers-template.php        → Template helpers (optional)
-├─ templates/answer-page.php      → Frontend answer layout
+│  └─templates/answer-page.php      → Frontend answer layout
 └─ assets/
    ├─ css/style.css
    └─ js/typing.js
@@ -157,3 +157,4 @@ You may redistribute or modify it under the same license terms.
 For bug reports or feature requests:
 Website: https://www.moelog.com/
 GitHub: https://github.com/Horlicks-p/moelog-ai-qna-links
+
