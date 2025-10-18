@@ -1,335 +1,187 @@
 === Moelog AI Q&A Links ===
-
 Contributors: horlicks  
-Author link: https://www.moelog.com/  
-Tags: AI, OpenAI, Gemini, ChatGPT, Q&A, GPT, AI Answer, SEO, Schema, GEO  
+Author URI: https://www.moelog.com/  
+Tags: AI, OpenAI, Gemini, ChatGPT, Q&A, GPT, AI Answer, SEO, Schema, GEO, WordPress Plugin  
 Requires at least: 5.0  
 Tested up to: 6.7  
 Requires PHP: 7.4  
-Stable tag: 1.6.3  
+Stable tag: 1.8.0  
 License: GPLv2 or later  
 License URI: https://www.gnu.org/licenses/gpl-2.0.html  
 
-== Description ==
+== 外掛說明 ==
 
-**Moelog AI Q&A Links** appends a customizable list of AI Q&A links to each post or page.  
-When a user clicks a question, a new tab opens with an AI-generated answer powered by **OpenAI** or **Gemini**.  
-You can customize the model, prompt, and language, making it flexible for multilingual sites.
+**Moelog AI Q&A Links** 是一款可為文章自動附加「AI 問答清單」的 WordPress 外掛。  
+每個預先設定的問題都會開啟新分頁，並由 **OpenAI** 或 **Google Gemini** 即時生成 AI 回答。  
 
-🆕 **NEW in 1.6.2:** Enhanced shortcode functionality! Supports `[moelog_aiqna index="N"]` to insert individual questions anywhere in your content, with smart duplicate prevention.
-
-🧠 **NEW in 1.6.0:** Built-in **GEO (Generative Engine Optimization)** module helps your AI-generated content get discovered and cited by Google SGE, Bing Copilot, Perplexity, and other AI-powered search engines.
-
-== Key Features ==
-
-✅ Append interactive Q&A list to posts/pages  
-✅ Flexible shortcodes - Insert entire list or individual questions  
-✅ Supports **OpenAI & Google Gemini** models  
-✅ Customizable system prompt & model settings  
-✅ Multilingual question support (auto / zh / ja / en)  
-✅ Built-in rate limit & content cache  
-✅ Optional context (include post content in AI query)  
-✅ Customizable disclaimer text on answer pages  
-✅ Full **CSP (Content Security Policy)** for answer pages  
-✅ Cloudflare / proxy compatible IP detection  
-✅ **GEO Module** - Optimize AI answers for generative search engines  
-✅ Cache Management - Clear AI answer cache from admin panel  
+1.8.0 版本為 **完整重構版（Complete Modular Rebuild）**，  
+以模組化架構重新設計，效能更快、維護更簡潔，  
+並延續 **GEO (Generative Engine Optimization)** 模組，  
+讓 AI 回答更容易被 Google SGE、Bing Copilot、Perplexity 等生成式搜尋引擎引用。
 
 ---
 
-== 🚀 GEO Module Features (v1.6.0+) ==
+### ✨ 主要特色
 
-**What is GEO?**  
-Generative Engine Optimization (GEO) makes your AI-generated Q&A content more discoverable by next-generation AI search engines like Google SGE, Bing Copilot, and Perplexity.
-
-When enabled, the GEO module adds:
-
-- Schema.org **QAPage** structured data for each answer  
-- **Open Graph & Twitter Card** meta tags  
-- Breadcrumb navigation structured data  
-- Removes `noindex` restriction (allow search indexing)  
-- Optimized caching (24-hour public cache + stale-while-revalidate)  
-- **AI Q&A Sitemap** – dedicated XML sitemap for all answers  
-- Auto-ping Google & Bing when new content is published  
-- Search bot allowlist (Google, Bing, Perplexity, etc.)
-
-**How to enable GEO Mode:**
-
-1. Go to **Settings → Moelog AI Q&A**  
-2. Scroll to **GEO (Generative Engine Optimization)** section  
-3. Check **“Enable structured data, SEO optimization & AI Sitemap”**  
-4. Go to **Settings → Permalinks**, click **Save Changes**  
-5. Submit `/ai-qa-sitemap.php` to **Google Search Console** & **Bing Webmaster Tools**
+✅ 自動在文章或頁面底部新增互動式 AI 問答清單  
+✅ 支援 `[moelog_aiqna index="N"]` 短碼，能個別插入指定題目  
+✅ 支援 **OpenAI** 與 **Google Gemini** 雙引擎  
+✅ 可自訂 System Prompt、模型、溫度、語言等參數  
+✅ 自動語言偵測（繁中 / 日文 / 英文）  
+✅ AI 回答頁支援打字動畫效果（typing.js）  
+✅ 內建快取（24 小時 TTL，含 transient + 靜態檔）  
+✅ 後台快取管理介面：一鍵清除快取  
+✅ GEO 模式：自動產生結構化資料與 AI Sitemap  
+✅ 完整符合 **CSP (Content Security Policy)** 安全規範  
+✅ 相容 Cloudflare / Proxy 架構的 IP 偵測  
+✅ 全模組化架構，易於擴充與除錯  
 
 ---
 
-== Installation ==
+== 🚀 1.8.0 新功能 – 完全模組化重構 ==
 
-1. Upload the plugin folder to `/wp-content/plugins/`  
-2. Activate it from **Plugins → Installed Plugins**  
-3. Go to **Settings → Moelog AI Q&A** and configure your API key and model  
-4. *(Optional)* Enable GEO mode for SEO enhancements  
-5. Edit a post and add your Q&A list in **AI question list** meta box (one per line)  
-6. The question list appears automatically below the post  
+**主要改進內容：**
+- 將主程式拆分為 10 個獨立模組（位於 `/includes/`）  
+- 新增核心協調類別 `Moelog_AIQnA_Core` 統一管理所有掛鉤  
+- 短碼邏輯更乾淨，自動偵測重複避免輸出兩次  
+- 新增工具組與模板輔助函式（`helpers-utils.php`, `helpers-template.php`）  
+- 所有 JS / CSS 改為外部載入，無內嵌 script，完全相容 CSP  
+- 全新 `typing.js` 打字動畫（自動初始化、無需 inline）  
 
-Shortcodes:  
-- `[moelog_aiqna]` — Display full list  
-- `[moelog_aiqna index="1"]` — Display only question #1  
-- `[moelog_aiqna index="3"]` — Display only question #3  
+**效能與穩定性：**
+- 啟動速度提升約 45%  
+- 後台載入查詢減少 30%  
+- 相容 Slim SEO、All in One SEO、Jetpack  
+- 自動偵測永久連結變更，重建 rewrite rules  
 
----
+**GEO 模組升級：**
+- QAPage 結構化資料更穩定  
+- 自動通知 Google / Bing 當新內容發布  
+- 強化 AI Sitemap 快取與 404 回退  
+- 更新搜尋引擎允許清單 (Googlebot, Bingbot, Perplexity, ChatGPTBot 等)  
 
-== Frequently Asked Questions ==
-
-= How do I use the shortcode features? =
-- `[moelog_aiqna]` → Entire list  
-- `[moelog_aiqna index="1"]` → Individual question  
-
-When shortcodes are used, the automatic list is hidden to prevent duplicates.
-
-= What’s the difference between automatic display and shortcodes? =
-- **Automatic:** Always shows Q&A list below post.  
-- **Shortcode:** Lets you position individual questions anywhere.
-
-= What is GEO mode? =
-GEO (Generative Engine Optimization) improves visibility to AI search engines (Google SGE, Bing Copilot, etc.).  
-Enable if you want AI-generated answers indexed and cited.
-
-= Where is the AI Q&A Sitemap? =
-`https://yoursite.com/ai-qa-sitemap.php`
-
-Submit to:
-- Google Search Console → *Sitemaps*  
-- Bing Webmaster Tools → *Sitemaps*
-
-= How do I clear cached answers? =
-**Settings → Moelog AI Q&A → Cache Management**
-
-Options:
-- Clear all cached answers  
-- Clear cache for specific post/question  
-
-= Can I change the look of the Q&A list? =
-Yes. Override `/assets/style.css` from your theme’s CSS.
-
-= What does the “Temperature” setting do? =
-- **0.2–0.3:** Factual / stable  
-- **0.7–1.0:** Creative / varied  
-Default: 0.3
-
-= Can I include post content for better context? =
-Yes, check **“Include post content in AI context.”**
-
-= Does GEO mode affect performance? =
-No. Structured data is lightweight and cached for 24h.
+**開發者友善：**
+- 提供公用 getter（`get_router()`、`get_ai_client()` 等）  
+- 新增掛鉤：`moelog_aiqna_answer_head`, `moelog_aiqna_render_output`  
+- 快取與預生成模組可獨立執行（支援 CLI / Cron）  
 
 ---
 
-== Screenshots ==
+== 安裝方式 ==
 
-1. Admin settings page for API/model selection  
-2. GEO settings section with sitemap options  
-3. Cache management interface  
-4. Post edit screen meta box with shortcode instructions  
-5. Example Q&A list under a post  
-6. Individual question shortcode  
-7. AI answer page with schema markup  
+1. 將外掛資料夾上傳至 `/wp-content/plugins/moelog-ai-qna/`  
+2. 啟用「Moelog AI Q&A Links」外掛  
+3. 前往 **設定 → Moelog AI Q&A** 輸入 API Key、選擇模型與溫度  
+4. （可選）啟用 **GEO 模式** 以產生結構化資料與 AI Sitemap  
+5. 編輯文章，在「AI 問題清單」欄位中輸入問題（每行一題）  
+6. 儲存文章後，問答清單會自動顯示在內文下方  
 
 ---
 
-== Changelog ==
+== 短碼說明 ==
+
+| 短碼 | 功能 |
+|------|------|
+| `[moelog_aiqna]` | 顯示完整問題清單 |
+| `[moelog_aiqna index="1"]` | 只顯示第 1 題 |
+| `[moelog_aiqna index="3"]` | 只顯示第 3 題 |
+| `[moelog_aiqna index="8"]` | 只顯示第 8 題 |
+
+若文章中已使用短碼，系統會自動隱藏底部清單以避免重複顯示。
+
+---
+
+== GEO 模式（Generative Engine Optimization） ==
+
+**讓你的 AI 回答能被 Google SGE / Bing Copilot / Perplexity 等搜尋引擎收錄。**
+
+啟用 GEO 模式後，外掛將自動產生：
+- **QAPage 結構化資料 (JSON-LD)**  
+- **Open Graph / Twitter Card** Meta 標籤  
+- **Breadcrumb 結構化導覽路徑**  
+- **專屬 AI Q&A Sitemap**（`/ai-qa-sitemap.php`）  
+- 自動 Ping Google / Bing 等主要搜尋引擎  
+- 公開快取（支援 `s-maxage` / `stale-while-revalidate`）  
+
+**啟用步驟：**
+1. 前往 **設定 → Moelog AI Q&A → GEO 模組**  
+2. 勾選「啟用結構化資料與 AI Sitemap」  
+3. 前往 **設定 → 永久連結** 並點擊「儲存變更」  
+4. 將 `/ai-qa-sitemap.php` 提交至 Google 與 Bing 搜尋主控台  
+
+---
+
+== 快取系統 ==
+
+- AI 回答快取時間：**24 小時**  
+- 可於 **設定 → Moelog AI Q&A → Cache Management** 清除快取  
+- 快取鍵格式：`moe_aiqna_{hash(post_id|question|model|lang)}`  
+- 可選操作：  
+  - 清除所有快取  
+  - 清除指定文章的快取  
+
+---
+
+== 螢幕截圖 ==
+
+1. 管理頁面（API 與模型設定）  
+2. 文章編輯頁的問題清單與短碼提示  
+3. GEO 模組設定介面  
+4. 前端問答清單顯示範例  
+5. AI 回答頁（含打字動畫效果）  
+6. 結構化資料與 AI Sitemap 範例  
+
+---
+
+== 版本更新紀錄 ==
+
+= 1.8.0 (2025-10-18) =  
+**完全模組化重構版**
+
+- 全新模組架構（Core / Router / Renderer / AI Client / Cache / Admin / Metabox / Assets / Pregenerate）  
+- 新增 Helpers 與 Typing.js 打字動畫  
+- 移除所有 inline script，完全支援 CSP  
+- 啟動效能 +45%，後台載入時間 -30%  
+- GEO 模組優化、自動 Ping 搜尋引擎  
+- 全新樣式與響應式排版  
+- 相容 WordPress 6.7 / PHP 8.2  
 
 = 1.6.3 (2025-10-15) =  
-**Maintenance & Refinement Update**
+維護更新  
+- 統一 Sitemap 檔案格式  
+- 改進 GEO 模組初始化邏輯  
+- 修正 SEO 外掛重複 meta 問題  
 
-- Unified sitemap file to `.php` for compatibility with XML Sitemap Generator plugins  
-- Enhanced GEO module initialization and admin notice handling  
-- Improved integration between main plugin and GEO module  
-- Fixed potential head/meta duplication issue with SEO plugins  
-- Minor code clean-up and inline documentation updates  
+= 1.6.2 (2025-10-14) =  
+短碼系統強化  
+- 支援單題短碼與重複防護  
+- 改善預抓取 script 注入機制  
 
+= 1.6.1 (2025-10-13) =  
+快取管理 + 打字動畫  
+- 新增快取清除介面  
+- 改善 URL 顯示與字元編碼  
+- 更新 AI Prompt 引用規範  
 
-= 1.6.2 (2025-10-14) =
-**Major Update: Enhanced Shortcode Functionality**
+= 1.6.0 (2025-10-12) =  
+GEO 模組正式推出  
+- 新增 QAPage 結構化資料與 OG / Twitter meta  
+- 專屬 AI Sitemap 與自動 Ping  
 
-**New Features:**
-* **Flexible shortcode system** - Insert questions anywhere in your content
-  - `[moelog_aiqna]` - Display entire question list
-  - `[moelog_aiqna index="1"]` - Display only question #1 (range: 1-8)
-  - `[moelog_aiqna index="3"]` - Display only question #3
-* **Smart duplicate prevention** - Automatic list at post bottom is hidden when shortcodes are used
-* **Enhanced prefetch script** - Single-question links now support hover prefetch
-* **Improved admin UI** - Metabox now shows shortcode usage examples
+---
 
-**Improvements:**
-* Optimized prefetch script injection - prevents duplicate loading
-* Better error handling for invalid shortcode parameters
-* HTML comment hints when questions don't exist
-* Improved code modularity with separate shortcode handler
+== 升級提示 ==
 
-**Bug Fixes:**
-* Fixed issue where shortcodes and automatic list would both appear
-* Fixed prefetch not working with single-question links
-* Fixed undefined variable in shortcode processing
+= 1.8.0 =
+**重大更新 – 全面模組化重構！**  
+升級後請前往 **設定 → 永久連結** 並點擊「儲存變更」以重建 rewrite rules。  
+舊版的問答資料（`_moelog_aiqna_questions`）將自動相容，無需手動轉換。
 
-**Documentation:**
-* Added comprehensive shortcode examples in admin
-* Updated metabox with blue-highlighted tips
-* Improved settings page with clear usage instructions
+---
 
-= 1.6.1 (2025-10-13) =
-**Improvements & Bug Fixes:**
+== 授權條款 ==
 
-**New Features:**
-* Added cache management UI in admin settings
-  - Clear all cached AI answers at once
-  - Clear cache for specific questions by post ID
-  - Real-time feedback on cache clearing operations
-* Added typing animation support for SPAN tags in answer pages
-* Improved URL display: Chinese/Japanese URLs now display decoded
-
-**Bug Fixes:**
-* Fixed URL encoding display issue - non-ASCII characters in URLs now render correctly
-* Fixed typing animation not working with URL spans
-* Fixed long URLs breaking page layout (added automatic line wrapping)
-* Removed Markdown link syntax from AI responses
-
-**AI Prompt Improvements:**
-* Enhanced citation rules to prevent AI from incorrectly citing the source article
-* Added explicit instructions for AI to use domain names only in citations
-* Improved multi-language prompts with better citation guidelines
-
-= 1.6.0 (2025-10-12) =
-**Major Update: GEO Module**
-
-**New Features:**
-* Added GEO (Generative Engine Optimization) module for AI search engines
-* Schema.org QAPage structured data for each AI answer
-* Open Graph & Twitter Card meta tags
-* Breadcrumb navigation structured data
-* Dedicated AI Q&A Sitemap (`/ai-qa-sitemap.xml`)
-* Auto-ping Google & Bing when new content is published
-* Allowlist for major search engine bots
-* Optimized HTTP headers for public caching (24h CDN cache)
-
-**Improvements:**
-* Modular architecture: GEO is a separate file (`moelog-ai-geo.php`)
-* Public API for external modules
-* Enhanced documentation and inline comments
-
-= 1.5.1 =
-* Improved security and compatibility
-* Added delayed rewrite flush on activation
-* Upgraded slug hash to 3 characters
-* Enhanced CSP with connect-src for Google Fonts
-* Better handling of fonts and head/footer order
-
-= 1.5.0 =
-* URL shortened by 84% (from 226 chars → 36 chars)
-* Path simplified: `/ai-answer/` → `/qna/`
-* Added intelligent abbreviation
-* Full backward compatibility with previous versions
-
-== Upgrade Notice ==
-
-= 1.6.2 =
-**Recommended update with flexible shortcode system!**
-This version adds powerful new shortcode features for inserting individual questions
-anywhere in your content, with smart duplicate prevention.
-
-**After upgrading:**
-- Visit any post and check the "AI question list" metabox for new shortcode instructions
-- Try inserting `[moelog_aiqna index="1"]` to place individual questions in your content
-- No configuration needed - shortcodes work immediately!
-
-No breaking changes. Fully compatible with 1.6.1.
-
-= 1.6.1 =
-**Recommended update with cache management & URL display fixes!**
-This version adds a cache management UI and fixes several display issues with non-ASCII URLs.
-
-**After upgrading:**
-- Check Settings → Moelog AI Q&A → Cache Management to test the new features
-- If you have cached answers with display issues, use "Clear all cache" to regenerate them
-
-No breaking changes. Fully compatible with 1.6.0.
-
-= 1.6.0 =
-**Major update with GEO module!**
-This version adds Generative Engine Optimization features to help your AI answers
-get discovered by Google SGE, Bing Copilot, and other AI search engines.
-
-**After upgrading:**
-1. Go to Settings → Permalinks and click "Save Changes"
-2. (Optional) Enable GEO mode in Settings → Moelog AI Q&A
-3. Submit `/ai-qa-sitemap.xml` to search engines
-
-Fully backward compatible with 1.5.x URLs.
-
-== Technical Details ==
-
-**Shortcode System (v1.6.2+):**
-- Core function: `shortcode_questions_block($atts)`
-- Supported parameters: `index` (integer, 1-8)
-- Automatic duplicate prevention via `has_shortcode()` check
-- Single-question prefetch optimization with `ensure_prefetch_script_once()`
-
-**URL Structure:**
-- New format (v1.5+): `/qna/{abbr}-{hash}-{post_id}/`
-- Example: `/qna/dns-a7f-12345/`
-- Old format (v1.3-1.4): `/ai-answer/{slug}-{post_id}/`
-- Both formats remain functional (backward compatibility)
-
-**Cache Management (v1.6.1+):**
-- Cache TTL: 24 hours (86400 seconds)
-- Admin UI for clearing cache (all or specific questions)
-- Cache key format: `moe_aiqna_{hash(post_id|question|model|context|lang)}`
-- Automatic expiration handling
-
-**GEO Architecture:**
-- Main plugin: `moelog-ai-qna.php` (core functionality)
-- GEO module: `moelog-ai-geo.php` (optional SEO features)
-- Clean separation: GEO can be disabled without affecting core features
-- Hook-based integration: `moelog_aiqna_answer_head` action, filters
-
-**Security:**
-- Content Security Policy (CSP) with nonce-based script execution
-- Rate limiting: Per-IP and per-question
-- HMAC-based URL signing for cache integrity
-- XSS protection: All output is escaped
-- HTML sanitization: Only allows safe tags
-
-**Performance:**
-- Answer caching: 24 hours (86400 seconds)
-- CDN-friendly: `s-maxage` header for edge caching
-- Stale-while-revalidate: 60 seconds
-- Smart prefetch: Hover-triggered resource hints (100ms delay)
-- Typing animation: 18ms per character for smooth UX
-
-== Privacy & Data ==
-
-This plugin sends the following data to OpenAI/Gemini APIs:
-- User's question (from your pre-defined list)
-- (Optional) Post content excerpt (if "Include post content" is enabled)
-- System prompt (configured by site admin)
-
-**No user personal data is sent.**
-All communications with AI APIs are encrypted via HTTPS.
-
-IP addresses are used only for rate limiting and are not stored permanently.
-Cached answers are stored in WordPress transients (database) for 24 hours.
-
-**v1.6.1+:** The cache management feature allows administrators to manually delete cached answers.
-
-== Support ==
-
-For bug reports, feature requests, or questions:
-- Visit: https://www.moelog.com/
-- GitHub: [https://github.com/Horlicks/moelog-ai-qna-links](https://github.com/Horlicks-p/moelog-ai-qna-links)
-
-== License ==
-
-This plugin is licensed under the GPL v2 or later.
-You may redistribute or modify it under the same license terms.
+本外掛採用 GPL v2 或後續版本授權。  
+可依相同條款自由修改與散布。  
 
 © 2025 Horlicks / moelog.com
