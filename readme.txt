@@ -42,7 +42,7 @@ It continues to include the optional **GEO (Generative Engine Optimization)** mo
 - Core plugin split into 10 self-contained modules under `/includes/`
 - New `Moelog_AIQnA_Core` orchestrator managing all subsystems  
 - Cleaner shortcode logic with duplicate-prevention detection  
-- Utility and template helpers (`helpers-utils.php`, `helpers-template.php`)  
+- Utility helpers (`helpers-utils.php`)  
 - All JS/CSS loaded externally — no inline scripts, full CSP compliance  
 - New `typing.js` (autonomous typing animation, zero inline code)  
 
@@ -183,4 +183,5 @@ This plugin is licensed under the GPL v2 or later.
 You may redistribute or modify it under the same license terms.  
 
 © 2025 Horlicks / moelog.com
+
 
