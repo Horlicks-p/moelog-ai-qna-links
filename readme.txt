@@ -49,7 +49,8 @@ It continues to include the optional **GEO (Generative Engine Optimization)** mo
 **Performance & stability:**
 - ~45% faster initialization time  
 - ~30% fewer database queries on admin pages  
-- Seamless integration with Slim SEO, All in One SEO, and Jetpack  
+- Designed for compatibility with major SEO plugins (Slim SEO, All in One SEO, and Jetpack).
+  Automatically prevents duplicate Open Graph and meta tags on AI answer pages.
 - Automatically refreshes rewrite rules when permalinks change  
 
 **GEO module improvements:**
@@ -182,3 +183,4 @@ This plugin is licensed under the GPL v2 or later.
 You may redistribute or modify it under the same license terms.  
 
 © 2025 Horlicks / moelog.com
+
