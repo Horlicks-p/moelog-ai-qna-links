@@ -1,189 +1,157 @@
 === Moelog AI Q&A Links ===
+作者: Horlicks  
+作者連結: https://www.moelog.com/  
+標籤: AI, OpenAI, Gemini, ChatGPT, Q&A, GPT, AI Answer, SEO, Schema, 結構化資料  
+最低需求: 5.0  
+測試版本: 6.7  
+最低 PHP 版本: 7.4  
+穩定版本: 1.8.0  
+授權條款: GPLv2 或更新版本  
+授權網址: https://www.gnu.org/licenses/gpl-2.0.html
 
-Contributors: horlicks  
-Author URI: https://www.moelog.com/  
-Tags: AI, OpenAI, Gemini, ChatGPT, Q&A, GPT, AI Answer, SEO, Schema, GEO, WordPress Plugin  
-Requires at least: 5.0  
-Tested up to: 6.7  
-Requires PHP: 7.4  
-Stable tag: 1.8.0  
-License: GPLv2 or later  
-License URI: https://www.gnu.org/licenses/gpl-2.0.html  
+🧠 外掛說明
+Moelog AI Q&A Links 能在文章或頁面底部自動加入互動式的「AI 問答清單」。
+讀者點擊問題後，將開啟新分頁顯示由 OpenAI 或 Google Gemini 即時生成的 AI 回答。
 
-== 外掛說明 ==
+回答頁具備：
+乾淨的 HTML 佈局
+打字動畫效果
+內建快取（含靜態檔案）
+可選的結構化資料模式，方便搜尋/AI 爬蟲解析
 
-**Moelog AI Q&A Links** 是一款可為文章自動附加「AI 問答清單」的 WordPress 外掛。  
-每個預先設定的問題都會開啟新分頁，並由 **OpenAI** 或 **Google Gemini** 即時生成 AI 回答。  
+✨ 主要特色
 
-1.8.0 版本為 **完整重構版（Complete Modular Rebuild）**，  
-以模組化架構重新設計，效能更快、維護更簡潔，  
-並延續 **GEO (Generative Engine Optimization)** 模組，  
-讓 AI 回答更容易被 Google SGE、Bing Copilot、Perplexity 等生成式搜尋引擎引用。
+✅ 自動在文章底部加入 AI 問答清單
+✅ 支援 [moelog_aiqna index="N"] 短碼，個別插入單一問題
+✅ 同時支援 OpenAI 與 Gemini 模型
+✅ 可自訂 System Prompt、模型、溫度與語言
+✅ 自動偵測語言（繁中 / 日文 / 英文）
+✅ AI 回答頁支援打字動畫效果
+✅ 內建快取系統（預設 24 小時 TTL，可自訂快取時間，含 transient + 靜態檔）
+✅ 後台快取管理介面：可清除全部或個別快取
+✅ 結構化資料模式（Structured Data Mode）
+　- 加入 QAPage / Breadcrumb Schema、Canonical、Robots、快取標頭
+✅ 與主要 SEO 外掛（Slim SEO / AIOSEO / Jetpack）相容，避免重複的 OG/Meta 標籤
+✅ 完整符合 CSP（Content Security Policy） 安全規範
+✅ 模組化架構（Core / Router / Renderer / Cache / Admin / Assets / Pregenerate）
+✅ 相容 Cloudflare / Proxy 架構的 IP 偵測
 
----
+⚙️ 結構化資料模式
 
-### ✨ 主要特色
+「結構化資料模式（Structured Data Mode）」可讓搜尋與 AI 爬蟲更容易正確解析 AI 問答頁面，
+但 不保證索引或排名提升。
 
-✅ 自動在文章或頁面底部新增互動式 AI 問答清單  
-✅ 支援 `[moelog_aiqna index="N"]` 短碼，能個別插入指定題目  
-✅ 支援 **OpenAI** 與 **Google Gemini** 雙引擎  
-✅ 可自訂 System Prompt、模型、溫度、語言等參數  
-✅ 自動語言偵測（繁中 / 日文 / 英文）  
-✅ AI 回答頁支援打字動畫效果（typing.js）  
-✅ 內建快取系統（預設 24 小時 TTL，可自訂快取時間，含 transient + 靜態檔）  
-✅ 後台快取管理介面：一鍵清除快取  
-✅ GEO 模式：自動產生結構化資料與 AI Sitemap  
-✅ 完整符合 **CSP (Content Security Policy)** 安全規範  
-✅ 相容 Cloudflare / Proxy 架構的 IP 偵測  
-✅ 全模組化架構，易於擴充與除錯  
+啟用後將會：
+加入 QAPage / Breadcrumb 結構化資料
+加入 Canonical（指回原文）
+Robots 轉為 index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1
+輸出 Cache-Control / Last-Modified 標頭（CDN 友善）
+生成 AI 問答 Sitemap (ai-qa-sitemap.php)，並自動 ping Google / Bing
 
----
+未啟用（預設狀態）時：
+使用 noindex,follow 以避免重複內容
+仍輸出結構化資料以供爬蟲解析
+不生成 Sitemap、不進行 ping
 
-== 🚀 1.8.0 新功能 – 完全模組化重構 ==
+🧰 安裝方式
 
-**主要改進內容：**
-- 將主程式拆分為 10 個獨立模組（位於 `/includes/`）  
-- 新增核心協調類別 `Moelog_AIQnA_Core` 統一管理所有掛鉤  
-- 短碼邏輯更乾淨，自動偵測重複避免輸出兩次  
-- 新增工具組與模板輔助函式（`helpers-utils.php`）  
-- 所有 JS / CSS 改為外部載入，無內嵌 script，完全相容 CSP  
-- 全新 `typing.js` 打字動畫（自動初始化、無需 inline）  
+將整個外掛資料夾上傳至 /wp-content/plugins/
+前往 外掛 → 已安裝的外掛 啟用
+進入 設定 → Moelog AI Q&A，設定 API Key、模型等參數
+（可選）啟用「結構化資料模式」
+編輯文章，在「AI 問題清單」欄位中每行輸入一個問題
+問題清單將自動出現在文章底部
 
-**效能與穩定性：**
-- 啟動速度提升約 45%  
-- 後台載入查詢減少 30%  
-- 設計上可與主要 SEO 外掛（Slim SEO、All in One SEO、Jetpack）共存，
-  並自動防止在 AI 回答頁重複輸出 Open Graph 與 meta 標籤。 
-- 自動偵測永久連結變更，重建 rewrite rules  
+🧩 短碼用法
 
-**GEO 模組升級：**
-- QAPage 結構化資料更穩定  
-- 自動通知 Google / Bing 當新內容發布  
-- 強化 AI Sitemap 快取與 404 回退  
-- 更新搜尋引擎允許清單 (Googlebot, Bingbot, Perplexity, ChatGPTBot 等)  
+[moelog_aiqna]	顯示完整問題清單
+[moelog_aiqna index="1"]	只顯示第 1 題
+[moelog_aiqna index="3"]	只顯示第 3 題（1–8 皆可）
 
-**開發者友善：**
-- 提供公用 getter（`get_router()`、`get_ai_client()` 等）  
-- 新增掛鉤：`moelog_aiqna_answer_head`, `moelog_aiqna_render_output`  
-- 快取與預生成模組可獨立執行（支援 CLI / Cron）  
+若文章中已使用短碼，系統會自動隱藏底部自動清單以避免重複顯示。
 
----
+🧮 快取系統
 
-== 安裝方式 ==
+預設 TTL 為 24 小時
+可在後台設定頁自訂快取時間（1～365 天）
+同時使用 WordPress transient + 靜態檔案 雙層快取
+後台提供快取清除工具
+自動輸出 CDN 友善的 Cache-Control 標頭
+支援 stale-while-revalidate 讓快取重建更平滑
 
-1. 將外掛資料夾上傳至 `/wp-content/plugins/moelog-ai-qna/`  
-2. 啟用「Moelog AI Q&A Links」外掛  
-3. 前往 **設定 → Moelog AI Q&A** 輸入 API Key、選擇模型與溫度  
-4. （可選）啟用 **GEO 模式** 以產生結構化資料與 AI Sitemap  
-5. 編輯文章，在「AI 問題清單」欄位中輸入問題（每行一題）  
-6. 儲存文章後，問答清單會自動顯示在內文下方  
+⚙️ 效能與穩定性
 
----
+啟動時間提升約 45%
+後台查詢減少約 30%
+完全模組化架構：Core / Router / Renderer / Cache / Admin / Assets / Pregenerate
+可安全與主要 SEO 外掛並存（Slim SEO / AIOSEO / Jetpack）
+自動防止重複的 Open Graph / Meta 標籤
+啟用時自動刷新 rewrite 規則
+支援全語系內容（UTF-8）
 
-== 短碼說明 ==
+📦 主要檔案架構
 
-| 短碼 | 功能 |
-|------|------|
-| `[moelog_aiqna]` | 顯示完整問題清單 |
-| `[moelog_aiqna index="1"]` | 只顯示第 1 題 |
-| `[moelog_aiqna index="3"]` | 只顯示第 3 題 |
-| `[moelog_aiqna index="8"]` | 只顯示第 8 題 |
+moelog-ai-qna/
+├─ moelog-ai-qna.php          ← 主啟動檔
+├─ moelog-ai-geo.php          ← 結構化資料模組 (Structured Data Mode)
+├─ includes/
+│  ├─ class-core.php          ← 核心控制器
+│  ├─ class-router.php        ← URL 路由與 rewrite rules
+│  ├─ class-renderer.php      ← 前端輸出
+│  ├─ class-ai-client.php     ← AI API 呼叫
+│  ├─ class-cache.php         ← 快取管理
+│  ├─ class-admin.php         ← 後台設定頁
+│  ├─ class-metabox.php       ← 文章問題欄位
+│  ├─ class-assets.php        ← CSS/JS 載入
+│  ├─ class-pregenerate.php   ← 背景預生成任務
+│  ├─ helpers-utils.php       ← 工具函式
+│  └─ helpers-template.php    ← 模板輔助函式（可選）
+├─ templates/
+│  └─ answer-page.php         ← 回答頁模板
+└─ assets/
+   ├─ css/style.css
+   └─ js/typing.js
+   
+🔐 安全性
 
-若文章中已使用短碼，系統會自動隱藏底部清單以避免重複顯示。
+具備 CSP（Content Security Policy） 與 nonce 驗證
+所有輸出皆經過 esc_html / esc_attr 過濾
+使用 HMAC 驗證快取完整性
+具備 IP 基礎的請求速率限制
+透過 HTTPS 與官方 API 通訊
+無收集任何使用者個資
+符合 GDPR 與隱私規範
 
----
+💬 隱私聲明
 
-== GEO 模式（Generative Engine Optimization） ==
+本外掛僅傳送以下資料至 AI 服務提供者（OpenAI / Gemini）：
+問題內容（由網站作者預先定義）
+（可選）文章內容（若勾選「包含文章內容」）
+系統提示詞與語言設定
+不會傳送任何訪客個資。
+所有資料皆透過 HTTPS 加密傳輸。
 
-**讓你的 AI 回答能被 Google SGE / Bing Copilot / Perplexity 等搜尋引擎收錄。**
+🧩 更新記錄
 
-啟用 GEO 模式後，外掛將自動產生：
-- **QAPage 結構化資料 (JSON-LD)**  
-- **Open Graph / Twitter Card** Meta 標籤  
-- **Breadcrumb 結構化導覽路徑**  
-- **專屬 AI Q&A Sitemap**（`/ai-qa-sitemap.php`）  
-- 自動 Ping Google / Bing 等主要搜尋引擎  
-- 公開快取（支援 `s-maxage` / `stale-while-revalidate`）  
+= 1.8.0 (2025-10-18) – 完全模組化重構 =
+全面重構架構：Core / Router / Renderer / Cache / Admin / Assets
+新增 helpers-template.php 模板輔助函式
+加入 可調整快取時間（預設 24 小時，可設 1～365 天）
+結構化資料模式 (Structured Data Mode)
+新增 Canonical 指向原文、強化 Robots 控制
+Sitemap 改為 .php 結尾，避免外掛衝突
+強化安全性與轉義處理
+更新後台 UI 與內嵌說明文字
 
-**啟用步驟：**
-1. 前往 **設定 → Moelog AI Q&A → GEO 模組**  
-2. 勾選「啟用結構化資料與 AI Sitemap」  
-3. 前往 **設定 → 永久連結** 並點擊「儲存變更」  
-4. 將 `/ai-qa-sitemap.php` 提交至 Google 與 Bing 搜尋主控台  
+🧩 授權
 
----
-
-== 快取系統 ==
-
-- AI 回答快取時間：**24 小時**  
-- 可於 **設定 → Moelog AI Q&A → Cache Management** 清除快取  
-- 快取鍵格式：`moe_aiqna_{hash(post_id|question|model|lang)}`  
-- 可選操作：  
-  - 清除所有快取  
-  - 清除指定文章的快取  
-
----
-
-== 螢幕截圖 ==
-
-1. 管理頁面（API 與模型設定）  
-2. 文章編輯頁的問題清單與短碼提示  
-3. GEO 模組設定介面  
-4. 前端問答清單顯示範例  
-5. AI 回答頁（含打字動畫效果）  
-6. 結構化資料與 AI Sitemap 範例  
-
----
-
-== 版本更新紀錄 ==
-
-= 1.8.0 (2025-10-18) =  
-**完全模組化重構版**
-
-- 全新模組架構（Core / Router / Renderer / AI Client / Cache / Admin / Metabox / Assets / Pregenerate）  
-- 新增 Helpers 與 Typing.js 打字動畫  
-- 移除所有 inline script，完全支援 CSP  
-- 啟動效能 +45%，後台載入時間 -30%  
-- GEO 模組優化、自動 Ping 搜尋引擎  
-- 全新樣式與響應式排版  
-- 相容 WordPress 6.7 / PHP 8.2  
-
-= 1.6.3 (2025-10-15) =  
-維護更新  
-- 統一 Sitemap 檔案格式  
-- 改進 GEO 模組初始化邏輯  
-- 修正 SEO 外掛重複 meta 問題  
-
-= 1.6.2 (2025-10-14) =  
-短碼系統強化  
-- 支援單題短碼與重複防護  
-- 改善預抓取 script 注入機制  
-
-= 1.6.1 (2025-10-13) =  
-快取管理 + 打字動畫  
-- 新增快取清除介面  
-- 改善 URL 顯示與字元編碼  
-- 更新 AI Prompt 引用規範  
-
-= 1.6.0 (2025-10-12) =  
-GEO 模組正式推出  
-- 新增 QAPage 結構化資料與 OG / Twitter meta  
-- 專屬 AI Sitemap 與自動 Ping  
-
----
-
-== 升級提示 ==
-
-= 1.8.0 =
-**重大更新 – 全面模組化重構！**  
-升級後請前往 **設定 → 永久連結** 並點擊「儲存變更」以重建 rewrite rules。  
-舊版的問答資料（`_moelog_aiqna_questions`）將自動相容，無需手動轉換。
-
----
-
-== 授權條款 ==
-
-本外掛採用 GPL v2 或後續版本授權。  
-可依相同條款自由修改與散布。  
+本外掛採用 GPL v2 或更新版本授權。
+您可自由修改或重新發布。
 
 © 2025 Horlicks / moelog.com
+
+🧭 支援與回報
+
+Bug 回報與建議：
+官方網站：https://www.moelog.com/
+GitHub：https://github.com/Horlicks-p/moelog-ai-qna-links
