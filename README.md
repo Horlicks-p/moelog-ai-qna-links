@@ -29,7 +29,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 ✅ 可自訂 System Prompt、模型、溫度、語言等參數  
 ✅ 自動語言偵測（繁中 / 日文 / 英文）  
 ✅ AI 回答頁支援打字動畫效果（typing.js）  
-✅ 內建快取（24 小時 TTL，含 transient + 靜態檔）  
+✅ 內建快取系統（預設 24 小時 TTL，可自訂快取時間，含 transient + 靜態檔）  
 ✅ 後台快取管理介面：一鍵清除快取  
 ✅ GEO 模式：自動產生結構化資料與 AI Sitemap  
 ✅ 完整符合 **CSP (Content Security Policy)** 安全規範  
