@@ -27,12 +27,13 @@ It continues to include the optional **GEO (Generative Engine Optimization)** mo
 ✅ Configurable system prompt, temperature, and language  
 ✅ Multilingual support (auto / zh / ja / en)  
 ✅ Animated typing effect for AI answers  
-✅ Built-in caching (24-hour TTL, transient + static file)  
+✅ Built-in caching system (24-hour default TTL, adjustable duration, transient + static file)  
 ✅ One-click cache management in admin panel  
 ✅ GEO mode for structured data and AI-optimized SEO  
 ✅ Full **CSP (Content Security Policy)** compliance  
 ✅ Cloudflare / proxy-aware IP detection  
 ✅ Modular architecture — clean, extendable, and developer-friendly  
+
 
 ---
 
@@ -183,5 +184,6 @@ This plugin is licensed under the GPL v2 or later.
 You may redistribute or modify it under the same license terms.  
 
 © 2025 Horlicks / moelog.com
+
 
 
