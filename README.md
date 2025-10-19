@@ -23,7 +23,7 @@
 
 ✅ 自動在文章底部加入 AI 問答清單  
 ✅ 支援 `[moelog_aiqna index="N"]` 短碼，個別插入單一問題  
-✅ 同時支援 **OpenAI / Gemini / Claude (Anthropic)** 三大供應商  
+✅ 同時支援 **OpenAI / Gemini / Claude (Anthropic)** 3種AI    
 ✅ 可自訂 System Prompt、模型、溫度與語言  
 ✅ 自動偵測語言（繁中 / 日文 / 英文）  
 ✅ AI 回答頁支援打字動畫效果  
