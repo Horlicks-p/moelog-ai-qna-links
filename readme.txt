@@ -1,7 +1,7 @@
 === Moelog AI Q&A Links ===
 Contributors: horlicks  
 Author URI: https://www.moelog.com/  
-Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, SEO, Schema, Structured Data, WordPress Plugin  
+Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, SEO, Schema, WordPress Plugin  
 Requires at least: 5.0  
 Tested up to: 6.7  
 Requires PHP: 7.4  
@@ -173,6 +173,7 @@ You may freely modify or redistribute it under the same terms.
 Bug reports and feature requests:  
 - Official site: https://www.moelog.com/  
 - GitHub: https://github.com/Horlicks-p/moelog-ai-qna-links
+
 
 
 
