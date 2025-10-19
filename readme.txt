@@ -1,160 +1,178 @@
 === Moelog AI Q&A Links ===
-Contributors: horlicks
-Author link: https://www.moelog.com/
-Tags: AI, OpenAI, Gemini, ChatGPT, Q&A, GPT, AI Answer, SEO, Schema, Structured Data
-Requires at least: 5.0
-Tested up to: 6.7
-Requires PHP: 7.4
-Stable tag: 1.8.0
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Contributors: horlicks  
+Author URI: https://www.moelog.com/  
+Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, SEO, Schema, Structured Data, WordPress Plugin  
+Requires at least: 5.0  
+Tested up to: 6.7  
+Requires PHP: 7.4  
+Stable tag: 1.8.1  
+License: GPLv2 or later  
+License URI: https://www.gnu.org/licenses/gpl-2.0.html  
 
-🧠 Description
+== Description ==
 
-Moelog AI Q&A Links enhances your WordPress posts by adding an interactive list of AI-powered Q&A links.
-When a visitor clicks a question, a new tab opens showing an AI-generated answer powered by OpenAI or Google Gemini.
+**Moelog AI Q&A Links** automatically adds an interactive **AI Q&A section** to the bottom of your WordPress posts or pages.  
+When a reader clicks a question, a new tab opens showing an AI-generated answer in real time from **OpenAI**, **Google Gemini**, or **Anthropic Claude**.
 
-Each answer page includes clean layout, typing animation, caching, and optional structured data for better parsing by search/AI crawlers.
+The answer page features a clean HTML layout, typewriter animation, built-in caching (with static files),  
+and an optional **Structured Data Mode** for improved parsing by search and AI crawlers.
 
-✨ Key Features
+---
 
-✅ Append customizable AI Q&A lists to posts or pages
-✅ Flexible shortcodes – insert full list or single questions anywhere ([moelog_aiqna index="N"])
-✅ Supports OpenAI and Gemini models
-✅ Configurable system prompt, temperature, and language
-✅ Multilingual support (auto / zh / ja / en)
-✅ Typing animation for dynamic answer display
-✅ Built-in caching system (default 24-hour TTL, adjustable duration, transient + static file)
-✅ Cache management interface in the admin panel
-✅ Structured Data Mode (replaces old GEO mode) – adds QAPage & Breadcrumb schema, canonical, robots, and cache headers
-✅ Designed for compatibility with major SEO plugins (Slim SEO, All in One SEO, Jetpack) – prevents duplicate OG/meta tags on AI pages
-✅ Full Content Security Policy (CSP) compliance
-✅ Modular architecture (Core, Router, Renderer, Admin, Cache, Assets, Pregenerate)
-✅ Cloudflare/proxy-aware IP detection
+### ✨ Key Features
 
-⚙️ Structured Data Mode
+✅ Automatically append an AI-powered Q&A block below posts or pages  
+✅ Shortcode `[moelog_aiqna index="N"]` for inserting individual questions  
+✅ Supports **OpenAI**, **Google Gemini**, and **Anthropic Claude**  
+✅ Configurable system prompt, model, temperature, and language  
+✅ Automatic language detection (Traditional Chinese / Japanese / English)  
+✅ Typewriter animation for AI answer pages  
+✅ Built-in caching (default 24-hour TTL, configurable 1–365 days, transient + static file)  
+✅ Admin cache management: clear all or single-post cache  
+✅ **Structured Data Mode** — adds QAPage / Breadcrumb schema, Canonical, Robots, and cache headers  
+✅ Compatible with major SEO plugins (Slim SEO / AIOSEO / Jetpack) to prevent duplicate meta tags  
+✅ Full **CSP (Content Security Policy)** compliance  
+✅ Modular architecture (Core / Router / Renderer / Cache / Admin / Assets / Pregenerate)  
+✅ Cloudflare / proxy-friendly IP detection  
 
-Structured Data Mode adds schema and meta information for search and AI crawlers to correctly understand AI answer pages.
-It does not guarantee indexing or ranking.
+---
 
-When enabled, this mode provides:
+### ⚙️ Structured Data Mode
 
-QAPage / Breadcrumb schema
-Canonical pointing back to the original post
-Robots meta: index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1
-Cache-Control and Last-Modified headers (CDN-friendly)
-AI Q&A Sitemap (ai-qa-sitemap.php) with automatic ping to Google/Bing
+The **Structured Data Mode** helps search engines and AI crawlers better interpret Q&A content —  
+though it does **not guarantee indexing or ranking improvements**.
+
+When enabled:
+- Adds **QAPage** and **Breadcrumb structured data**  
+- Adds **Canonical** tag (pointing back to the original article)  
+- Robots tag set to `index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1`  
+- Outputs **Cache-Control** and **Last-Modified** headers (CDN-friendly)  
+- Generates an AI Q&A Sitemap (`ai-qa-sitemap.php`) and automatically pings Google/Bing  
 
 When disabled (default):
-Pages use noindex,follow for safe non-indexing
-Structured data remains active for crawler parsing
-Sitemap and pinging are disabled
+- Uses `noindex,follow` to prevent duplicate content  
+- Still outputs structured data for AI crawlers  
+- Does not generate Sitemap or ping search engines  
 
-🧰 Installation
+---
 
-Upload the plugin folder to /wp-content/plugins/
-Activate it from Plugins → Installed Plugins
-Go to Settings → Moelog AI Q&A and configure your API key and model
-Optionally enable Structured Data Mode
+### 🧰 Installation
 
-Edit a post and enter your Q&A list in the “AI Question List” meta box (one per line)
+1. Upload the plugin folder to `/wp-content/plugins/`  
+2. Activate **Moelog AI Q&A Links** from the Plugins menu  
+3. Go to **Settings → Moelog AI Q&A** and enter your API key and model  
+4. *(Optional)* Enable **Structured Data Mode**  
+5. Edit a post and enter one question per line in the **AI Question List** meta box  
+6. Save — your Q&A block will appear automatically below the post  
 
-The question list automatically appears below your post
+---
 
-🧩 Shortcodes
+### 🧩 Shortcodes
 
-Shortcode	Description
-[moelog_aiqna]	Displays full Q&A list
-[moelog_aiqna index="1"]	Displays only the first question
-[moelog_aiqna index="2"]	Displays question #2, and so on (1–8)
+| Shortcode | Description |
+|------------|-------------|
+| `[moelog_aiqna]` | Display the full question list |
+| `[moelog_aiqna index="1"]` | Display only question #1 |
+| `[moelog_aiqna index="3"]` | Display only question #3 (1–8 available) |
 
-When shortcodes are used, the automatic list is hidden to prevent duplicates.
+If shortcodes are present in the post, the automatic block below the content will be hidden to prevent duplication.
 
-🧮 Cache System
+---
 
-Default TTL: 24 hours
-Adjustable via Settings → Moelog AI Q&A
-Cache includes both transient (database) and static file storage
-Admin UI lets you clear all or specific cached answers
-Cache-Control headers are automatically optimized for CDN use
-Stale-while-revalidate enabled for smooth regeneration
+### 🧮 Cache System
 
-🧩 Performance & Stability
+- Default TTL: 24 hours  
+- Customizable cache time (1–365 days)  
+- Dual-layer caching: WordPress transient + static HTML files  
+- Cache management tools in admin page  
+- Outputs CDN-friendly **Cache-Control** headers  
+- Supports **stale-while-revalidate** for smooth cache regeneration  
 
-~45% faster initialization
-~30% fewer database queries on admin pages
-Fully modular architecture (Core, Router, Renderer, Cache, Admin, Assets, Pregenerate)
-Designed for compatibility with major SEO plugins (Slim SEO, AIOSEO, Jetpack)
-Automatically prevents duplicate OG/meta tags on AI pages
-Rewrite rules auto-refresh on activation
-Full UTF-8 support (Japanese/Chinese content safe)
+---
 
-📦 Technical Overview
-Main files
+### ⚙️ Performance & Stability
 
-moelog-ai-qna/
-├─ moelog-ai-qna.php              → Main plugin loader
-├─ moelog-ai-geo.php              → Structured Data module (optional)
-├─ includes/
-│  ├─ class-core.php              → Core controller
-│  ├─ class-router.php            → URL routing & rewrite rules
-│  ├─ class-renderer.php          → HTML rendering
-│  ├─ class-ai-client.php         → AI API client
-│  ├─ class-cache.php             → Caching system
-│  ├─ class-admin.php             → Settings page
-│  ├─ class-metabox.php           → Post editor meta box
-│  ├─ class-assets.php            → Enqueue CSS/JS
-│  ├─ class-pregenerate.php       → Background pregeneration tasks
-│  ├─ helpers-utils.php           → Utility functions
-│  └─ helpers-template.php        → Template helpers (optional)
-│  └─templates/answer-page.php      → Frontend answer layout
-└─ assets/
-   ├─ css/style.css
-   └─ js/typing.js
+- ~45% faster initialization  
+- ~30% fewer database queries on admin pages  
+- Fully modular architecture: Core / Router / Renderer / Cache / Admin / Assets / Pregenerate  
+- Seamlessly compatible with major SEO plugins (Slim SEO / AIOSEO / Jetpack)  
+- Prevents duplicate Open Graph / Meta tags  
+- Auto-refresh rewrite rules on activation  
+- UTF-8 multilingual support  
 
-🔐 Security & Compliance
+---
 
-CSP (nonce-based script execution)
-HMAC-signed cache integrity
-Escaped HTML output (XSS-safe)
-IP-based rate limiting
-HTTPS enforced for API calls
-No user data collection
-GDPR-compliant: only AI query text and optional post excerpt are sent to APIs
+### 🤖 New in 1.8.1 — Anthropic Claude AI Support
 
-💬 Privacy Notice
+- Added new provider: **Anthropic Claude (claude.ai)**  
+- Choose “Anthropic (Claude)” in Settings → Provider  
+- Default model: `claude-sonnet-4-5-20250929` (Claude Sonnet 4.5)  
+- Uses official **Messages API** with top-level `system` field  
+- Unified API key handling (shared field for all providers — A-scheme)  
+- Enhanced debug logging for API errors and HTTP codes  
+- Improved model auto-correction and `max_tokens` safety (1–8192, default 1024)  
+- Refined admin “Quick Links” section with direct Claude API console link  
 
-This plugin sends the following to the AI provider (OpenAI/Gemini):
-The pre-defined question text
-Optional post content (if “Include post context” is enabled)
-System prompt and language setting
-No personal or user-submitted data is transmitted.
-All API requests use HTTPS encryption.
+---
 
-🧩 Changelog
+### 🔐 Security
 
-= 1.8.0 (2025-10-18) – Complete Modular Rebuild =
-Fully refactored architecture (Core / Router / Renderer / Cache / Admin / Assets)
+- Full **CSP (Content Security Policy)** compliance with nonce validation  
+- All outputs escaped using `esc_html` / `esc_attr`  
+- HMAC verification for cache integrity  
+- Basic IP-based rate limiting  
+- All API communication via HTTPS  
+- No user data collection — GDPR compliant  
 
-Added helpers-template.php for reusable template components
-Added adjustable cache TTL (default 24 h, customizable 1–365 days)
-Renamed “GEO Mode” → Structured Data Mode
-Added canonical tag pointing to original article
-Improved Robots handling (noindex,follow by default)
-Revised Sitemap generation (.php format, safer routing)
-Enhanced security and escaping throughout
-Updated admin UI and inline documentation
+---
 
-🧩 License
+### 💬 Privacy Notice
 
-This plugin is licensed under the GPL v2 or later.
-You may redistribute or modify it under the same license terms.
+This plugin only sends the following data to AI providers (OpenAI / Gemini / Claude):  
+- The predefined question text  
+- *(Optional)* Article content (if enabled in settings)  
+- System prompt and language preference  
 
-© 2025 Horlicks / moelog.com
+No user information is transmitted.  
+All communication is encrypted via HTTPS.  
 
-🧭 Support
+---
 
-For bug reports or feature requests:
-Website: https://www.moelog.com/
-GitHub: https://github.com/Horlicks-p/moelog-ai-qna-links
+### 🧩 Changelog
+
+= 1.8.1 (2025-10-19) – Anthropic Claude Support =  
+- Added **Anthropic Claude (claude.ai)** provider  
+- Supports Claude Sonnet 4.5 model  
+- Unified API key field (A-scheme, shared by all providers)  
+- Corrected system and messages schema per Anthropic API  
+- Added debug logs and improved error reporting  
+- Adjusted `max_tokens` (default 1024, range 1–8192)  
+- Updated admin sidebar “Quick Links” to include Claude Console  
+
+= 1.8.0 (2025-10-18) – Complete Modular Rebuild =  
+- Fully modular architecture (Core / Router / Renderer / Cache / Admin / Assets)  
+- Added helper files (`helpers-template.php`)  
+- Configurable cache TTL (1–365 days)  
+- Introduced **Structured Data Mode** (replacing old GEO system)  
+- Added Canonical and improved Robots control  
+- Converted Sitemap to `.php` extension for better compatibility  
+- Strengthened escaping and security validation  
+- Updated admin UI with contextual help  
+
+---
+
+### 🧩 License
+
+This plugin is licensed under the GPL v2 or later.  
+You may freely modify or redistribute it under the same terms.  
+© 2025 Horlicks / moelog.com  
+
+---
+
+### 🧭 Support & Feedback
+
+Bug reports and feature requests:  
+- Official site: https://www.moelog.com/  
+- GitHub: https://github.com/Horlicks-p/moelog-ai-qna-links
+
 
