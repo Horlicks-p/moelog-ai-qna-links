@@ -108,7 +108,6 @@ If shortcodes are present in the post, the automatic block below the content wil
 - Choose “Anthropic (Claude)” in Settings → Provider  
 - Default model: `claude-sonnet-4-5-20250929` (Claude Sonnet 4.5)  
 - Uses official **Messages API** with top-level `system` field  
-- Unified API key handling (shared field for all providers — A-scheme)  
 - Enhanced debug logging for API errors and HTTP codes  
 - Improved model auto-correction and `max_tokens` safety (1–8192, default 1024)  
 - Refined admin “Quick Links” section with direct Claude API console link  
@@ -174,5 +173,6 @@ You may freely modify or redistribute it under the same terms.
 Bug reports and feature requests:  
 - Official site: https://www.moelog.com/  
 - GitHub: https://github.com/Horlicks-p/moelog-ai-qna-links
+
 
 
