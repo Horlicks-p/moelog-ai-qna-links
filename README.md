@@ -15,8 +15,7 @@
 **Moelog AI Q&A Links** 能在文章或頁面底部自動加入互動式的「AI 問答清單」。  
 讀者點擊問題後，將開啟新分頁顯示由 **OpenAI**、**Google Gemini** 或 **Anthropic Claude** 即時生成的 AI 回答。  
 
-回答頁具備：乾淨的 HTML 佈局、打字動畫效果、內建快取（含靜態檔案）、可選的 **結構化資料模式（Structured Data Mode）**，  
-方便搜尋與 AI 爬蟲解析。  
+回答頁具備：乾淨的 HTML 佈局、打字動畫效果、內建快取（含靜態檔案）。可選擇結構化資料模式（Structured Data Mode)，方便搜尋與 AI 爬蟲解析。  
 
 ---
 
