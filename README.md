@@ -107,7 +107,6 @@
 - 預設模型 `claude-sonnet-4-5-20250929` (Claude Sonnet 4.5)  
 - 採用最新 Messages API 格式，完整支援 system 屬性  
 - 新增錯誤與 debug 日誌，便於診斷 HTTP 回應  
-- 統一 API Key 欄位，三家 Provider 共用（A 方案）  
 - 改善模型自動矯正與 max_tokens 安全限制（1–8192，預設 1024）  
 
 ---
