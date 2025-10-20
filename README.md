@@ -5,7 +5,7 @@
 標籤: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, SEO, Schema  
 Wordprss: 6.8.3  
 最低 PHP 版本: 7.4  
-目前版本: 1.8.2  
+目前版本: 1.8.3  
 授權條款: GPLv2 或更新版本  
 授權網址: https://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -24,15 +24,13 @@ Wordprss: 6.8.3
 
 ✅ 自動在文章底部加入 AI 問答清單  
 ✅ 支援 `[moelog_aiqna index="N"]` 短碼，可個別插入單一問題  
-✅ 同時支援 **OpenAI / Gemini / Claude (Anthropic)** 三大供應商  
+✅ 同時支援 **OpenAI / Gemini / Claude (Anthropic)** 
 ✅ 可自訂 System Prompt、模型、溫度與語言  
 ✅ 自動偵測語言（繁中 / 日文 / 英文）  
-✅ AI 回答頁支援打字動畫效果  
 ✅ 內建快取系統（預設 24 小時 TTL，可自訂 1–365 天，含 transient + 靜態檔）  
-✅ **智慧預生成機制：僅在內容變化時重新生成，節省 API tokens**  
+✅ 智慧預生成機制：僅在內容變化時重新生成，節省 API tokens
 ✅ 後台快取管理介面：可清除全部或單篇快取  
 ✅ 結構化資料模式（Structured Data Mode）：加入 QAPage / Breadcrumb Schema、Canonical、Robots、快取標頭  
-✅ 與主要 SEO 外掛（Slim SEO / AIOSEO / Jetpack）相容，避免重複 OG / Meta 標籤  
 ✅ 完整符合 CSP（Content Security Policy）安全規範  
 ✅ 模組化架構（Core / Router / Renderer / Cache / Admin / Assets / Pregenerate）  
 ✅ 相容 Cloudflare / Proxy 架構的 IP 偵測  
@@ -118,6 +116,8 @@ Wordprss: 6.8.3
 ---
 
 == 🧩 更新記錄 ==
+
+= 1.8.3 (2025-10-21) - 加密 API Key 儲存
 
 = 1.8.2 (2025-10-20) – 智慧預生成優化與錯誤修正 =  
 **新增功能：**  
