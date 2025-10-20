@@ -3,10 +3,9 @@
 作者: Horlicks  
 作者連結: https://www.moelog.com/  
 標籤: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, SEO, Schema, 結構化資料  
-最低需求: 5.0  
-測試版本: 6.7  
+Wordprss: 6.8.3  
 最低 PHP 版本: 7.4  
-穩定版本: 1.8.2  
+目前版本: 1.8.2  
 授權條款: GPLv2 或更新版本  
 授權網址: https://www.gnu.org/licenses/gpl-2.0.html  
 
