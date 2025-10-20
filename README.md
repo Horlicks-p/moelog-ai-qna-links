@@ -142,7 +142,7 @@ Wordprss: 6.8.3
 = 1.8.1 (2025-10-19) – 新增 Claude AI 支援 =  
 - 新增 Anthropic Claude (claude.ai) 供應商  
 - 支援 Claude Sonnet 4.5 模型  
-- 統一 API Key 欄位（A 方案）  
+- 統一 API Key 欄位
 - 修正 system 屬性與 messages 格式  
 - 改進 max_tokens 與錯誤回傳日誌  
 - 更新後台「快速連結」新增 Claude AI 控制台入口  
