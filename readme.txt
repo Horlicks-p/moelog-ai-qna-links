@@ -3,8 +3,7 @@
 Contributors: Horlicks  
 Author URI: https://www.moelog.com/  
 Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, SEO, Schema, Structured Data  
-Requires at least: 5.0  
-Tested up to: 6.7  
+Tested up to: 6.8.3  
 Requires PHP: 7.4  
 Stable tag: 1.8.2  
 License: GPLv2 or later  
@@ -26,7 +25,7 @@ An optional **Structured Data Mode** adds QAPage / Breadcrumb Schema and SEO-fri
 ✅ Shortcode support — `[moelog_aiqna index="N"]` to embed single questions  
 ✅ Supports **OpenAI**, **Gemini**, and **Claude (Anthropic)**  
 ✅ Customizable system prompt, model, temperature, and language  
-✅ Automatic language detection (ZH-TW / JA / EN)  
+✅ Automatic language detection (ZH-TW / JP / EN)  
 ✅ Typing animation for AI answers  
 ✅ Dual-layer cache (transient + static file)  
 ✅ Configurable TTL (1–365 days)  
@@ -170,3 +169,4 @@ Bug reports & feature requests:
 This plugin is licensed under GPLv2 or later.  
 You are free to modify and redistribute it under the same terms.  
 © 2025 Horlicks / moelog.com
+
