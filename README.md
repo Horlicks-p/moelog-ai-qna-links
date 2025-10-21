@@ -1,175 +1,175 @@
 === Moelog AI Q&A Links ===  
+Contributors: Horlicks  
+Author URI: https://www.moelog.com/  
+Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer,  Schema  
+Requires at least: 5.0  
+Tested up to: 6.8.3  
+Requires PHP: 7.4  
+Stable tag: 1.8.3  
+License: GPLv2 or later  
+License URI: https://www.gnu.org/licenses/gpl-2.0.html  
 
-作者: Horlicks  
-作者連結: https://www.moelog.com/  
-標籤: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, Schema  
-Wordprss: 6.8.3  
-最低 PHP 版本: 7.4  
-目前版本: 1.8.3  
-授權條款: GPLv2 或更新版本  
-授權網址: https://www.gnu.org/licenses/gpl-2.0.html  
+== 🧠 Description ==
 
-== 🧠 外掛說明 ==
+**Moelog AI Q&A Links** automatically adds an interactive **AI Q&A list** to the end of your posts or pages.  
+When readers click a question, a new tab opens to display an **AI-generated answer** from **OpenAI**, **Google Gemini**, or **Anthropic Claude** in real time.
 
-**Moelog AI Q&A Links** 能在文章或頁面底部自動加入互動式的「AI 問答清單」。  
-讀者點擊問題後，將開啟新分頁顯示由 **OpenAI**、**Google Gemini** 或 **Anthropic Claude** 即時生成的 AI 回答。
-
-回答頁具備：乾淨的 HTML 佈局、打字動畫效果、內建快取（含靜態檔案）、  
-以及可選的 **結構化資料模式（Structured Data Mode）**，  
-讓搜尋與 AI 爬蟲能更正確解析頁面內容。
-
----
-
-== ✨ 主要特色 ==
-
-✅ 自動在文章底部加入 AI 問答清單  
-✅ 支援 `[moelog_aiqna index="N"]` 短碼，可個別插入單一問題  
-✅ 同時支援 **OpenAI / Gemini / Claude (Anthropic)** 
-✅ 可自訂 System Prompt、模型、溫度與語言  
-✅ 自動偵測語言（繁中 / 日文 / 英文）  
-✅ 內建快取系統（預設 24 小時 TTL，可自訂 1–365 天，含 transient + 靜態檔）  
-✅ 智慧預生成機制：僅在內容變化時重新生成，節省 API tokens
-✅ 後台快取管理介面：可清除全部或單篇快取  
-✅ 結構化資料模式（Structured Data Mode）：加入 QAPage / Breadcrumb Schema、Canonical、Robots、快取標頭  
-✅ 完整符合 CSP（Content Security Policy）安全規範  
-✅ 模組化架構（Core / Router / Renderer / Cache / Admin / Assets / Pregenerate）  
-✅ 相容 Cloudflare / Proxy 架構的 IP 偵測  
+The answer page features a clean HTML layout, typing animation effects, a built-in caching system (including static files),  
+and an optional **Structured Data Mode**, which helps search engines and AI crawlers better understand the page content.
 
 ---
 
-== ⚙️ 結構化資料模式（Structured Data Mode） ==
+== ✨ Key Features ==
 
-「結構化資料模式」可讓搜尋引擎與 AI 爬蟲更容易正確解析 AI 問答頁面，但不保證索引或排名提升。
-
-啟用後將會：
-- 加入 QAPage / Breadcrumb 結構化資料  
-- 加入 Canonical（指回原文）  
-- Robots 自動設定為：`index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1`  
-- 輸出 Cache-Control / Last-Modified 標頭（CDN 友善）  
-- 生成 AI 問答 Sitemap (`ai-qa-sitemap.php`)，並自動 ping Google / Bing  
-
-未啟用（預設狀態）時：
-- 使用 `noindex,follow` 以避免重複內容  
-- 仍輸出結構化資料供爬蟲解析  
-- 不生成 Sitemap、不進行 ping  
-
----
-
-== 🧩 短碼用法 ==
-
-| 短碼 | 說明 |
-|------|------|
-| `[moelog_aiqna]` | 顯示完整問題清單 |
-| `[moelog_aiqna index="1"]` | 只顯示第 1 題 |
-| `[moelog_aiqna index="3"]` | 只顯示第 3 題（1–8 皆可） |
-
-若文章中已使用短碼，系統會自動隱藏底部自動清單以避免重複顯示。
+✅ Automatically inserts an AI Q&A section at the bottom of posts  
+✅ Supports `[moelog_aiqna index="N"]` shortcode for embedding individual questions  
+✅ Works with **OpenAI / Gemini / Claude (Anthropic)**  
+✅ Customizable system prompt, model, temperature, and language  
+✅ Automatic language detection (Traditional Chinese / Japanese / English)  
+✅ Built-in caching system (default 24h TTL, configurable from 1–365 days with transient + static files)  
+✅ Smart pregeneration: only regenerates when content changes, saving API tokens  
+✅ Admin cache manager: clear all or per-post cache  
+✅ Structured Data Mode: adds QAPage / Breadcrumb Schema, Canonical, Robots, and cache headers  
+✅ Fully compliant with **CSP (Content Security Policy)**  
+✅ Modular architecture (Core / Router / Renderer / Cache / Admin / Assets / Pregenerate)  
+✅ Compatible with Cloudflare and proxy IP environments  
 
 ---
 
-== 🧮 快取系統 ==
+== ⚙️ Structured Data Mode ==
 
-- 預設 TTL 為 24 小時  
-- 可於後台設定自訂快取時間（1–365 天）  
-- 同時使用 WordPress transient + 靜態檔案雙層快取  
-- 後台提供快取清除工具  
-- 自動輸出 CDN 友善的 Cache-Control 標頭  
-- 支援 `stale-while-revalidate` 讓快取重建更平滑  
-- 智慧預生成：使用 **內容雜湊（content hash）** 偵測變化，僅在必要時重新生成  
+Structured Data Mode helps search engines and AI crawlers better parse your AI answer pages, though it doesn’t guarantee indexing or ranking improvements.
 
----
+When enabled:
+- Adds **QAPage** and **Breadcrumb** structured data  
+- Adds a canonical link pointing to the original article  
+- Automatically sets Robots to:  
+  `index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1`  
+- Outputs **Cache-Control** and **Last-Modified** headers (CDN-friendly)  
+- Generates an **AI Q&A Sitemap** (`ai-qa-sitemap.php`) and pings Google/Bing  
 
-== ⚙️ 效能與穩定性 ==
-
-- 啟動時間提升約 45%  
-- 後台查詢減少約 30%  
-- 智慧預生成大幅降低不必要的 API 呼叫  
-- 完全模組化架構：Core / Router / Renderer / Cache / Admin / Assets / Pregenerate  
-- 可安全與主要 SEO 外掛並存（Slim SEO / AIOSEO / Jetpack）  
-- 自動防止重複的 Open Graph / Meta 標籤  
-- 啟用時自動刷新 rewrite 規則  
-- 支援多語系內容（UTF-8）  
+When disabled (default):
+- Uses `noindex,follow` to prevent duplicate content  
+- Still outputs structured data for parsing  
+- Does not generate a sitemap or send pings  
 
 ---
 
-== 🔐 安全性 ==
+== 🧩 Shortcodes ==
 
-- 具備 CSP（Content Security Policy）與 nonce 驗證  
-- 所有輸出皆經 `esc_html` / `esc_attr` 過濾  
-- 使用 HMAC 驗證快取完整性  
-- 具備 IP 基礎的請求速率限制  
-- 透過 HTTPS 與官方 API 通訊  
-- 無收集任何使用者個資  
-- 符合 GDPR 與隱私規範  
+| Shortcode | Description |
+|------------|-------------|
+| `[moelog_aiqna]` | Displays the full question list |
+| `[moelog_aiqna index="1"]` | Displays only question #1 |
+| `[moelog_aiqna index="3"]` | Displays only question #3 (1–8 supported) |
 
----
-
-== 💬 隱私聲明 ==
-
-本外掛僅傳送以下資料至 AI 服務提供者（OpenAI / Gemini / Claude）：
-- 問題內容（由網站作者預先定義）  
-- （可選）文章內容（若勾選「包含文章內容」）  
-- 系統提示詞與語言設定  
-
-不會傳送任何訪客個資。所有資料皆透過 HTTPS 加密傳輸。
+If a shortcode is used in the post, the automatic bottom Q&A list will be hidden to avoid duplication.
 
 ---
 
-== 🧩 更新記錄 ==
+== 🧮 Caching System ==
 
-= 1.8.3 (2025-10-21) - 加密 API Key 儲存  
-- 🔒新增 API 金鑰加密，增強資料安全性  
-
-= 1.8.2 (2025-10-20) – 智慧預生成優化與錯誤修正 =  
-**新增功能：**  
-- ✨ 智慧預生成機制：使用 **內容雜湊（content hash）** 偵測變化  
-- ✨ 僅在文章內容或問題清單變更時才重新生成答案，節省 API tokens  
-- ✨ 新增 `skip_clear` transient 標記以避免誤刪快取  
-- ✨ 分離自動清除與手動清除邏輯，保護 content_hash 不被誤刪  
-
-**錯誤修正：**  
-- 🔧 修正 `schedule_single_task()` 方法名稱不一致導致的致命錯誤  
-- 🔧 修正匿名函式無法使用 `$this` 的問題，改為使用 class method  
-- 🔧 修正 `save_post` hook 參數數量不匹配問題  
-- 🔧 修正每次更新文章都觸發預生成的問題  
-- 🔧 改善 `clear_post_cache()` 邏輯，避免清除 content_hash  
-
-**改進項目：**  
-- 📝 優化 Debug Log 訊息，清楚顯示預生成狀態  
-- 📝 新增「SKIP pregenerate: unchanged」日誌訊息  
-- 🎯 改善預生成排程機制，增加節流與去重檢查  
-- 🎯 優化 Metabox 快取清除流程  
-
-= 1.8.1 (2025-10-19) – 新增 Claude AI 支援 =  
-- 新增 Anthropic Claude (claude.ai) 供應商  
-- 支援 Claude Sonnet 4.5 模型  
-- 統一 API Key 欄位
-- 修正 system 屬性與 messages 格式  
-- 改進 max_tokens 與錯誤回傳日誌  
-- 更新後台「快速連結」新增 Claude AI 控制台入口  
-
-= 1.8.0 (2025-10-18) – 完全模組化重構 =  
-- 全面重構 Core / Router / Renderer / Cache / Admin / Assets 架構  
-- 新增 helpers-template.php 模板輔助函式  
-- 可調整快取時間（1–365 天）  
-- 新增結構化資料模式（Structured Data Mode）  
-- 加入 Canonical 指向原文、強化 Robots 控制  
-- Sitemap 改為 .php 結尾以避免外掛衝突  
-- 強化安全性與轉義處理  
-- 更新後台 UI 與內嵌說明文字  
+- Default TTL: 24 hours  
+- Custom TTL setting available in admin (1–365 days)  
+- Dual caching system: WordPress transient + static file  
+- Built-in cache clear tools (global or per-post)  
+- Outputs CDN-friendly Cache-Control headers  
+- Supports `stale-while-revalidate` for smoother cache refresh  
+- Smart pregeneration using **content hash** to detect changes and rebuild only when needed  
 
 ---
 
-== 🧭 支援與回報 ==
+== ⚙️ Performance & Stability ==
 
-Bug 回報與功能建議：  
-🌐 官方網站：https://www.moelog.com/  
-💻 GitHub：https://github.com/Horlicks-p/moelog-ai-qna-links  
+- Startup time improved by ~45%  
+- Backend queries reduced by ~30%  
+- Smart pregeneration significantly cuts unnecessary API calls  
+- Fully modular architecture: Core / Router / Renderer / Cache / Admin / Assets / Pregenerate  
+- Prevents duplicate Open Graph / Meta tags  
+- Automatically refreshes rewrite rules on activation  
+- Fully UTF-8 and multilingual compatible  
 
 ---
 
-== 🧩 授權 ==
+== 🔐 Security ==
 
-本外掛採用 **GPL v2 或更新版本授權**。  
-您可自由修改或重新發布。  
-© 2025 Horlicks / moelog.com
+- Implements CSP (Content Security Policy) and nonce validation  
+- All outputs escaped via `esc_html` / `esc_attr`  
+- Uses HMAC for cache integrity verification  
+- IP-based rate limiting to prevent abuse  
+- HTTPS communication with official APIs  
+- No user data collection  
+- Fully GDPR-compliant  
+
+---
+
+== 💬 Privacy ==
+
+This plugin only sends the following data to AI service providers (OpenAI / Gemini / Claude):  
+- Predefined question content (set by the site author)  
+- (Optional) Post content if “Include article content” is checked  
+- System prompt and language setting  
+
+No visitor data is ever sent. All communications are securely encrypted via HTTPS.
+
+---
+
+== 🧩 Changelog ==
+
+= 1.8.3 (2025-10-21) – Encrypted API Key Storage =
+- 🔒 Added API key encryption for enhanced data security  
+
+
+= 1.8.2 (2025-10-20) – Smart Pregeneration Optimization & Bug Fixes =
+**New Features:**  
+- ✨ Added smart pregeneration using **content hash** detection  
+- ✨ Only regenerates answers when post content or Q&A list changes  
+- ✨ Added `skip_clear` transient flag to prevent accidental cache deletion  
+- ✨ Separated automatic vs. manual cache clearing to protect `content_hash`  
+
+**Bug Fixes:**  
+- 🔧 Fixed fatal error from mismatched method name `schedule_single_task()`  
+- 🔧 Fixed `$this` scope issue inside anonymous functions  
+- 🔧 Fixed incorrect argument count in `save_post` hook  
+- 🔧 Prevented unwanted pregeneration on every post update  
+- 🔧 Improved `clear_post_cache()` logic to preserve `content_hash`  
+
+**Improvements:**  
+- 📝 Clearer debug logs showing pregeneration status  
+- 📝 Added “SKIP pregenerate: unchanged” log message  
+- 🎯 Optimized scheduling logic to reduce redundant tasks  
+- 🎯 Improved metabox cache clearing workflow  
+
+= 1.8.1 (2025-10-19) – Added Claude AI Support =
+- Added Anthropic Claude provider (claude.ai)  
+- Supports Claude Sonnet 4.5 model  
+- Unified API key field  
+- Fixed system/message property format  
+- Improved max_tokens handling and error logging  
+- Added Claude console shortcut in admin  
+
+= 1.8.0 (2025-10-18) – Full Modular Refactor =
+- Rebuilt Core / Router / Renderer / Cache / Admin / Assets structure  
+- Added `helpers-template.php` utility functions  
+- Customizable cache TTL (1–365 days)  
+- Added Structured Data Mode  
+- Added Canonical and enhanced Robots controls  
+- Changed sitemap to `.php` extension for compatibility  
+- Strengthened security and output sanitization  
+- Updated admin UI and inline documentation  
+
+---
+
+== 🧭 Support ==
+
+Bug reports & feature suggestions:  
+🌐 Official site: https://www.moelog.com/  
+💻 GitHub: https://github.com/Horlicks-p/moelog-ai-qna-links  
+
+---
+
+== 🧩 License ==
+
+This plugin is licensed under **GPL v2 or later**.  
+You are free to modify and redistribute it.  
+© 2025
