@@ -72,7 +72,7 @@ class Moelog_AIQnA_Renderer
     $this->secret = $secret;
 
     // 生成 CSP nonce
-    $this->generate_csp_nonce();
+    //$this->generate_csp_nonce();
   }
 
   // =========================================
@@ -88,7 +88,8 @@ class Moelog_AIQnA_Renderer
     if (!$this->router->is_answer_request()) {
       return;
     }
-
+    // 修正: 在這裡生成 Nonce, 確保 router 狀態正確
+    $this->generate_csp_nonce();
     // 設定安全 Headers
     $this->set_security_headers();
 
@@ -877,9 +878,10 @@ document.addEventListener('DOMContentLoaded',function(){
    */
   private function generate_csp_nonce()
   {
+    /* // <--- 註解掉開頭的 if
     if (!$this->router->is_answer_request()) {
       return;
-    }
+    }*/ // <--- 註解掉結尾的 }
     try {
       $this->csp_nonce = rtrim(
         strtr(base64_encode(random_bytes(16)), "+/", "-_"),
