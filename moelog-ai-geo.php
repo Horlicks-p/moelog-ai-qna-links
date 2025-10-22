@@ -6,7 +6,7 @@
  * 提供結構化資料、Canonical/Robots 與快取標頭，協助搜尋/AI 爬蟲正確解析 AI 答案頁（不保證索引或排名）
  *
  * @package Moelog_AIQnA
- * @since   1.8.1
+ * @since   1.8.3++
  * @author  Horlicks
  */
 
@@ -418,35 +418,6 @@ class Moelog_AIQnA_GEO
     }
 
     // =========================================
-    // 問題清單解析：同時支援陣列與純文字（一行一題）
-    // =========================================
-    private function parse_questions($raw): array
-    {
-        if (is_array($raw)) {
-            $out = [];
-            foreach ($raw as $row) {
-                if (is_array($row) && !empty($row["q"])) {
-                    $q = trim((string) $row["q"]);
-                    if ($q !== "") {
-                        $out[] = $q;
-                    }
-                } elseif (is_string($row)) {
-                    $q = trim($row);
-                    if ($q !== "") {
-                        $out[] = $q;
-                    }
-                }
-            }
-            return array_values(array_filter($out));
-        }
-        if (is_string($raw)) {
-            return array_values(array_filter(array_map("trim", preg_split('/\r\n|\r|\n/', $raw))));
-        }
-
-        return [];
-    }
-
-    // =========================================
     // AI Sitemap (索引 + 分頁)
     // =========================================
     // 1) 路由註冊
@@ -493,7 +464,7 @@ class Moelog_AIQnA_GEO
         $total = 0;
         foreach ($ids as $pid) {
             $raw = get_post_meta($pid, "_moelog_aiqna_questions", true);
-            $qs = $this->parse_questions($raw);
+            $qs = moelog_aiqna_parse_questions($raw);
             if ($qs) {
                 $total += count($qs);
             }
@@ -618,7 +589,7 @@ class Moelog_AIQnA_GEO
             return;
         }
         $questions = get_post_meta($post_id, "_moelog_aiqna_questions", true);
-        $qs = $this->parse_questions($questions);
+        $qs = moelog_aiqna_parse_questions($questions);
 
         if (empty($qs)) {
             return;
