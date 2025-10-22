@@ -89,7 +89,7 @@ class Moelog_AIQnA_Renderer
       return;
     }
 
-    // 設定安全 Headers(✅ 只在這裡呼叫一次)
+    // 設定安全 Headers
     $this->set_security_headers();
 
     // 執行爬蟲封鎖
@@ -115,15 +115,15 @@ class Moelog_AIQnA_Renderer
       return;
     }
 
-    // 檢查靜態快取
-    if (Moelog_AIQnA_Cache::exists($params["post_id"], $params["question"])) {
+      // 檢查靜態快取
+      if (Moelog_AIQnA_Cache::exists($params["post_id"], $params["question"])) {
       // ✅ 正確!
       $html = Moelog_AIQnA_Cache::load($params["post_id"], $params["question"]);
       if ($html) {
         // ⭐ 關鍵:讀取快取時,替換 placeholder 為新的 nonce
         $html = $this->replace_nonce_in_html($html, $this->csp_nonce);
 
-  
+        //$this->set_security_headers();
         $this->set_cache_headers(true);
         $this->output_html($html);
         exit();
@@ -143,6 +143,47 @@ class Moelog_AIQnA_Renderer
     $this->generate_and_render($params, $post);
   }
 
+  /**
+   * 從快取提供答案
+   *
+   * @param int    $post_id  文章 ID
+   * @param string $question 問題文字
+   */
+  private function serve_from_cache($post_id, $question)
+  {
+    $html = Moelog_AIQnA_Cache::load($post_id, $question);
+
+    if ($html === false) {
+      // 快取讀取失敗,重新生成
+      $params = [
+        "post_id" => $post_id,
+        "question" => $question,
+        "lang" => "auto",
+      ];
+      $post = get_post($post_id);
+      if ($post) {
+        $this->generate_and_render($params, $post);
+      }
+      return;
+    }
+
+    // ⭐ 關鍵:讀取快取時,替換 placeholder 為新的 nonce
+    $html = $this->replace_nonce_in_html($html, $this->csp_nonce);
+
+    // 設定 Headers
+    //$this->set_security_headers();
+    $this->set_cache_headers(true);
+
+    // 記錄靜態檔案路徑(供 GEO 模組使用)
+    $GLOBALS["moe_aiqna_static_file"] = Moelog_AIQnA_Cache::get_static_path(
+      $post_id,
+      $question,
+    );
+
+    // 輸出 HTML
+    $this->output_html($html);
+    exit();
+  }
   // =========================================
   // 新增輔助方法:替換 HTML 中的 nonce
   // =========================================
@@ -218,6 +259,7 @@ class Moelog_AIQnA_Renderer
     );
 
     // 設定 Headers
+    //$this->set_security_headers();
     $this->set_cache_headers(false);
 
     // 輸出(使用含真實 nonce 的版本)
@@ -664,8 +706,7 @@ document.addEventListener('DOMContentLoaded',function(){
   const target=document.getElementById('moe-ans-target');
   if(!srcTpl||!target)return;
   const ALLOWED=new Set(['P','UL','OL','LI','STRONG','EM','BR','SPAN','A','DIV']);
-  const SPEED = window.MoelogAIQnA && typeof window.MoelogAIQnA.typing_ms !== 'undefined'
-  	  ? window.MoelogAIQnA.typing_ms: 12;
+  const SPEED=10;
   function cloneShallow(node){
     if(node.nodeType===Node.TEXT_NODE)return document.createTextNode('');
     if(node.nodeType===Node.ELEMENT_NODE){
@@ -745,7 +786,7 @@ document.addEventListener('DOMContentLoaded',function(){
       "default-src 'self'; " .
       "script-src 'self' 'nonce-{$nonce}';" .
       "img-src 'self' data:; " .
-      "style-src 'self' https://fonts.googleapis.com 'nonce-{$nonce}'; " .
+      "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; " .
       "font-src 'self' https://fonts.gstatic.com data:; " .
       "connect-src 'self'; " .
       "frame-ancestors 'none'; " .
