@@ -423,7 +423,7 @@ class Moelog_AIQnA_Core
 
         // 修正版本: 不顯示 h3 標題,只保留作為 title 屬性
         return sprintf(
-            '<p class="ask_chatgpt" title="%s"></p><div class="moe-aiqna-block"><ul>%s</ul></div>%s',
+            '<p class="ask_chatgpt" title="%s"></p><div class="moe-aiqna-block"><h3>%s</h3><ul>%s</ul></div>%s',
             esc_attr($heading),
             $items,
             $prefetch_js
@@ -682,4 +682,5 @@ HTML;
     {
         // 由主檔的 moelog_aiqna_uninstall() 函數處理
     }
+
 }
