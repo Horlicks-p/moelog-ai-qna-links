@@ -1,170 +1,165 @@
-=== Moelog AI Q&A Links ===  
-Contributors: Horlicks  
-Author URI: https://www.moelog.com/  
-Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer,  Schema  
-Requires at least: 5.0  
-Tested up to: 6.8.3  
-Requires PHP: 7.4  
-Stable tag: 1.8.3  
-License: GPLv2 or later  
-License URI: https://www.gnu.org/licenses/gpl-2.0.html  
+=== Moelog AI Q&A Links ===
+Contributors: Horlicks
+Author URI: https://www.moelog.com/
+Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, Schema, Structured Data, CSP, Generative Engine Optimization
+Requires at least: 5.0
+Tested up to: 6.8.3
+Requires PHP: 7.4
+Stable tag: 1.8.3
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 == 🧠 Description ==
 
 **Moelog AI Q&A Links** automatically adds an interactive **AI Q&A list** to the end of your posts or pages.  
-When readers click a question, a new tab opens to display an **AI-generated answer** from **OpenAI**, **Google Gemini**, or **Anthropic Claude** in real time.
+When a reader clicks a question, a new tab opens and fetches an AI-generated answer from **OpenAI**, **Google Gemini**, or **Anthropic Claude**.
 
-The answer page features a clean HTML layout, typing animation effects, a built-in caching system (including static files),  
-and an optional **Structured Data Mode**, which helps search engines and AI crawlers better understand the page content.
+The answer page features a clean HTML layout, a typing animation effect, a built-in caching system (including static files), and an optional **STM (Structured Data Mode)** to help search engines and AI crawlers better understand the page content.
 
 ---
 
 == ✨ Key Features ==
 
-✅ Automatically inserts an AI Q&A section at the bottom of posts  
-✅ Supports `[moelog_aiqna index="N"]` shortcode for embedding individual questions  
-✅ Works with **OpenAI / Gemini / Claude (Anthropic)**  
-✅ Customizable system prompt, model, temperature, and language  
-✅ Automatic language detection (Traditional Chinese / Japanese / English)  
-✅ Built-in caching system (default 24h TTL, configurable from 1–365 days with transient + static files)  
-✅ Smart pregeneration: only regenerates when content changes, saving API tokens  
-✅ Admin cache manager: clear all or per-post cache  
-✅ Structured Data Mode: adds QAPage / Breadcrumb Schema, Canonical, Robots, and cache headers  
-✅ Fully compliant with **CSP (Content Security Policy)**  
-✅ Modular architecture (Core / Router / Renderer / Cache / Admin / Assets / Pregenerate)  
-✅ Compatible with Cloudflare and proxy IP environments  
+* **Multi-provider support:** Integrates with **OpenAI** (e.g., GPT-4o-mini), **Google Gemini** (e.g., Gemini 2.5 Flash), and **Anthropic Claude**.  
+* **Highly customizable:** Configure system prompt, model, and temperature.  
+* **Smart language detection:** Built-in rules (Traditional Chinese / Japanese / English), no external API needed.  
+* **Dual-layer caching:** WordPress Transients + **static HTML files** for faster load times.  
+* **Smart pregeneration:** Uses a **content hash** to regenerate answers only when posts or questions change, saving API costs.  
+* **Admin interface:**  
+  * Metabox on the post editor for the “AI Question List”.  
+  * **Drag-and-drop** sorting, add/delete questions, live word count.  
+  * Gutenberg compatible.  
+  * AJAX **“Regenerate All”** button to manually clear cache and trigger pregeneration.  
+* **Routing & templating:**  
+  * Pretty URLs using `qna/slug-hash-id/`.  
+  * HMAC hashing ensures URL safety and prevents guessing.  
+  * Customizable route base (default `qna`) and cache directory name.  
+* **Shortcodes:**  
+  * `[moelog_aiqna]` — display the full question list.  
+  * `[moelog_aiqna index="N"]` — display a single question by index.  
+* **Security:**  
+  * **API key encryption:** Stores API keys with `AES-256-CBC` (random IV), key material derived from WordPress salts.  
+  * **Strict CSP:** Full **Content Security Policy** support; all inline scripts/styles use a `nonce`.  
+* **Modular architecture:** Clean and maintainable code (Core / Router / Renderer / Cache / Metabox / AI_Client / Pregenerate).
 
 ---
 
-== ⚙️ Structured Data Mode ==
+== 🚀 STM (Structured Data Mode) ==
 
-Structured Data Mode helps search engines and AI crawlers better parse your AI answer pages, though it doesn’t guarantee indexing or ranking improvements.
+STM helps search engines and AI crawlers **parse** your AI answer pages. **It does not guarantee indexing or ranking.**
 
-When enabled:
-- Adds **QAPage** and **Breadcrumb** structured data  
-- Adds a canonical link pointing to the original article  
-- Automatically sets Robots to:  
-  `index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1`  
-- Outputs **Cache-Control** and **Last-Modified** headers (CDN-friendly)  
-- Generates an **AI Q&A Sitemap** (`ai-qa-sitemap.php`) and pings Google/Bing  
+**When enabled (optional):**  
+* **SEO tags:** Sets Robots to `index, follow`.  
+* **Canonical:** Adds a `canonical` link **pointing to the original post** (key SEO practice).  
+* **Structured data:** Injects JSON-LD for `QAPage` and `BreadcrumbList`.  
+* **Cache headers (CDN-friendly):**  
+  * Outputs `Cache-Control` (with `s-maxage` and `stale-while-revalidate`).  
+  * Outputs `Last-Modified` and `ETag`.  
+  * **Supports `304 Not Modified`** to save crawl budget and server resources.  
+* **Sitemap:**  
+  * Generates an AI Q&A **sitemap index and pages** (`ai-qa-sitemap.php`).  
+  * Uses `.php` to **avoid `.xml` route conflicts** with other SEO plugins.  
+  * Automatically advertises the sitemap path in `robots.txt`.  
+  * Pings Google and Bing on publish.  
+* **Crawler access:** Allows popular crawlers like `Googlebot` and `Bingbot`.
 
-When disabled (default):
-- Uses `noindex,follow` to prevent duplicate content  
-- Still outputs structured data for parsing  
-- Does not generate a sitemap or send pings  
+**When disabled (default):**  
+* **SEO tags:** Uses `noindex, nofollow` to prevent duplicate content and indexing.  
+* **No** Schema, sitemap, or ping output.
 
 ---
 
 == 🧩 Shortcodes ==
 
 | Shortcode | Description |
-|------------|-------------|
-| `[moelog_aiqna]` | Displays the full question list |
-| `[moelog_aiqna index="1"]` | Displays only question #1 |
-| `[moelog_aiqna index="3"]` | Displays only question #3 (1–8 supported) |
-
-If a shortcode is used in the post, the automatic bottom Q&A list will be hidden to avoid duplication.
+|----------|-------------|
+| `[moelog_aiqna]` | Displays the full question list (if detected, the auto list at the bottom is hidden) |
+| `[moelog_aiqna index="1"]` | Displays question #1 only |
+| `[moelog_aiqna index="3"]` | Displays question #3 only (supports 1–8) |
 
 ---
 
 == 🧮 Caching System ==
 
-- Default TTL: 24 hours  
-- Custom TTL setting available in admin (1–365 days)  
-- Dual caching system: WordPress transient + static file  
-- Built-in cache clear tools (global or per-post)  
-- Outputs CDN-friendly Cache-Control headers  
-- Supports `stale-while-revalidate` for smoother cache refresh  
-- Smart pregeneration using **content hash** to detect changes and rebuild only when needed  
+* **TTL:** Configurable in the admin from 1–365 days (default 30 days).  
+* **Mechanism:** Combines WordPress transients with static `.html` files in `wp-content/`.  
+* **Management:** Global cache clear, or per-post clear from the editor.  
+* **Headers:** CDN-friendly `Cache-Control` (with `stale-while-revalidate`).  
+* **Smart rebuilds:** Uses a **content hash** to detect post changes and rebuild only when needed.  
+* **Cache placeholders:** CSP `nonce` values in static cache are stored as `{{PLACEHOLDER}}` and filled at request time for security and performance.
 
 ---
 
 == ⚙️ Performance & Stability ==
 
-- Startup time improved by ~45%  
-- Backend queries reduced by ~30%  
-- Smart pregeneration significantly cuts unnecessary API calls  
-- Fully modular architecture: Core / Router / Renderer / Cache / Admin / Assets / Pregenerate  
-- Prevents duplicate Open Graph / Meta tags  
-- Automatically refreshes rewrite rules on activation  
-- Fully UTF-8 and multilingual compatible  
+* **Modular design:** Separated core logic (Core, Router, Renderer, Cache, Metabox, Pregenerate, AI_Client).  
+* **Autoloading:** Uses `spl_autoload_register` for class loading.  
+* **Lifecycle:** Robust activate/deactivate/uninstall flows.  
+  * **Activate:** Deferred rewrite flush, auto-generate HMAC secret.  
+  * **Upgrade:** v1.8.3 migrates and **encrypts legacy plaintext API keys**.  
+  * **Uninstall:** Cleans up all `options`, `post_meta`, `transients`, and the static cache directory.  
+* **Compatibility:**  
+  * Sitemap uses `.php` to avoid conflicts with popular SEO plugins (Slim SEO, AIOSEO, etc.).  
+  * Metabox leverages `MutationObserver` for Gutenberg compatibility.  
+* **Environment checks:** Validates PHP version at activation; admin checks for `json`, `hash`, `mbstring`, and more.
 
 ---
 
 == 🔐 Security ==
 
-- Implements CSP (Content Security Policy) and nonce validation  
-- All outputs escaped via `esc_html` / `esc_attr`  
-- Uses HMAC for cache integrity verification  
-- IP-based rate limiting to prevent abuse  
-- HTTPS communication with official APIs  
-- No user data collection  
-- Fully GDPR-compliant  
+* **API key encryption:** `AES-256-CBC` with WordPress salts–derived key material.  
+* **CSP & Nonce:** Strict **Content Security Policy**; all inline scripts/styles verified with a `nonce`.  
+* **Safe output:** All admin/front-end output is sanitized with `esc_html` / `esc_attr` / `wp_kses`.  
+* **URL integrity:** **HMAC** used for answer page URLs to prevent enumeration/tampering.  
+* **XSS protection:** HTML in AI answers is strictly filtered; `on...` attributes are removed and **URLs are rendered as harmless `<span>` elements**.  
+* **Abuse prevention:** Built-in IP-based **rate limiting**.  
+* **IP detection:** Correctly identifies real client IPs behind Cloudflare and reverse proxies.  
+* **GDPR:** No collection or transmission of visitor personal data.
 
 ---
 
 == 💬 Privacy ==
 
-This plugin only sends the following data to AI service providers (OpenAI / Gemini / Claude):  
-- Predefined question content (set by the site author)  
-- (Optional) Post content if “Include article content” is checked  
-- System prompt and language setting  
+The plugin only sends the following to AI providers (OpenAI / Gemini / Claude):  
+* Questions predefined by the **site author** in the admin.  
+* (Optional) Original post content if “Include article content” is checked.  
+* System prompt and language settings.
 
-No visitor data is ever sent. All communications are securely encrypted via HTTPS.
+**No** visitor IPs, user agents, or personal data are sent. All communications are encrypted via HTTPS.
 
 ---
 
 == 🧩 Changelog ==
 
 = 1.8.3 (2025-10-21) – Encrypted API Key Storage =
-- 🔒 Added API key encryption for enhanced data security  
-
+- 🔒 **Security upgrade:** Added AES-256-CBC encryption for API keys.  
+- ✨ **Automatic migration:** On activation, existing plaintext API keys in the database are upgraded to the encrypted format.  
+- 🔧 Enhancement: Updated `helpers-encryption.php`, including an OpenSSL fallback (XOR obfuscation).
 
 = 1.8.2 (2025-10-20) – Smart Pregeneration Optimization & Bug Fixes =
-**New Features:**  
-- ✨ Added smart pregeneration using **content hash** detection  
-- ✨ Only regenerates answers when post content or Q&A list changes  
-- ✨ Added `skip_clear` transient flag to prevent accidental cache deletion  
-- ✨ Separated automatic vs. manual cache clearing to protect `content_hash`  
-
-**Bug Fixes:**  
-- 🔧 Fixed fatal error from mismatched method name `schedule_single_task()`  
-- 🔧 Fixed `$this` scope issue inside anonymous functions  
-- 🔧 Fixed incorrect argument count in `save_post` hook  
-- 🔧 Prevented unwanted pregeneration on every post update  
-- 🔧 Improved `clear_post_cache()` logic to preserve `content_hash`  
-
-**Improvements:**  
-- 📝 Clearer debug logs showing pregeneration status  
-- 📝 Added “SKIP pregenerate: unchanged” log message  
-- 🎯 Optimized scheduling logic to reduce redundant tasks  
-- 🎯 Improved metabox cache clearing workflow  
+- ✨ **New:** Smart pregeneration based on **content hash**.  
+- 🎯 **Optimization:** Regenerate answers only when post content or Q&A list changes.  
+- (Additional fixes and improvements…)
 
 = 1.8.1 (2025-10-19) – Added Claude AI Support =
-- Added Anthropic Claude provider (claude.ai)  
-- Supports Claude Sonnet 4.5 model  
-- Unified API key field  
-- Fixed system/message property format  
-- Improved max_tokens handling and error logging  
-- Added Claude console shortcut in admin  
+- ✨ **New:** Anthropic Claude (claude.ai) provider added.  
+- (Additional notes…)
 
 = 1.8.0 (2025-10-18) – Full Modular Refactor =
-- Rebuilt Core / Router / Renderer / Cache / Admin / Assets structure  
-- Added `helpers-template.php` utility functions  
-- Customizable cache TTL (1–365 days)  
-- Added Structured Data Mode  
-- Added Canonical and enhanced Robots controls  
-- Changed sitemap to `.php` extension for compatibility  
-- Strengthened security and output sanitization  
-- Updated admin UI and inline documentation  
+- 🚀 **Refactor:** Modularized architecture (Core / Router / Renderer / Cache, etc.).  
+- ✨ **New:** Optional STM (Structured Data Mode) via `moelog-ai-geo.php`.  
+- ✨ **New:** Configurable cache TTL (1–365 days).  
+- 🔧 **Compat:** Sitemap switched to `.php` to avoid SEO plugin conflicts.  
+- 🔒 **Security:** Added CSP nonce, HMAC URLs, and stricter output sanitization.  
+- 📝 Admin UI and inline docs updated.
 
 ---
 
 == 🧭 Support ==
 
-Bug reports & feature suggestions:  
-🌐 Official site: https://www.moelog.com/  
-💻 GitHub: https://github.com/Horlicks-p/moelog-ai-qna-links  
+Bug reports & feature requests:  
+Official site: https://www.moelog.com/  
+GitHub: https://github.com/Horlicks-p/moelog-ai-qna-links
 
 ---
 
@@ -172,6 +167,6 @@ Bug reports & feature suggestions:
 
 This plugin is licensed under **GPL v2 or later**.  
 You are free to modify and redistribute it.  
-© 2025
+© 2025 Horlicks / moelog.com
 
 
