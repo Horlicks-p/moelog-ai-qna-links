@@ -4,7 +4,7 @@
  * 完整修復版 - 符合原始 render_answer_html 邏輯
  *
  * @package Moelog_AIQnA
- * @since   1.8.1
+ * @since   1.8.3+
  */
 
 if (!defined("ABSPATH")) {
@@ -95,7 +95,6 @@ if (typeof window.MoelogAIQnA.typing_disabled === 'undefined') {
       : "false"; ?>;
 }
 </script>
-</script>
 <!-- 打字效果外部腳本 -->
 <script 
   src="<?php echo esc_url(
@@ -103,8 +102,6 @@ if (typeof window.MoelogAIQnA.typing_disabled === 'undefined') {
   ); ?>?ver=<?php echo esc_attr(MOELOG_AIQNA_VERSION); ?>" 
   defer>
 </script>
-</body>
-</html>
 </head>
 <body class="moe-aiqna-answer">
 <div class="moe-container">
