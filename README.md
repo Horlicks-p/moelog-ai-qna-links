@@ -46,7 +46,7 @@ License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/lic
 
 == 🚀 STM (Structured Data Mode) ==
 
-STM 模式 (舊稱 GEO 模式) 可協助搜尋引擎和 AI 爬蟲「解析」你的 AI 答案頁，**此功能不保證索引或排名**。  
+STM 模式可協助搜尋引擎和 AI 爬蟲「解析」你的 AI 答案頁，**此功能不保證索引或排名**。  
 
 **啟用時 (可選):**  
 * **SEO 標籤:** 將 Robots 標籤設為 `index, follow`。  
