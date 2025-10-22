@@ -281,7 +281,7 @@ class Moelog_AIQnA_Admin
     $settings = get_option(MOELOG_AIQNA_OPT_KEY, []);
     $masked = defined("MOELOG_AIQNA_API_KEY") && MOELOG_AIQNA_API_KEY;
 
-    if ($masked) {<?php
+    if ($masked) {
       // 使用常數定義 - 但仍然顯示測試按鈕
       ?>
         <input type="password" class="regular-text" value="********" disabled>
@@ -1909,3 +1909,4 @@ add_action("wp_ajax_moelog_aiqna_test_api", function () {
   $admin = new Moelog_AIQnA_Admin();
   $admin->ajax_test_api();
 });
+
