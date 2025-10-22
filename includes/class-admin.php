@@ -1801,16 +1801,13 @@ $('#test-api-key').on('click', function() {
     $stats = Moelog_AIQnA_Cache::get_stats();
 
     // 檢查 Rewrite Rules
-    $rules = get_option("rewrite_rules");
-    $rewrite_ok =
-      is_array($rules) &&
-      isset(
-        $rules[
-          "^" .
-            Moelog_AIQnA_Router::PRETTY_BASE .
-            '/([a-z0-9]+)-([a-f0-9]{3})-([0-9]+)/?$'
-        ],
-      );
+    // 取得使用者儲存的 pretty_base 設定值
+        $pretty_base = moelog_aiqna_array_get($settings, 'pretty_base', 'qna');
+
+        // 檢查 Rewrite Rules
+        $rules = get_option('rewrite_rules');
+        $pattern = '^' . $pretty_base . '/([a-z0-9]+)-([a-f0-9]{3})-([0-9]+)/?$';
+        $rewrite_ok = is_array($rules) && isset($rules[$pattern]);
 
     // API Key 狀態
     $api_key_from_constant =
