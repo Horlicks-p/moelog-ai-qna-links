@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Moelog AI Q&A Links
  * Description: 在每篇文章底部顯示作者預設的問題清單,點擊後開新分頁,由 AI 生成答案的靜態HTML。支持 OpenAI/Gemini,可自訂模型與提示。
- * Version: 1.8.3
+ * Version: 1.8.3+
  * Author: Horlicks (moelog.com)
  * Text Domain: moelog-ai-qna
  * Domain Path: /languages
@@ -19,7 +19,7 @@ if (!defined("ABSPATH")) {
 // =========================================
 // 定義常數
 // =========================================
-define("MOELOG_AIQNA_VERSION", "1.8.3");
+define("MOELOG_AIQNA_VERSION", "1.8.3+");
 define("MOELOG_AIQNA_FILE", __FILE__);
 define("MOELOG_AIQNA_DIR", plugin_dir_path(__FILE__));
 define("MOELOG_AIQNA_URL", plugin_dir_url(__FILE__));
@@ -31,12 +31,26 @@ define("MOELOG_AIQNA_SECRET_KEY", "moelog_aiqna_secret");
 define("MOELOG_AIQNA_META_KEY", "_moelog_aiqna_questions");
 define("MOELOG_AIQNA_META_LANG_KEY", "_moelog_aiqna_questions_lang");
 
-// 路由與快取
-define("MOELOG_AIQNA_PRETTY_BASE", "qna");
-define("MOELOG_AIQNA_STATIC_DIR", "ai-answers");
-//define('MOELOG_AIQNA_CACHE_TTL', 86400);
-// 改為:
-// 快取 TTL 改由 moelog_aiqna_get_cache_ttl() 函數動態取得
+// 路由與快取 - ✅ 改為動態從設定中讀取
+function moelog_aiqna_get_pretty_base()
+{
+    $settings = get_option(MOELOG_AIQNA_OPT_KEY, []);
+    return isset($settings["pretty_base"]) && !empty($settings["pretty_base"])
+        ? $settings["pretty_base"]
+        : "qna";
+}
+
+function moelog_aiqna_get_static_dir()
+{
+    $settings = get_option(MOELOG_AIQNA_OPT_KEY, []);
+    return isset($settings["static_dir"]) && !empty($settings["static_dir"])
+        ? $settings["static_dir"]
+        : "ai-answers";
+}
+
+// 使用函數定義常數,保持向下相容
+define("MOELOG_AIQNA_PRETTY_BASE", moelog_aiqna_get_pretty_base());
+define("MOELOG_AIQNA_STATIC_DIR", moelog_aiqna_get_static_dir());
 
 // AI 預設模型
 define("MOELOG_AIQNA_DEFAULT_MODEL_OPENAI", "gpt-4o-mini");
@@ -66,8 +80,8 @@ spl_autoload_register(function ($class_name) {
 // =========================================
 // 載入輔助函數
 // =========================================
-require_once MOELOG_AIQNA_DIR . 'includes/helpers-utils.php';
-require_once MOELOG_AIQNA_DIR . 'includes/helpers-encryption.php'; // 新增
+require_once MOELOG_AIQNA_DIR . "includes/helpers-utils.php";
+require_once MOELOG_AIQNA_DIR . "includes/helpers-encryption.php"; // 新增
 
 // =========================================
 // 初始化核心類別
@@ -105,27 +119,27 @@ add_action("plugins_loaded", "moelog_aiqna_init", 5);
 
 function moelog_aiqna_check_upgrade()
 {
-    $db_version = get_option('moelog_aiqna_db_version', '0');
+    $db_version = get_option("moelog_aiqna_db_version", "0");
 
     // === 1.8.3: 加密現有 API Key ===
-    if (version_compare($db_version, '1.8.3', '<')) {
+    if (version_compare($db_version, "1.8.3", "<")) {
         moelog_aiqna_migrate_api_key_encryption();
-        update_option('moelog_aiqna_db_version', '1.8.3');
+        update_option("moelog_aiqna_db_version", "1.8.3");
     }
 
     // === 1.8.0: 設定預設 TTL ===
-    if (version_compare($db_version, '1.8.0', '<')) {
+    if (version_compare($db_version, "1.8.0", "<")) {
         $options = get_option(MOELOG_AIQNA_OPT_KEY, []);
 
-        if (!isset($options['cache_ttl_days'])) {
-            $options['cache_ttl_days'] = 30;
+        if (!isset($options["cache_ttl_days"])) {
+            $options["cache_ttl_days"] = 30;
             update_option(MOELOG_AIQNA_OPT_KEY, $options);
         }
 
-        update_option('moelog_aiqna_db_version', '1.8.0');
+        update_option("moelog_aiqna_db_version", "1.8.0");
     }
 }
-add_action('admin_init', 'moelog_aiqna_check_upgrade');
+add_action("admin_init", "moelog_aiqna_check_upgrade");
 
 /**
  * 遷移:加密現有的明文 API Key
@@ -133,12 +147,12 @@ add_action('admin_init', 'moelog_aiqna_check_upgrade');
 function moelog_aiqna_migrate_api_key_encryption()
 {
     // 跳過使用常數的情況
-    if (defined('MOELOG_AIQNA_API_KEY') && MOELOG_AIQNA_API_KEY) {
+    if (defined("MOELOG_AIQNA_API_KEY") && MOELOG_AIQNA_API_KEY) {
         return;
     }
 
     $settings = get_option(MOELOG_AIQNA_OPT_KEY, []);
-    $current_key = moelog_aiqna_array_get($settings, 'api_key', '');
+    $current_key = moelog_aiqna_array_get($settings, "api_key", "");
 
     // 沒有 API Key 或已經是加密格式
     if (empty($current_key) || moelog_aiqna_is_encrypted($current_key)) {
@@ -147,13 +161,15 @@ function moelog_aiqna_migrate_api_key_encryption()
 
     // 加密並更新
     $encrypted_key = moelog_aiqna_encrypt_api_key($current_key);
-    
+
     if (!empty($encrypted_key)) {
-        $settings['api_key'] = $encrypted_key;
+        $settings["api_key"] = $encrypted_key;
         update_option(MOELOG_AIQNA_OPT_KEY, $settings);
 
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('[Moelog AIQnA] Successfully migrated API Key to encrypted format');
+        if (defined("WP_DEBUG") && WP_DEBUG) {
+            error_log(
+                "[Moelog AIQnA] Successfully migrated API Key to encrypted format"
+            );
         }
     }
 }
@@ -201,6 +217,13 @@ function moelog_aiqna_activate()
             esc_html__("插件啟用失敗", "moelog-ai-qna"),
             ["back_link" => true]
         );
+    }
+    // 啟用時預先建立 wp-content/{static_dir} 與保護檔 (.htaccess / index.html)
+    if (
+        class_exists("Moelog_AIQnA_Cache") &&
+        method_exists("Moelog_AIQnA_Cache", "prepare_static_root")
+    ) {
+        Moelog_AIQnA_Cache::prepare_static_root();
     }
 }
 
@@ -424,6 +447,25 @@ function moelog_aiqna_check_compatibility()
     }
 }
 add_action("admin_init", "moelog_aiqna_check_compatibility");
+
+/**
+ * ✅ 當固定網址被儲存時,清除刷新標記
+ */
+function moelog_aiqna_clear_flush_flag()
+{
+    if (get_option("moe_aiqna_needs_flush") === "1") {
+        delete_option("moe_aiqna_needs_flush");
+
+        if (defined("WP_DEBUG") && WP_DEBUG) {
+            error_log("[Moelog AIQnA] Rewrite rules flushed, flag cleared");
+        }
+    }
+}
+add_action("update_option_rewrite_rules", "moelog_aiqna_clear_flush_flag");
+add_action(
+    "update_option_permalink_structure",
+    "moelog_aiqna_clear_flush_flag"
+);
 
 // =========================================
 // 結束標記
