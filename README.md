@@ -1,57 +1,71 @@
 === Moelog AI Q&A Links ===  
 Contributors: Horlicks  
-Author URI: https://www.moelog.com/  
-Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer,  Schema  
+Author URI: [https://www.moelog.com/](https://www.moelog.com/)  
+Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, Schema, Structured Data, CSP, Generative Engine Optimization  
 Requires at least: 5.0  
 Tested up to: 6.8.3  
 Requires PHP: 7.4  
 Stable tag: 1.8.3  
 License: GPLv2 or later  
-License URI: https://www.gnu.org/licenses/gpl-2.0.html  
+License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)  
 
 == 🧠 Description ==
 
-**Moelog AI Q&A Links** automatically adds an interactive **AI Q&A list** to the end of your posts or pages.  
-When readers click a question, a new tab opens to display an **AI-generated answer** from **OpenAI**, **Google Gemini**, or **Anthropic Claude** in real time.
+**Moelog AI Q&A Links** 會自動在你的文章或頁面結尾，加入一個互動式的 **AI Q&A 問題清單**。  
+當讀者點擊問題時，會開啟一個新分頁，從 **OpenAI**、**Google Gemini** 或 **Anthropic Claude** 獲取 AI 生成的答案。  
 
-The answer page features a clean HTML layout, typing animation effects, a built-in caching system (including static files),  
-and an optional **Structured Data Mode**, which helps search engines and AI crawlers better understand the page content.
+這個回答頁面具備乾淨的 HTML 佈局、打字機動畫效果、內建的快取系統（包含靜態檔案），以及一個可選的 **STM (結構化資料模式)**，旨在幫助搜尋引擎和 AI 爬蟲更好地理解頁面內容。  
 
 ---
 
 == ✨ Key Features ==
 
-✅ Automatically inserts an AI Q&A section at the bottom of posts  
-✅ Supports `[moelog_aiqna index="N"]` shortcode for embedding individual questions  
-✅ Works with **OpenAI / Gemini / Claude (Anthropic)**  
-✅ Customizable system prompt, model, temperature, and language  
-✅ Automatic language detection (Traditional Chinese / Japanese / English)  
-✅ Built-in caching system (default 24h TTL, configurable from 1–365 days with transient + static files)  
-✅ Smart pregeneration: only regenerates when content changes, saving API tokens  
-✅ Admin cache manager: clear all or per-post cache  
-✅ Structured Data Mode: adds QAPage / Breadcrumb Schema, Canonical, Robots, and cache headers  
-✅ Fully compliant with **CSP (Content Security Policy)**  
-✅ Modular architecture (Core / Router / Renderer / Cache / Admin / Assets / Pregenerate)  
-✅ Compatible with Cloudflare and proxy IP environments  
+* **多供應商支援:** 可串接 **OpenAI** (GPT-4o-mini 等)、**Google Gemini** (Gemini 2.5 Flash 等) 和 **Anthropic Claude**。  
+* **高度客製化:** 可自訂系統提示 (System Prompt)、模型、溫度 (Temperature)。  
+* **智慧語言偵測:** 內建規則自動偵測 (繁中/日文/英文)，無需 API。  
+* **雙層快取系統:** 使用 WordPress Transients 和**靜態 HTML 檔案**雙層快取，大幅提升載入速度。  
+* **智慧預生成:** 使用**內容雜湊 (Content Hash)** 偵測，僅在文章或問題變更時才重新生成答案，節省 API 成本。  
+* **後台管理介面:**  
+    * 在文章編輯頁提供「AI 問題清單」Metabox。  
+    * 支援**拖曳排序**、新增/刪除問題、即時字數統計。  
+    * Gutenberg (區塊編輯器) 相容。  
+    * AJAX **「重新生成全部」** 按鈕，可手動清除快取並觸發預生成。  
+* **路由與模板:**  
+    * 使用 `qna/slug-hash-id/` 的**漂亮固定網址 (Pretty URL)** 格式。  
+    * 使用 HMAC 雜湊確保 URL 安全，防止猜測。  
+    * 可自訂路由基底 (預設 `qna`) 與快取目錄名稱。  
+* **Shortcode 支援:**  
+    * `[moelog_aiqna]` - 顯示完整問題清單。  
+    * `[moelog_aiqna index="N"]` - 顯示指定索引的單一問題。  
+* **安全性:**  
+    * **API 金鑰加密:** 使用 `AES-256-CBC` 強加密演算法 (搭配隨機 IV) 儲存 API Key，金鑰源自 WordPress Salts。  
+    * **嚴格 CSP:** 完整支援**內容安全策略 (CSP)**，所有內聯腳本/樣式均使用 `nonce` 驗證。  
+* **模組化架構:** 程式碼清晰，易於維護 (Core / Router / Renderer / Cache / Metabox / AI_Client / Pregenerate)。  
 
 ---
 
-== ⚙️ Structured Data Mode ==
+== 🚀 STM (Structured Data Mode) ==
 
-Structured Data Mode helps search engines and AI crawlers better parse your AI answer pages, though it doesn’t guarantee indexing or ranking improvements.
+STM 模式 (舊稱 GEO 模式) 可協助搜尋引擎和 AI 爬蟲「解析」你的 AI 答案頁，**此功能不保證索引或排名**。  
 
-When enabled:
-- Adds **QAPage** and **Breadcrumb** structured data  
-- Adds a canonical link pointing to the original article  
-- Automatically sets Robots to:  
-  `index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1`  
-- Outputs **Cache-Control** and **Last-Modified** headers (CDN-friendly)  
-- Generates an **AI Q&A Sitemap** (`ai-qa-sitemap.php`) and pings Google/Bing  
+**啟用時 (可選):**  
+* **SEO 標籤:** 將 Robots 標籤設為 `index, follow`。  
+* **Canonical:** 加入 `canonical` 標籤，並**指向原始文章** (關鍵 SEO 策略)。  
+* **結構化資料:** 注入 `QAPage` (問答頁) 和 `BreadcrumbList` (麵包屑) 的 JSON-LD Schema。  
+* **快取標頭 (CDN 友善):**  
+    * 輸出 `Cache-Control` (含 `s-maxage`, `stale-while-revalidate`)。  
+    * 輸出 `Last-Modified` 和 `ETag` 標頭。  
+    * **完整支援 `304 Not Modified`**，大幅節省爬蟲預算與伺服器資源。  
+* **Sitemap:**  
+    * 產生 AI 問答專用的 **Sitemap 索引與分頁** (`ai-qa-sitemap.php`)。  
+    * 使用 `.php` 結尾以**避免與其他 SEO 外掛的 `.xml` 路由衝突**。  
+    * 自動在 `robots.txt` 中宣告 Sitemap 位置。  
+    * 在發布文章時自動 `ping` Google 和 Bing。  
+* **爬蟲放行:** 自動允許 `Googlebot`、`Bingbot` 等主流爬蟲存取。  
 
-When disabled (default):
-- Uses `noindex,follow` to prevent duplicate content  
-- Still outputs structured data for parsing  
-- Does not generate a sitemap or send pings  
+**停用時 (預設):**  
+* **SEO 標籤:** 使用 `noindex, nofollow` 防止重複內容與爬蟲索引。  
+* **不** 輸出 Schema、Sitemap 或 Ping。  
 
 ---
 
@@ -59,112 +73,93 @@ When disabled (default):
 
 | Shortcode | Description |
 |------------|-------------|
-| `[moelog_aiqna]` | Displays the full question list |
-| `[moelog_aiqna index="1"]` | Displays only question #1 |
-| `[moelog_aiqna index="3"]` | Displays only question #3 (1–8 supported) |
-
-If a shortcode is used in the post, the automatic bottom Q&A list will be hidden to avoid duplication.
+| `[moelog_aiqna]` | 顯示完整的問題清單 (若偵測到 Shortcode，將自動隱藏文章底部的列表) |  
+| `[moelog_aiqna index="1"]` | 僅顯示問題 #1 |  
+| `[moelog_aiqna index="3"]` | 僅顯示問題 #3 (支援 1–8) |  
 
 ---
 
 == 🧮 Caching System ==
 
-- Default TTL: 24 hours  
-- Custom TTL setting available in admin (1–365 days)  
-- Dual caching system: WordPress transient + static file  
-- Built-in cache clear tools (global or per-post)  
-- Outputs CDN-friendly Cache-Control headers  
-- Supports `stale-while-revalidate` for smoother cache refresh  
-- Smart pregeneration using **content hash** to detect changes and rebuild only when needed  
+* **TTL:** 可在後台設定 1–365 天 (預設 30 天)。  
+* **機制:** 結合 WordPress transient 和 `wp-content/` 中的靜態 `.html` 檔案。  
+* **管理:** 內建全域清除、或在文章編輯頁清除單篇快取。  
+* **標頭:** 輸出 CDN 友善的 `Cache-Control` 標頭 (含 `stale-while-revalidate`)。  
+* **智慧生成:** 使用**內容雜湊**偵測文章變更，僅在需要時重建快取。  
+* **快取佔位符:** 靜態快取中的 CSP `nonce` 會被替換為 `{{PLACEHOLDER}}`，在讀取時才動態填入當次請求的 `nonce`，兼顧安全與效能。  
 
 ---
 
 == ⚙️ Performance & Stability ==
 
-- Startup time improved by ~45%  
-- Backend queries reduced by ~30%  
-- Smart pregeneration significantly cuts unnecessary API calls  
-- Fully modular architecture: Core / Router / Renderer / Cache / Admin / Assets / Pregenerate  
-- Prevents duplicate Open Graph / Meta tags  
-- Automatically refreshes rewrite rules on activation  
-- Fully UTF-8 and multilingual compatible  
+* **模組化架構:** 核心邏輯分離 (Core, Router, Renderer, Cache, Metabox, Pregenerate, AI_Client)。  
+* **依賴管理:** 透過 `spl_autoload_register` 自動載入類別。  
+* **生命週期:** 嚴謹的啟用/停用/卸載流程。  
+    * **啟用:** 智慧刷新固定網址 (Deferred Flush)，自動產生 HMAC 密鑰。  
+    * **升級:** v1.8.3 自動遷移並**加密舊的明文 API Key**。  
+    * **卸載:** 徹底清除所有 `options`, `post_meta`, `transients` 和靜態快取目錄。  
+* **相容性:**  
+    * Sitemap 使用 `.php` 結尾，避免與主流 SEO 外掛 (Slim SEO, AIOSEO 等) 衝突。  
+    * Metabox 使用 `MutationObserver` 相容 Gutenberg 編輯器。  
+* **環境檢查:** 啟用時檢查 PHP 版本，後台檢查 `json`, `hash`, `mbstring` 等擴充。  
 
 ---
 
 == 🔐 Security ==
 
-- Implements CSP (Content Security Policy) and nonce validation  
-- All outputs escaped via `esc_html` / `esc_attr`  
-- Uses HMAC for cache integrity verification  
-- IP-based rate limiting to prevent abuse  
-- HTTPS communication with official APIs  
-- No user data collection  
-- Fully GDPR-compliant  
+* **API Key 加密:** 使用 `AES-256-CBC` 和 WordPress Salts 衍生金鑰，安全儲存 API Key。  
+* **CSP & Nonce:** 嚴格的**內容安全策略 (CSP)**，所有內聯腳本/樣式均使用 `nonce` 驗證。  
+* **安全輸出:** 所有後台與前端輸出均經過 `esc_html` / `esc_attr` / `wp_kses` 嚴格過濾。  
+* **URL 安全:** 使用 **HMAC 雜湊**生成回答頁 URL，防止惡意枚舉或竄改。  
+* **XSS 防護:** AI 回答內容中的 HTML 被嚴格過濾，`on...` 事件被移除，**連結 (URL) 會被轉換為無害的 `<span>` 標籤**。  
+* **濫用防護:** 內建 IP 基礎的**頻率限制 (Rate Limiting)**。  
+* **IP 偵測:** 可正確識別 Cloudflare 和反向代理 (Proxy) 後方的真實訪客 IP。  
+* **GDPR:** 不會收集或傳輸任何訪客個人資料。  
 
 ---
 
 == 💬 Privacy ==
 
-This plugin only sends the following data to AI service providers (OpenAI / Gemini / Claude):  
-- Predefined question content (set by the site author)  
-- (Optional) Post content if “Include article content” is checked  
-- System prompt and language setting  
+本外掛只會將以下資料傳送給 AI 服務供應商 (OpenAI / Gemini / Claude)：  
+* 由**網站作者**在後台預設的問題。  
+* (可選) 如果勾選「包含文章內容」，則會傳送原文內容作為上下文。  
+* 系統提示 (System Prompt) 和語言設定。  
 
-No visitor data is ever sent. All communications are securely encrypted via HTTPS.
+**不會傳送**任何訪客的 IP、User-Agent 或個人資料。所有通訊均透過 HTTPS 安全加密。  
 
 ---
 
 == 🧩 Changelog ==
 
-= 1.8.3 (2025-10-21) – Encrypted API Key Storage =
-- 🔒 Added API key encryption for enhanced data security  
+= 1.8.3 (2025-10-21) – Encrypted API Key Storage =  
+- 🔒 **安全升級:** 新增 API 金鑰加密功能 (AES-256-CBC)。  
+- ✨ **自動遷移:** 啟用時自動將資料庫中現有的明文 API Key 升級為加密格式。  
+- 🔧 強化：更新 `helpers-encryption.php`，包含 OpenSSL 降級方案 (XOR 混淆)。  
 
+= 1.8.2 (2025-10-20) – Smart Pregeneration Optimization & Bug Fixes =  
+- ✨ **新功能:** 新增基於**內容雜湊 (content hash)** 的智慧預生成偵測。  
+- 🎯 **優化:** 僅在文章內容或 Q&A 列表變更時才重新生成答案。  
+- (其他錯誤修復...)  
 
-= 1.8.2 (2025-10-20) – Smart Pregeneration Optimization & Bug Fixes =
-**New Features:**  
-- ✨ Added smart pregeneration using **content hash** detection  
-- ✨ Only regenerates answers when post content or Q&A list changes  
-- ✨ Added `skip_clear` transient flag to prevent accidental cache deletion  
-- ✨ Separated automatic vs. manual cache clearing to protect `content_hash`  
+= 1.8.1 (2025-10-19) – Added Claude AI Support =  
+- ✨ **新功能:** 新增 Anthropic Claude (claude.ai) 支援。  
+- (其他...)  
 
-**Bug Fixes:**  
-- 🔧 Fixed fatal error from mismatched method name `schedule_single_task()`  
-- 🔧 Fixed `$this` scope issue inside anonymous functions  
-- 🔧 Fixed incorrect argument count in `save_post` hook  
-- 🔧 Prevented unwanted pregeneration on every post update  
-- 🔧 Improved `clear_post_cache()` logic to preserve `content_hash`  
-
-**Improvements:**  
-- 📝 Clearer debug logs showing pregeneration status  
-- 📝 Added “SKIP pregenerate: unchanged” log message  
-- 🎯 Optimized scheduling logic to reduce redundant tasks  
-- 🎯 Improved metabox cache clearing workflow  
-
-= 1.8.1 (2025-10-19) – Added Claude AI Support =
-- Added Anthropic Claude provider (claude.ai)  
-- Supports Claude Sonnet 4.5 model  
-- Unified API key field  
-- Fixed system/message property format  
-- Improved max_tokens handling and error logging  
-- Added Claude console shortcut in admin  
-
-= 1.8.0 (2025-10-18) – Full Modular Refactor =
-- Rebuilt Core / Router / Renderer / Cache / Admin / Assets structure  
-- Added `helpers-template.php` utility functions  
-- Customizable cache TTL (1–365 days)  
-- Added Structured Data Mode  
-- Added Canonical and enhanced Robots controls  
-- Changed sitemap to `.php` extension for compatibility  
-- Strengthened security and output sanitization  
-- Updated admin UI and inline documentation  
+= 1.8.0 (2025-10-18) – Full Modular Refactor =  
+- 🚀 **架構重構:** 重建為模組化架構 (Core / Router / Renderer / Cache 等)。  
+- ✨ **新功能:** 新增可選的 STM (結構化資料) 模式 (`moelog-ai-geo.php`)。  
+- ✨ **新功能:** 新增可自訂快取 TTL (1–365 天) 的設定。  
+- 🔧 **相容性:** Sitemap 改用 `.php` 結尾，避免與 SEO 外掛衝突。  
+- 🔒 **安全強化:** 導入 CSP Nonce、HMAC-URL 及更嚴格的輸出過濾。  
+- 📝 更新：更新管理介面 UI 與內聯文件。  
 
 ---
 
 == 🧭 Support ==
 
 Bug reports & feature suggestions:  
-🌐 Official site: https://www.moelog.com/  
-💻 GitHub: https://github.com/Horlicks-p/moelog-ai-qna-links  
+🌐 Official site: [https://www.moelog.com/](https://www.moelog.com/)  
+💻 GitHub: [https://github.com/Horlicks-p/moelog-ai-qna-links](https://github.com/Horlicks-p/moelog-ai-qna-links)  
 
 ---
 
@@ -172,4 +167,4 @@ Bug reports & feature suggestions:
 
 This plugin is licensed under **GPL v2 or later**.  
 You are free to modify and redistribute it.  
-© 2025
+© 2025  
