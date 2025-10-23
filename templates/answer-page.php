@@ -36,15 +36,17 @@ $robots = apply_filters("moelog_aiqna_answer_robots", $default_robots);
 <link rel="stylesheet" href="<?php echo esc_url(
     get_stylesheet_uri()
 ); ?>?ver=<?php echo esc_attr(wp_get_theme()->get("Version")); ?>">
+
 <?php
-$post_title = get_the_title($post_id);
+// $post_title = get_the_title($post_id); // <-- 不再需要
 $site_name = get_bloginfo("name");
 $ai_label = __("AI 解答", "moelog-ai-qna");
 
-// 產生 SEO 友善的完整標題：〈文章標題〉 - AI 解答 | 〈站名〉
+// ✅ SEO 優化: 產生以「問題」為核心的標題
+// 格式: 〈問題〉 - AI 解答 | 〈站名〉
 $title = sprintf(
     __('%1$s - %2$s | %3$s', "moelog-ai-qna"),
-    $post_title,
+    $question,  // <-- 關鍵修改: 使用 $question 取代 $post_title
     $ai_label,
     $site_name
 );
@@ -95,7 +97,6 @@ if (typeof window.MoelogAIQnA.typing_disabled === 'undefined') {
       : "false"; ?>;
 }
 </script>
-<!-- 打字效果外部腳本 -->
 <script 
   src="<?php echo esc_url(
       plugins_url("includes/assets/js/typing.js", dirname(__FILE__))
@@ -117,7 +118,6 @@ $banner_alt = apply_filters("moelog_aiqna_banner_alt", get_bloginfo("name"));
      $banner_alt
  ); ?>"></div>
 
-<!-- QUESTION bar（顯示 Q: 問題文字） -->
 <div class="moe-answer-wrap">
   <div class="moe-question-echo"><?php echo esc_html($question); ?></div>
 <?php
@@ -181,7 +181,6 @@ $original_html =
 </div>';
 ?>
   <div id="moe-ans-target"></div>
-  <!-- 將回答 + 原文連結一併放進 template，讓打字效果持續到結尾 -->
   <template id="moe-ans-source"><?php echo $safe_html .
       $original_html; ?></template>
 
@@ -309,8 +308,7 @@ $original_html =
 ); ?></a>
   </div>
 </div>
-</div><!-- /.moe-container -->
-<div class="moe-bottom"></div>
+</div><div class="moe-bottom"></div>
 
 <?php
 // 免責聲明
