@@ -3,7 +3,7 @@
  * Moelog AI Q&A STM Module
  * Generative Engine Optimization Enhancement
  *
- * 提供結構化資料、Canonical/Robots 與快取標頭，協助搜尋/AI 爬蟲正確解析 AI 答案頁（不保證索引或排名）
+ * (版本 1.8.4+ - 已整合 answer-page.php 的 SEO 強化邏輯)
  *
  * @package Moelog_AIQnA
  * @since   1.8.3++
@@ -33,7 +33,7 @@ class Moelog_AIQnA_GEO
         // 設定頁
         add_action("admin_init", [$this, "register_settings"]);
 
-        // 回答頁 <head> 由主外掛 render_answer_html() 觸發
+        // ✅ 核心: 在 answer-page.php 的 <head> 中注入所有 SEO 標籤
         add_action("moelog_aiqna_answer_head", [$this, "output_head"], 10, 4);
 
         // 回答頁 HTTP headers(Robots / Cache)
@@ -129,11 +129,14 @@ class Moelog_AIQnA_GEO
             <strong>啟用結構化資料、SEO 優化與 AI Sitemap</strong>
         </label>
         <div style="background:#f9f9f9;border-left:4px solid #2271b1;padding:12px 15px;margin-top:8px;">
+            <p style="margin:0;"><strong>啟用後, 本(STM)模組將會:</strong></p>
             <ul style="margin:0;padding-left:20px;line-height:1.8;">
-                <li>✓ QAPage / Breadcrumb 結構化資料</li>
-                <li>✓ Open Graph / Canonical / Robots(HTML+HTTP 雙保險)</li>
-                <li>✓ 友善 CDN 的 Cache-Control(含 Last-Modified)</li>
-                <li>✓ AI 問答專用 Sitemap(index+分頁),自動 ping Google/Bing</li>
+                <li>✓ 注入 `index, follow` (取代預設的 `noindex`)</li>
+                <li>✓ 注入 QAPage / Breadcrumb / OG / Twitter Card 等 Meta 標籤</li>
+                <li>✓ 注入 Canonical 標籤 (指向**原始文章**)</li>
+                <li>✓ 輸出友善 CDN 的 HTTP 快取標頭 (ETag, 304, Last-Modified)</li>
+                <li>✓ 產生 AI 問答專用 Sitemap(index+分頁)</li>
+                <li>✓ 自動 ping Google/Bing</li>
             </ul>
             <?php if ($enabled): ?>
                 <p style="margin:10px 0 0;">
@@ -183,49 +186,88 @@ class Moelog_AIQnA_GEO
     /** Meta 標籤(SEO 與 Open Graph) */
     private function meta_tags($answer_url, $post_id, $question, $answer)
     {
-        $desc = esc_attr(wp_trim_words(wp_strip_all_tags($answer), 30));
-        $title = esc_attr($question);
-        $site = esc_attr(get_bloginfo("name"));
-        $lang = esc_attr(get_bloginfo("language")); // zh-TW / ja-JP 等
+        $site_name = esc_attr(get_bloginfo("name"));
+        $ai_label = esc_html__("AI 解答", "moelog-ai-qna");
+        $lang = esc_attr(get_bloginfo("language")); // zh-TW / ja 等
+        
+        // ✅ SEO 優化: 使用「問題」作為標題
+        $title = esc_attr(sprintf(
+            __('%1$s - %2$s | %3$s', "moelog-ai-qna"),
+            $question,
+            $ai_label,
+            $site_name
+        ));
 
+        // ✅ SEO 優化: 使用「回答內容」自動生成描述
+        $description = '';
+        if (!empty($answer)) {
+            $clean_answer = wp_strip_all_tags($answer);
+            $clean_answer = preg_replace('/\s+/', ' ', $clean_answer);
+            $clean_answer = trim($clean_answer);
+            
+            if (function_exists('mb_strlen') && mb_strlen($clean_answer, 'UTF-8') > 155) {
+                $description = mb_substr($clean_answer, 0, 155, 'UTF-8') . '...';
+            } else if (strlen($clean_answer) > 155) {
+                 $description = substr($clean_answer, 0, 155) . '...';
+            } else {
+                $description = $clean_answer;
+            }
+        }
+        $description = esc_attr($description);
+        
         // 圖片: filter → 精選圖 → 站台 icon
         $image = apply_filters("moelog_aiqna_answer_image", "", $post_id, $question);
         if (!$image && has_post_thumbnail($post_id)) {
-            $src = wp_get_attachment_image_src(get_post_thumbnail_id($post_id), "full");
+            $src = wp_get_attachment_image_src(get_post_thumbnail_id($post_id), "large");
             $image = $src ? $src[0] : "";
         }
         if (!$image) {
-            $site_icon = get_site_icon_url(512);
-            if ($site_icon) {
-                $image = $site_icon;
+            $custom_logo_id = get_theme_mod('custom_logo');
+            if ($custom_logo_id) {
+                $logo_data = wp_get_attachment_image_src($custom_logo_id, 'full');
+                if ($logo_data) {
+                    $image = $logo_data[0];
+                }
             }
         }
+        if (!$image) {
+             $site_icon = get_site_icon_url(512);
+             if ($site_icon) {
+                 $image = $site_icon;
+             }
+        }
+
 
         $now_iso = esc_attr(current_time("c"));
 
         ob_start();
         ?>
-        <!-- Moelog AI Q&A STM: Meta Tags -->
-        <meta name="description" content="<?php echo $desc; ?>">
+        <meta name="title" content="<?php echo $title; ?>">
+        <meta name="description" content="<?php echo $description; ?>">
         <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+        
         <meta property="og:type" content="article">
         <meta property="og:title" content="<?php echo $title; ?>">
-        <meta property="og:description" content="<?php echo $desc; ?>">
+        <meta property="og:description" content="<?php echo $description; ?>">
         <meta property="og:url" content="<?php echo esc_url($answer_url); ?>">
-        <meta property="og:site_name" content="<?php echo $site; ?>">
+        <meta property="og:site_name" content="<?php echo $site_name; ?>">
         <meta property="og:locale" content="<?php echo $lang; ?>">
         <?php if ($image): ?>
             <meta property="og:image" content="<?php echo esc_url($image); ?>">
+            <meta property="og:image:alt" content="<?php echo esc_attr(get_the_title($post_id)); ?>">
         <?php endif; ?>
-        <meta property="article:published_time" content="<?php echo $now_iso; ?>">
-        <meta property="article:modified_time" content="<?php echo $now_iso; ?>">
+        <meta property="article:published_time" content="<?php echo esc_attr(get_the_date("c", $post_id)); ?>">
+        <meta property="article:modified_time" content="<?php echo esc_attr(get_the_modified_date("c", $post_id)); ?>">
+
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="<?php echo $title; ?>">
-        <meta name="twitter:description" content="<?php echo $desc; ?>">
-        <link rel="canonical" href="<?php echo esc_url(get_permalink($post_id)); ?>" />
+        <meta name="twitter:description" content="<?php echo $description; ?>">
+        <meta name="twitter:url" content="<?php echo esc_url($answer_url); ?>">
         <?php if ($image): ?>
         <meta name="twitter:image" content="<?php echo esc_url($image); ?>">
         <?php endif; ?>
+        
+        <link rel="canonical" href="<?php echo esc_url(get_permalink($post_id)); ?>" />
         <?php
         return ob_get_clean();
     }
@@ -233,61 +275,102 @@ class Moelog_AIQnA_GEO
     /** Schema.org QAPage 結構化資料 */
     private function schema_qa($answer_url, $post_id, $question, $answer)
     {
-        $lang = get_bloginfo("language"); // e.g. zh-TW
+        $site_name = get_bloginfo("name");
+        $clean_answer = wp_strip_all_tags($answer);
+        $description = '';
+        if (function_exists('mb_strlen') && mb_strlen($clean_answer, 'UTF-8') > 155) {
+            $description = mb_substr($clean_answer, 0, 155, 'UTF-8') . '...';
+        } else if (strlen($clean_answer) > 155) {
+             $description = substr($clean_answer, 0, 155) . '...';
+        } else {
+            $description = $clean_answer;
+        }
+        
+        $ai_label = __("AI 解答", "moelog-ai-qna");
+        $title = sprintf(
+            __('%1$s - %2$s | %3$s', "moelog-ai-qna"),
+            $question,
+            $ai_label,
+            $site_name
+        );
+
+        // 圖片
+        $thumbnail_url = '';
+        if (has_post_thumbnail($post_id)) {
+            $thumbnail_id = get_post_thumbnail_id($post_id);
+            $thumbnail_data = wp_get_attachment_image_src($thumbnail_id, 'large');
+            if ($thumbnail_data) {
+                $thumbnail_url = $thumbnail_data[0];
+            }
+        }
+        if (empty($thumbnail_url)) {
+            $custom_logo_id = get_theme_mod('custom_logo');
+            if ($custom_logo_id) {
+                $logo_data = wp_get_attachment_image_src($custom_logo_id, 'full');
+                if ($logo_data) {
+                    $thumbnail_url = $logo_data[0];
+                }
+            }
+        }
+        
+        // ✅ SEO 強化: 使用你新版的 QAPage 結構
         $schema = [
             "@context" => "https://schema.org",
             "@type" => "QAPage",
-            "url" => $answer_url,
-            "name" => wp_strip_all_tags($question),
-            "inLanguage" => $lang,
             "mainEntity" => [
                 "@type" => "Question",
-                "name" => wp_strip_all_tags($question),
-                "text" => wp_strip_all_tags($question),
+                "name" => $question,
+                "text" => $question,
                 "answerCount" => 1,
-                "dateCreated" => current_time("c"),
-                "inLanguage" => $lang,
-                "author" => [
-                    "@type" => "Organization",
-                    "name" => get_bloginfo("name"),
-                    "url" => home_url("/"),
-                ],
                 "acceptedAnswer" => [
                     "@type" => "Answer",
-                    "text" => wp_strip_all_tags($answer),
+                    "text" => $clean_answer,
                     "dateCreated" => current_time("c"),
-                    "inLanguage" => $lang,
                     "author" => [
                         "@type" => "Organization",
-                        "name" => get_bloginfo("name"),
-                        "url" => home_url("/"),
+                        "name" => $site_name,
                     ],
-                    "url" => $answer_url,
                 ],
             ],
-            "about" => [
-                "@type" => "Article",
-                "headline" => get_the_title($post_id),
-                "url" => get_permalink($post_id),
-                "datePublished" => get_the_date("c", $post_id),
-                "dateModified" => get_the_modified_date("c", $post_id),
+            "url" => $answer_url,
+            "headline" => $title,
+            "description" => $description,
+            "datePublished" => get_the_date("c", $post_id),
+            "dateModified" => get_the_modified_date("c", $post_id),
+            "author" => [
+                "@type" => "Organization",
+                "name" => $site_name,
+                "url" => home_url(),
             ],
             "publisher" => [
                 "@type" => "Organization",
-                "name" => get_bloginfo("name"),
-                "url" => home_url("/"),
+                "name" => $site_name,
+                "url" => home_url(),
+            ],
+            "mainEntityOfPage" => [
+                "@type" => "WebPage",
+                "@id" => $answer_url,
             ],
         ];
-        return "\n<!-- Moelog AI Q&A STM: QAPage Schema -->\n" .
+        
+        if ($thumbnail_url) {
+            $schema["image"] = $thumbnail_url;
+            $schema["publisher"]["logo"] = [
+                "@type" => "ImageObject",
+                "url" => $thumbnail_url,
+            ];
+        }
+
+        return "\n\n" .
             '<script type="application/ld+json">' .
             wp_json_encode(
                 $schema,
-                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
             ) .
             "</script>\n";
     }
 
-    /** Schema.org BreadcrumbList 結構化資料 */
+    /** Schema.org BreadcrumbList 結構化資料 (保留) */
     private function schema_breadcrumb($post_id, $answer_url = "")
     {
         $list = [
@@ -309,16 +392,16 @@ class Moelog_AIQnA_GEO
                 [
                     "@type" => "ListItem",
                     "position" => 3,
-                    "name" => "AI 解答",
+                    "name" => __("AI 解答", "moelog-ai-qna"), // 使用簡潔的名稱
                     "item" => $answer_url,
                 ],
             ],
         ];
-        return "\n<!-- Moelog AI Q&A STM: Breadcrumb Schema -->\n" .
+        return "\n\n" .
             '<script type="application/ld+json">' .
             wp_json_encode(
                 $list,
-                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
             ) .
             "</script>\n";
     }
@@ -476,7 +559,7 @@ class Moelog_AIQnA_GEO
         if ($is_index) {
             // 即使只有 1 頁，也輸出 sitemapindex，利於擴充（搜尋引擎 OK）
             echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-            echo "<!-- Moelog AI Q&A Sitemap Index | Total: {$total} URLs in {$pages} files -->\n";
+            echo "\n";
             echo "<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
             $base = home_url("ai-qa-sitemap-");
             $now = gmdate("c");
@@ -500,7 +583,7 @@ class Moelog_AIQnA_GEO
         $emitted = 0;
         $seen = 0;
         echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-        echo "<!-- Moelog AI Q&A Sitemap | Part: {$target_part}/{$pages} | Generated: " . gmdate("Y-m-d H:i:s") . " UTC -->\n";
+        echo "\n";
         echo "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
         $should_stop = false;
         foreach ($ids as $pid) {
@@ -508,7 +591,8 @@ class Moelog_AIQnA_GEO
                 break;
             }
             $raw = get_post_meta($pid, "_moelog_aiqna_questions", true);
-            $qs = $this->parse_questions($raw);
+            // ✅ 修正: 這裡也必須使用全域函式 (你原始檔案這裡呼叫了 $this->parse_questions)
+            $qs = moelog_aiqna_parse_questions($raw); 
 
             if (!$qs) {
                 continue;
@@ -526,10 +610,8 @@ class Moelog_AIQnA_GEO
                 // 由主外掛提供 URL
                 if (method_exists($this->main_plugin, "build_answer_url")) {
                     $url = $this->main_plugin->build_answer_url($pid, $q);
-                } elseif (method_exists($this->main_plugin, "slugify_question_public")) {
-                    $slug = $this->main_plugin->slugify_question_public($q, $pid);
-                    $base = class_exists("Moelog_AIQnA") ? Moelog_AIQnA::PRETTY_BASE : "qna";
-                    $url = user_trailingslashit(home_url($base . "/" . $slug));
+                } elseif (function_exists('moelog_aiqna_build_url')) {
+                    $url = moelog_aiqna_build_url($pid, $q);
                 } else {
                     if (defined("WP_DEBUG") && WP_DEBUG) {
                         error_log("[Moelog AIQnA STM] Cannot generate URL for question: " . substr($q, 0, 50));
