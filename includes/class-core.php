@@ -382,10 +382,7 @@ class Moelog_AIQnA_Core
             return "";
         }
 
-        // 解析問題
-        $questions = array_filter(
-            array_map("trim", preg_split('/\r\n|\n|\r/', $raw_questions))
-        );
+        $questions = moelog_aiqna_parse_questions($raw_questions);
 
         if (empty($questions)) {
             return "";
@@ -684,3 +681,4 @@ HTML;
     }
 
 }
+
