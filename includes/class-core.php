@@ -382,6 +382,7 @@ class Moelog_AIQnA_Core
             return "";
         }
 
+        // 解析問題
         $questions = moelog_aiqna_parse_questions($raw_questions);
 
         if (empty($questions)) {
@@ -420,7 +421,7 @@ class Moelog_AIQnA_Core
 
         // 修正版本: 不顯示 h3 標題,只保留作為 title 屬性
         return sprintf(
-            '<p class="ask_chatgpt" title="%s"></p><div class="moe-aiqna-block"><h3>%s</h3><ul>%s</ul></div>%s',
+            '<p class="ask_chatgpt" title="%s"></p><div class="moe-aiqna-block"><ul>%s</ul></div>%s',
             esc_attr($heading),
             $items,
             $prefetch_js
@@ -440,9 +441,7 @@ class Moelog_AIQnA_Core
             return "";
         }
 
-        $questions = array_values(
-            array_filter(array_map("trim", preg_split('/\r\n|\n|\r/', $raw)))
-        );
+        $questions = moelog_aiqna_parse_questions($raw);
         if ($index < 1 || $index > count($questions)) {
             return "";
         }
@@ -509,65 +508,6 @@ class Moelog_AIQnA_Core
   document.querySelectorAll('.moe-aiqna-link').forEach(bind);
 
   // 動態加入時也嘗試綁定
-  var mo = new MutationObserver(function(){
-    document.querySelectorAll('.moe-aiqna-link').forEach(bind);
-  });
-  mo.observe(document.documentElement, {subtree:true, childList:true});
-})();
-</script>
-HTML;
-    }
-    /**
-     * 取得預抓取 JavaScript
-     *
-     * @return string
-     */
-    private function get_prefetch_script()
-    {
-        static $injected = false;
-
-        if ($injected) {
-            return "";
-        }
-
-        $injected = true;
-
-        return <<<HTML
-<script>
-(function(){
-  if (navigator.connection && navigator.connection.saveData) return;
-
-  function prefetch(url){
-    try{
-      var u = new URL(url);
-      u.searchParams.set('pf','1');
-      var l = document.createElement('link');
-      l.rel = 'prefetch';
-      l.as  = 'document';
-      l.href = u.toString();
-      document.head.appendChild(l);
-    }catch(e){}
-  }
-
-  var enterEvt = ('PointerEvent' in window) ? 'pointerenter' : 'mouseenter';
-  var leaveEvt = ('PointerEvent' in window) ? 'pointerleave'  : 'mouseleave';
-  var timer;
-
-  function bind(a){
-    if (a.__moeBound) return;
-    a.addEventListener(enterEvt, function(){ 
-      timer = setTimeout(function(){ prefetch(a.href); }, 100); 
-    });
-    a.addEventListener(leaveEvt, function(){ 
-      if (timer) clearTimeout(timer); 
-    });
-    a.__moeBound = true;
-  }
-
-  // 綁定現有連結
-  document.querySelectorAll('.moe-aiqna-link').forEach(bind);
-
-  // 監聽動態新增的連結
   var mo = new MutationObserver(function(){
     document.querySelectorAll('.moe-aiqna-link').forEach(bind);
   });
@@ -681,4 +621,6 @@ HTML;
     }
 
 }
+
+
 
