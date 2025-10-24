@@ -26,8 +26,6 @@ $default_robots = get_option("moelog_aiqna_geo_mode")
 $robots = apply_filters("moelog_aiqna_answer_robots", $default_robots);
 ?>
 <meta name="robots" content="<?php echo esc_attr($robots); ?>">
-<!-- 移除這行,讓 STM 模組統一處理 -->
-<!-- <link rel="canonical" href="<?php echo esc_url($answer_url); ?>" /> -->
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+JP&family=Noto+Sans+TC:wght@100..900&family=Press+Start+2P&display=swap" rel="stylesheet">
 	
