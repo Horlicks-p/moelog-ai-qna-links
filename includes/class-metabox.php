@@ -766,9 +766,13 @@ CSS
         <?php
     }
 
-    /** 儲存 */
+    /**
+     * 儲存
+     * (✅ 1.8.4+ 優化: 僅在問題列表變更時才清除快取並觸發預生成)
+     */
     public function save_metabox($post_id, $post)
     {
+        // --- 1. 標準安全檢查 ---
         if (defined("DOING_AUTOSAVE") && DOING_AUTOSAVE) {
             return;
         }
@@ -784,16 +788,21 @@ CSS
             return;
         }
 
-        $questions = isset($_POST["moelog_aiqna_questions"])
+        // --- 2. 取得「舊」資料 (用於比對) ---
+        $old_questions = $this->get_questions($post_id);
+        $old_langs = $this->get_languages($post_id);
+
+        // --- 3. 取得並清理「新」資料 ---
+        $new_questions_raw = isset($_POST["moelog_aiqna_questions"])
             ? (array) $_POST["moelog_aiqna_questions"]
             : [];
-        $langs = isset($_POST["moelog_aiqna_langs"])
+        $new_langs_raw = isset($_POST["moelog_aiqna_langs"])
             ? (array) $_POST["moelog_aiqna_langs"]
             : [];
 
         $clean_q = [];
         $clean_l = [];
-        foreach ($questions as $i => $q) {
+        foreach ($new_questions_raw as $i => $q) {
             $q = trim(wp_unslash($q));
             if ($q === "") {
                 continue;
@@ -805,7 +814,7 @@ CSS
                 $q = substr($q, 0, self::MAX_QUESTION_LENGTH);
             }
 
-            $lg = isset($langs[$i]) ? $langs[$i] : "auto";
+            $lg = isset($new_langs_raw[$i]) ? $new_langs_raw[$i] : "auto";
             if (
                 function_exists("moelog_aiqna_is_valid_language") &&
                 !moelog_aiqna_is_valid_language($lg)
@@ -820,33 +829,49 @@ CSS
         $clean_q = array_slice($clean_q, 0, self::MAX_QUESTIONS);
         $clean_l = array_slice($clean_l, 0, self::MAX_QUESTIONS);
 
+        // --- 4. 智慧比對 (核心) ---
+        $questions_changed = ($clean_q !== $old_questions);
+        $langs_changed = ($clean_l !== $old_langs);
+
+        if (!$questions_changed && !$langs_changed) {
+            // ✅ 問題和語言都沒變? 
+            // 不儲存、不清除快取、不預生成。直接返回。
+            return;
+        }
+
+        // --- 5. (僅在有變更時) 執行儲存與快取操作 ---
+        if (defined("WP_DEBUG") && WP_DEBUG) {
+            moelog_aiqna_log(
+                sprintf(
+                    "Change detected for post %d. Updating questions and clearing cache.",
+                    $post_id
+                )
+            );
+        }
+
         if (!empty($clean_q)) {
+            // 儲存 (推薦使用陣列格式, 你的 get_questions 函式可以處理)
             update_post_meta(
                 $post_id,
                 MOELOG_AIQNA_META_KEY,
-                implode("\n", $clean_q)
+                $clean_q 
             );
             update_post_meta($post_id, MOELOG_AIQNA_META_LANG_KEY, $clean_l);
         } else {
+            // 清空
             delete_post_meta($post_id, MOELOG_AIQNA_META_KEY);
             delete_post_meta($post_id, MOELOG_AIQNA_META_LANG_KEY);
         }
 
+        // 清除快取
         if (class_exists("Moelog_AIQnA_Cache")) {
             Moelog_AIQnA_Cache::delete($post_id);
         }
-        if (
-            defined("WP_DEBUG") &&
-            WP_DEBUG &&
-            function_exists("moelog_aiqna_log")
-        ) {
-            moelog_aiqna_log(
-                sprintf(
-                    "Questions saved for post %d: %d questions",
-                    $post_id,
-                    count($clean_q)
-                )
-            );
+        
+        // 觸發預生成 (與 AJAX 邏輯保持一致)
+        global $moelog_aiqna_instance;
+        if ($moelog_aiqna_instance && isset($moelog_aiqna_instance->pregenerate) && method_exists($moelog_aiqna_instance->pregenerate, 'batch_pregenerate')) {
+             $moelog_aiqna_instance->pregenerate->batch_pregenerate($post_id);
         }
     }
 
@@ -973,4 +998,5 @@ CSS
         
         wp_send_json_error('預生成類別未初始化');
     }
+
 }
