@@ -164,7 +164,114 @@ class Moelog_AIQnA_Core
         // === 清理掛鉤 ===
         add_action("save_post", [$this, "clear_post_cache"], 999, 1);
         add_action("delete_post", [$this, "clear_post_cache"], 10, 1);
+        add_action(
+            "moelog_aiqna_clear_cache_async",
+            [$this, "clear_cache_async_handler"],
+            10,
+            1
+        );
     }
+    /**
+     * 清除文章的所有快取 (修改為排程非同步執行)
+     *
+     * @param int $post_id 文章 ID
+     */
+    public function clear_post_cache($post_id)
+    {
+        // === delete_post hook 觸發時, 保持同步刪除 ===
+        if (current_action() === "delete_post") {
+            $this->perform_cache_clearing($post_id);
+            return;
+        }
+
+        // === save_post hook 觸發時, 執行非同步邏輯 ===
+
+        // 忽略自動儲存和修訂版本
+        if (defined("DOING_AUTOSAVE") && DOING_AUTOSAVE) {
+            return;
+        }
+        if (wp_is_post_revision($post_id)) {
+            return;
+        }
+
+        // 檢查 skip_clear 標記
+        $skip_clear_key = "moelog_aiqna_skip_clear_" . $post_id;
+        if (get_transient($skip_clear_key)) {
+            delete_transient($skip_clear_key); // 用完即刪
+            if (defined("WP_DEBUG") && WP_DEBUG) {
+                error_log(
+                    sprintf(
+                        "[Moelog AIQnA] Skipped cache clearing for post %d (no changes)",
+                        $post_id
+                    )
+                );
+            }
+            return;
+        }
+
+        // ✅ 核心修改: 排程一個 5 秒後執行的非同步任務來清除快取
+        // 避免重複排程
+        if (!wp_next_scheduled("moelog_aiqna_clear_cache_async", [$post_id])) {
+            wp_schedule_single_event(
+                time() + 5,
+                "moelog_aiqna_clear_cache_async",
+                [$post_id]
+            );
+            if (defined("WP_DEBUG") && WP_DEBUG) {
+                error_log(
+                    sprintf(
+                        "[Moelog AIQnA] Scheduled ASYNC cache clearing for post %d",
+                        $post_id
+                    )
+                );
+            }
+        }
+    }
+    /**
+     * ✅ 新增: 處理非同步快取清除的函式
+     *
+     * @param int $post_id 文章 ID
+     */
+    public function clear_cache_async_handler($post_id)
+    {
+        $this->perform_cache_clearing($post_id);
+    }
+
+    /**
+     * ✅ 新增: 實際執行快取清除的私有方法
+     *
+     * @param int $post_id 文章 ID
+     */
+    private function perform_cache_clearing($post_id)
+    {
+        // 刪除靜態快取
+        $static_deleted = Moelog_AIQnA_Cache::delete($post_id);
+
+        // 清除相關 Transient
+        global $wpdb;
+        $pattern = "%moe_aiqna_%" . $post_id . "%";
+        $transient_deleted = $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->options}
+                 WHERE option_name LIKE %s
+                    OR option_name LIKE %s",
+                "_transient_" . $pattern,
+                "_transient_timeout_" . $pattern
+            )
+        );
+
+        if (defined("WP_DEBUG") && WP_DEBUG) {
+            error_log(
+                sprintf(
+                    "[Moelog AIQnA ASYNC] Performed cache clearing for post %d. Static deleted: %s, Transients deleted: %d",
+                    $post_id,
+                    $static_deleted ? "Yes" : "No",
+                    $transient_deleted
+                )
+            );
+        }
+    }
+
     /**
      * 處理文章儲存時的預生成邏輯
      *
@@ -520,52 +627,6 @@ HTML;
     // =========================================
     // 快取管理
     // =========================================
-
-    /**
-     * 清除文章的所有快取
-     *
-     * @param int $post_id 文章 ID
-     */
-    public function clear_post_cache($post_id)
-    {
-        // 忽略自動儲存和修訂版本
-        if (defined("DOING_AUTOSAVE") && DOING_AUTOSAVE) {
-            return;
-        }
-        if (wp_is_post_revision($post_id)) {
-            return;
-        }
-        // ✅ 新增:檢查是否因為 save_post hook 觸發清除
-        // 如果 content_hash 檢查已經確認沒變化,就不清除快取
-        $skip_clear = get_transient("moelog_aiqna_skip_clear_" . $post_id);
-        if ($skip_clear) {
-            delete_transient("moelog_aiqna_skip_clear_" . $post_id);
-            return;
-        }
-        // 刪除該文章的所有靜態快取
-        Moelog_AIQnA_Cache::delete($post_id);
-
-        // 清除相關的 transient
-        global $wpdb;
-        $pattern = "%moe_aiqna_%" . $post_id . "%";
-        $wpdb->query(
-            $wpdb->prepare(
-                "DELETE FROM {$wpdb->options}
-                 WHERE option_name LIKE %s
-                    OR option_name LIKE %s",
-                "_transient_" . $pattern,
-                "_transient_timeout_" . $pattern
-            )
-        );
-        // delete_post_meta($post_id, '_moelog_aiqna_content_hash');
-
-        if (defined("WP_DEBUG") && WP_DEBUG) {
-            error_log(
-                sprintf("[Moelog AIQnA] Cleared cache for post %d", $post_id)
-            );
-        }
-    }
-
     /**
      * 清除所有快取
      *
@@ -619,7 +680,6 @@ HTML;
     {
         // 由主檔的 moelog_aiqna_uninstall() 函數處理
     }
-
 }
 
 
