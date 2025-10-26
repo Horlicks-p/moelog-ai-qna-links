@@ -26,9 +26,12 @@ class Moelog_AIQnA_Metabox
 
         // 關鍵:在後台正確掛載 JS/CSS(避免在 metabox 內直出 <script> 不執行)
         add_action("admin_enqueue_scripts", [$this, "enqueue_admin_assets"]);
-        
+
         // AJAX 處理
-        add_action('wp_ajax_moelog_aiqna_regenerate', [$this, 'ajax_regenerate']);
+        add_action("wp_ajax_moelog_aiqna_regenerate", [
+            $this,
+            "ajax_regenerate",
+        ]);
     }
 
     /**
@@ -67,7 +70,7 @@ class Moelog_AIQnA_Metabox
         $data = [
             "MAX_QUESTIONS" => self::MAX_QUESTIONS,
             "MAX_LENGTH" => self::MAX_QUESTION_LENGTH,
-            "ajaxurl" => admin_url('admin-ajax.php'),
+            "ajaxurl" => admin_url("admin-ajax.php"),
             "i18n" => [
                 "clearAllConfirm" => __(
                     "確定要清空所有問題嗎?",
@@ -89,10 +92,16 @@ class Moelog_AIQnA_Metabox
                 ),
                 "dragTitle" => __("拖曳排序", "moelog-ai-qna"),
                 "removeTitle" => __("刪除此問題", "moelog-ai-qna"),
-                "regenerateConfirm" => __("確定要清除快取並重新生成所有答案嗎?", "moelog-ai-qna"),
+                "regenerateConfirm" => __(
+                    "確定要清除快取並重新生成所有答案嗎?",
+                    "moelog-ai-qna"
+                ),
                 "processing" => __("處理中...", "moelog-ai-qna"),
                 "regenerateBtn" => __("重新生成全部", "moelog-ai-qna"),
-                "regenerateSuccess" => __("已排程重新生成任務,請等待 2-5 分鐘後重新整理頁面查看進度。", "moelog-ai-qna"),
+                "regenerateSuccess" => __(
+                    "已排程重新生成任務,請等待 2-5 分鐘後重新整理頁面查看進度。",
+                    "moelog-ai-qna"
+                ),
                 "regenerateFailed" => __("操作失敗", "moelog-ai-qna"),
                 "requestFailed" => __("請求失敗,請稍後再試。", "moelog-ai-qna"),
             ],
@@ -568,8 +577,11 @@ CSS
                 <?php $this->render_question_rows($questions, $langs); ?>
             </div>
 
-            <?php if (get_post_status($post) === 'publish' && !empty($questions)): ?>
-                <?php 
+            <?php if (
+                get_post_status($post) === "publish" &&
+                !empty($questions)
+            ): ?>
+                <?php
                 $pending_tasks = $this->get_pending_count($post->ID);
                 $cached_count = $this->get_cached_count($post->ID);
                 $total_count = count($questions);
@@ -579,9 +591,15 @@ CSS
                     <div class="moelog-aiqna-status-notice info">
                         <span class="dashicons dashicons-clock" style="color:#2271b1;"></span>
                         <p>
-                            <strong><?php esc_html_e('背景預生成進度:', 'moelog-ai-qna'); ?></strong>
+                            <strong><?php esc_html_e(
+                                "背景預生成進度:",
+                                "moelog-ai-qna"
+                            ); ?></strong>
                             <?php printf(
-                                esc_html__('正在處理 %d 個問題 (已完成 %d/%d)', 'moelog-ai-qna'),
+                                esc_html__(
+                                    "正在處理 %d 個問題 (已完成 %d/%d)",
+                                    "moelog-ai-qna"
+                                ),
                                 $pending_tasks,
                                 $cached_count,
                                 $total_count
@@ -592,9 +610,15 @@ CSS
                     <div class="moelog-aiqna-status-notice success">
                         <span class="dashicons dashicons-yes-alt" style="color:#00a32a;"></span>
                         <p>
-                            <strong><?php esc_html_e('所有問題已預生成完成!', 'moelog-ai-qna'); ?></strong>
+                            <strong><?php esc_html_e(
+                                "所有問題已預生成完成!",
+                                "moelog-ai-qna"
+                            ); ?></strong>
                             <?php printf(
-                                esc_html__('共 %d 個答案已快取', 'moelog-ai-qna'),
+                                esc_html__(
+                                    "共 %d 個答案已快取",
+                                    "moelog-ai-qna"
+                                ),
                                 $cached_count
                             ); ?>
                         </p>
@@ -604,12 +628,18 @@ CSS
                         <span class="dashicons dashicons-info" style="color:#dba617;"></span>
                         <p>
                             <?php printf(
-                                esc_html__('已快取 %d/%d 個答案', 'moelog-ai-qna'),
+                                esc_html__(
+                                    "已快取 %d/%d 個答案",
+                                    "moelog-ai-qna"
+                                ),
                                 $cached_count,
                                 $total_count
                             ); ?>
                             <button type="button" class="button button-small" id="moelog-aiqna-regenerate" style="margin-left:10px;">
-                                <?php esc_html_e('重新生成全部', 'moelog-ai-qna'); ?>
+                                <?php esc_html_e(
+                                    "重新生成全部",
+                                    "moelog-ai-qna"
+                                ); ?>
                             </button>
                         </p>
                     </div>
@@ -830,11 +860,11 @@ CSS
         $clean_l = array_slice($clean_l, 0, self::MAX_QUESTIONS);
 
         // --- 4. 智慧比對 (核心) ---
-        $questions_changed = ($clean_q !== $old_questions);
-        $langs_changed = ($clean_l !== $old_langs);
+        $questions_changed = $clean_q !== $old_questions;
+        $langs_changed = $clean_l !== $old_langs;
 
         if (!$questions_changed && !$langs_changed) {
-            // ✅ 問題和語言都沒變? 
+            // ✅ 問題和語言都沒變?
             // 不儲存、不清除快取、不預生成。直接返回。
             return;
         }
@@ -851,11 +881,7 @@ CSS
 
         if (!empty($clean_q)) {
             // 儲存 (推薦使用陣列格式, 你的 get_questions 函式可以處理)
-            update_post_meta(
-                $post_id,
-                MOELOG_AIQNA_META_KEY,
-                $clean_q 
-            );
+            update_post_meta($post_id, MOELOG_AIQNA_META_KEY, $clean_q);
             update_post_meta($post_id, MOELOG_AIQNA_META_LANG_KEY, $clean_l);
         } else {
             // 清空
@@ -864,14 +890,21 @@ CSS
         }
 
         // 清除快取
-        if (class_exists("Moelog_AIQnA_Cache")) {
-            Moelog_AIQnA_Cache::delete($post_id);
-        }
-        
+        //if (class_exists("Moelog_AIQnA_Cache")) {
+        //     Moelog_AIQnA_Cache::delete($post_id);
+        // }
+
         // 觸發預生成 (與 AJAX 邏輯保持一致)
         global $moelog_aiqna_instance;
-        if ($moelog_aiqna_instance && isset($moelog_aiqna_instance->pregenerate) && method_exists($moelog_aiqna_instance->pregenerate, 'batch_pregenerate')) {
-             $moelog_aiqna_instance->pregenerate->batch_pregenerate($post_id);
+        if (
+            $moelog_aiqna_instance &&
+            isset($moelog_aiqna_instance->pregenerate) &&
+            method_exists(
+                $moelog_aiqna_instance->pregenerate,
+                "batch_pregenerate"
+            )
+        ) {
+            $moelog_aiqna_instance->pregenerate->batch_pregenerate($post_id);
         }
     }
 
@@ -909,7 +942,7 @@ CSS
 
     /**
      * 取得待處理的預生成任務數量
-     * 
+     *
      * @param int $post_id 文章 ID
      * @return int
      */
@@ -919,20 +952,20 @@ CSS
         if (empty($questions)) {
             return 0;
         }
-        
+
         $pending = 0;
-        
+
         // 檢查排程任務
         $crons = _get_cron_array();
         if (!is_array($crons)) {
             return 0;
         }
-        
+
         foreach ($crons as $timestamp => $cron) {
             foreach ($cron as $hook => $events) {
-                if ($hook === 'moelog_aiqna_pregenerate') {
+                if ($hook === "moelog_aiqna_pregenerate") {
                     foreach ($events as $event) {
-                        $args = $event['args'];
+                        $args = $event["args"];
                         if (isset($args[0]) && $args[0] == $post_id) {
                             $pending++;
                         }
@@ -940,34 +973,34 @@ CSS
                 }
             }
         }
-        
+
         return $pending;
     }
 
     /**
      * 取得已快取的問題數量
-     * 
+     *
      * @param int $post_id 文章 ID
      * @return int
      */
     private function get_cached_count($post_id)
     {
-        if (!class_exists('Moelog_AIQnA_Cache')) {
+        if (!class_exists("Moelog_AIQnA_Cache")) {
             return 0;
         }
-        
+
         $questions = $this->get_questions($post_id);
         if (empty($questions)) {
             return 0;
         }
-        
+
         $cached = 0;
         foreach ($questions as $question) {
             if (Moelog_AIQnA_Cache::exists($post_id, $question)) {
                 $cached++;
             }
         }
-        
+
         return $cached;
     }
 
@@ -976,27 +1009,31 @@ CSS
      */
     public function ajax_regenerate()
     {
-        check_ajax_referer('moelog_aiqna_save', 'nonce');
-        
-        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
-        
-        if (!$post_id || !current_user_can('edit_post', $post_id)) {
-            wp_send_json_error('無權限');
+        check_ajax_referer("moelog_aiqna_save", "nonce");
+
+        $post_id = isset($_POST["post_id"]) ? intval($_POST["post_id"]) : 0;
+
+        if (!$post_id || !current_user_can("edit_post", $post_id)) {
+            wp_send_json_error("無權限");
         }
-        
+
         // 清除快取
-        if (class_exists('Moelog_AIQnA_Cache')) {
+        if (class_exists("Moelog_AIQnA_Cache")) {
             Moelog_AIQnA_Cache::delete($post_id);
         }
-        
+
         // 觸發預生成
         global $moelog_aiqna_instance;
-        if ($moelog_aiqna_instance && isset($moelog_aiqna_instance->pregenerate)) {
-            $result = $moelog_aiqna_instance->pregenerate->batch_pregenerate($post_id);
+        if (
+            $moelog_aiqna_instance &&
+            isset($moelog_aiqna_instance->pregenerate)
+        ) {
+            $result = $moelog_aiqna_instance->pregenerate->batch_pregenerate(
+                $post_id
+            );
             wp_send_json_success($result);
         }
-        
-        wp_send_json_error('預生成類別未初始化');
-    }
 
+        wp_send_json_error("預生成類別未初始化");
+    }
 }
