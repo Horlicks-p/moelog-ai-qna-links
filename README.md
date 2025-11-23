@@ -1,11 +1,11 @@
 === Moelog AI Q&A Links ===  
 Contributors: Horlicks  
 Author URI: [https://www.moelog.com/](https://www.moelog.com/)  
-Tags: Wordpress, AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, Schema, Structured Data, CSP
+Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, Schema, Structured Data, CSP, Generative Engine Optimization  
 Requires at least: 5.0  
 Tested up to: 6.8.3  
 Requires PHP: 7.4  
-Stable tag: 1.8.3+  
+Stable tag: 1.9.0  
 License: GPLv2 or later  
 License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)  
 
@@ -130,6 +130,14 @@ STM 模式可協助搜尋引擎和 AI 爬蟲「解析」你的 AI 答案頁，**
 ---
 
 == 🧩 Changelog ==
+
+= 1.9.0 (2025-11-23) – Admin UI Improvements & Bug Fixes =
+- ✨ **New:** Delete single static HTML file feature with question dropdown selection.  
+- 🔧 **Enhancement:** Improved AJAX error handling and nonce verification.  
+- 🐛 **Fix:** Fixed PHP warnings and deprecated function calls in cache statistics.  
+- 🔒 **Security:** Enhanced IP validation and rate limiting using wp_cache.  
+- ⚡ **Performance:** Optimized cache operations with batch processing and extended cache TTL.  
+- 📝 **Refactor:** Split large admin and renderer classes into smaller, focused modules.
 
 = 1.8.3 (2025-10-21) – Encrypted API Key Storage =  
 - 🔒 **安全升級:** 新增 API 金鑰加密功能 (AES-256-CBC)。  

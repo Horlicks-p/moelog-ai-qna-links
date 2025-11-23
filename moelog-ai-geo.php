@@ -47,10 +47,6 @@ class Moelog_AIQnA_GEO
         add_action("template_redirect", [$this, "render_sitemap"]);
         add_filter("robots_txt", [$this, "robots_announce_sitemap"], 10, 2);
 
-        // 發文後自動 ping 搜尋引擎
-        add_action("save_post", [$this, "maybe_ping_on_publish"], 999, 2);
-        add_action("moelog_aiqna_ping_search_engines", [$this, "ping_search_engines"]);
-
         // 後台提醒
         add_action("admin_notices", [$this, "admin_notices"]);
     }
@@ -160,7 +156,7 @@ class Moelog_AIQnA_GEO
         if ($old !== $new) {
             flush_rewrite_rules(false);
             if ($new) {
-                wp_schedule_single_event(time() + 30, "moelog_aiqna_ping_search_engines");
+                //wp_schedule_single_event(time() + 30, "moelog_aiqna_ping_search_engines");
             }
         }
         return $new ? 1 : 0;
@@ -236,16 +232,12 @@ class Moelog_AIQnA_GEO
                  $image = $site_icon;
              }
         }
-
-
         $now_iso = esc_attr(current_time("c"));
-
         ob_start();
         ?>
         <meta name="title" content="<?php echo $title; ?>">
         <meta name="description" content="<?php echo $description; ?>">
         <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
-        
         <meta property="og:type" content="article">
         <meta property="og:title" content="<?php echo $title; ?>">
         <meta property="og:description" content="<?php echo $description; ?>">
@@ -253,12 +245,11 @@ class Moelog_AIQnA_GEO
         <meta property="og:site_name" content="<?php echo $site_name; ?>">
         <meta property="og:locale" content="<?php echo $lang; ?>">
         <?php if ($image): ?>
-            <meta property="og:image" content="<?php echo esc_url($image); ?>">
-            <meta property="og:image:alt" content="<?php echo esc_attr(get_the_title($post_id)); ?>">
+        <meta property="og:image" content="<?php echo esc_url($image); ?>">
+        <meta property="og:image:alt" content="<?php echo esc_attr(get_the_title($post_id)); ?>">
         <?php endif; ?>
         <meta property="article:published_time" content="<?php echo esc_attr(get_the_date("c", $post_id)); ?>">
         <meta property="article:modified_time" content="<?php echo esc_attr(get_the_modified_date("c", $post_id)); ?>">
-
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="<?php echo $title; ?>">
         <meta name="twitter:description" content="<?php echo $description; ?>">
@@ -266,12 +257,10 @@ class Moelog_AIQnA_GEO
         <?php if ($image): ?>
         <meta name="twitter:image" content="<?php echo esc_url($image); ?>">
         <?php endif; ?>
-        
         <link rel="canonical" href="<?php echo esc_url(get_permalink($post_id)); ?>" />
         <?php
         return ob_get_clean();
     }
-
     /** Schema.org QAPage 結構化資料 */
     private function schema_qa($answer_url, $post_id, $question, $answer)
     {
@@ -651,61 +640,6 @@ class Moelog_AIQnA_GEO
         $base = home_url("ai-qa-sitemap.php"); // ✅ .php
         $out = rtrim((string) $output) . "\nSitemap: " . esc_url($base) . "\n";
         return $out;
-    }
-
-    // =========================================
-    // 自動 Ping 搜尋引擎
-    // =========================================
-    public function maybe_ping_on_publish($post_id, $post)
-    {
-        if (!get_option("moelog_aiqna_geo_mode")) {
-            return;
-        }
-        if ($post->post_status !== "publish") {
-            return;
-        }
-        if (wp_is_post_revision($post_id)) {
-            return;
-        }
-        if (defined("DOING_AUTOSAVE") && DOING_AUTOSAVE) {
-            return;
-        }
-        $questions = get_post_meta($post_id, "_moelog_aiqna_questions", true);
-        $qs = moelog_aiqna_parse_questions($questions);
-
-        if (empty($qs)) {
-            return;
-        }
-        wp_schedule_single_event(time() + 60, "moelog_aiqna_ping_search_engines");
-    }
-
-    public function ping_search_engines()
-    {
-        if (!get_option("moelog_aiqna_geo_mode")) {
-            return;
-        }
-        $sitemap_url = home_url("/ai-qa-sitemap.php"); // ✅ .php
-        $google_ping = "https://www.google.com/ping?sitemap=" . rawurlencode($sitemap_url);
-        $bing_ping = "https://www.bing.com/ping?sitemap=" . rawurlencode($sitemap_url);
-        $args = [
-            "timeout" => 5,
-            "sslverify" => true,
-            "headers" => [
-                "User-Agent" => "Moelog-AIQnA/1.6.3 (+" . home_url("/") . ")",
-            ],
-        ];
-        $g = wp_remote_get($google_ping, $args);
-        $b = wp_remote_get($bing_ping, $args);
-        if (defined("WP_DEBUG") && WP_DEBUG) {
-            error_log(
-                "[Moelog AIQnA STM] Ping Google: " .
-                (is_wp_error($g) ? $g->get_error_message() : wp_remote_retrieve_response_code($g))
-            );
-            error_log(
-                "[Moelog AIQnA STM] Ping Bing: " .
-                (is_wp_error($b) ? $b->get_error_message() : wp_remote_retrieve_response_code($b))
-            );
-        }
     }
 
     // =========================================

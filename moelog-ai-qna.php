@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Moelog AI Q&A Links
  * Description: 在每篇文章底部顯示作者預設的問題清單,點擊後開新分頁,由 AI 生成答案的靜態HTML。支持 OpenAI/Gemini,可自訂模型與提示。
- * Version: 1.8.3+
+ * Version: 1.9.0
  * Author: Horlicks (moelog.com)
  * Text Domain: moelog-ai-qna
  * Domain Path: /languages
@@ -19,7 +19,7 @@ if (!defined("ABSPATH")) {
 // =========================================
 // 定義常數
 // =========================================
-define("MOELOG_AIQNA_VERSION", "1.8.3+");
+define("MOELOG_AIQNA_VERSION", "1.9.0");
 define("MOELOG_AIQNA_FILE", __FILE__);
 define("MOELOG_AIQNA_DIR", plugin_dir_path(__FILE__));
 define("MOELOG_AIQNA_URL", plugin_dir_url(__FILE__));
@@ -55,6 +55,18 @@ define("MOELOG_AIQNA_STATIC_DIR", moelog_aiqna_get_static_dir());
 // AI 預設模型
 define("MOELOG_AIQNA_DEFAULT_MODEL_OPENAI", "gpt-4o-mini");
 define("MOELOG_AIQNA_DEFAULT_MODEL_GEMINI", "gemini-2.5-flash");
+define("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-sonnet-4-5-20250929");
+
+// 常數定義（避免魔術數字）
+define("MOELOG_AIQNA_DEFAULT_CACHE_TTL_DAYS", 30);
+define("MOELOG_AIQNA_DEFAULT_MAX_CHARS", 6000);
+define("MOELOG_AIQNA_MIN_MAX_CHARS", 1000);
+define("MOELOG_AIQNA_MAX_MAX_CHARS", 20000);
+define("MOELOG_AIQNA_MIN_CACHE_TTL_DAYS", 1);
+define("MOELOG_AIQNA_MAX_CACHE_TTL_DAYS", 365);
+define("MOELOG_AIQNA_DEFAULT_TEMPERATURE", 0.3);
+define("MOELOG_AIQNA_MIN_TEMPERATURE", 0.0);
+define("MOELOG_AIQNA_MAX_TEMPERATURE", 2.0);
 
 // =========================================
 // 自動載入類別
@@ -68,6 +80,8 @@ spl_autoload_register(function ($class_name) {
     // 轉換類別名稱為檔案名稱
     // Moelog_AIQnA_Cache -> class-cache.php
     // Moelog_AIQnA_AI_Client -> class-ai-client.php
+    // Moelog_AIQnA_Debug -> class-debug.php
+    // Moelog_AIQnA_Settings -> class-settings.php
     $class_file = str_replace("Moelog_AIQnA_", "", $class_name);
     $class_file = strtolower(str_replace("_", "-", $class_file));
     $file_path = MOELOG_AIQNA_DIR . "includes/class-" . $class_file . ".php";
@@ -82,6 +96,15 @@ spl_autoload_register(function ($class_name) {
 // =========================================
 require_once MOELOG_AIQNA_DIR . "includes/helpers-utils.php";
 require_once MOELOG_AIQNA_DIR . "includes/helpers-encryption.php"; // 新增
+
+// =========================================
+// 載入 AJAX 處理器（確保 action 註冊）
+// =========================================
+// 注意：class-admin-ajax.php 會通過 autoloader 載入類別，
+// 但文件底部的 add_action 需要在文件被載入時執行
+if (is_admin()) {
+  require_once MOELOG_AIQNA_DIR . "includes/class-admin-ajax.php";
+}
 
 // =========================================
 // 初始化核心類別
@@ -470,4 +493,4 @@ add_action(
 // =========================================
 // 結束標記
 // =========================================
-// EOF - Moelog AI Q&A v1.8.1
+// EOF - Moelog AI Q&A v1.9.0
