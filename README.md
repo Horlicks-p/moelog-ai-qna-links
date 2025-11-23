@@ -16,6 +16,9 @@ License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/lic
 
 這個回答頁面具備乾淨的 HTML 佈局、打字機動畫效果、內建的快取系統（包含靜態檔案），以及一個可選的 **STM (結構化資料模式)**，旨在幫助搜尋引擎和 AI 爬蟲更好地理解頁面內容。  
 
+範例問題: GitHub是怎樣的一個網站?它的用途是什麼?  
+回答頁面: [https://www.moelog.com/qna/qba-4cb-3257/](https://www.moelog.com/qna/qba-4cb-3257/)  
+
 ---
 
 == ✨ Key Features ==
