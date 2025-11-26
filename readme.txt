@@ -5,7 +5,7 @@ Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, Schem
 Requires at least: 5.0
 Tested up to: 6.8.3
 Requires PHP: 7.4
-Stable tag: 1.9.0
+Stable tag: 1.10.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -130,6 +130,15 @@ The plugin only sends the following to AI providers (OpenAI / Gemini / Claude):
 ---
 
 == 🧩 Changelog ==
+
+= 1.10.0 (2025-11-26) – Interactive Answer Page & Model Registry =
+- ✨ Answer page overhaul with typing animation, interactive feedback card, and standalone CSS/JS assets for better caching.  
+- 🎨 Structural cleanup for CSP-friendly templates (links, original source block, sanitized markup).  
+- 🤖 Model Registry + dropdown/custom inputs in admin, dynamic defaults per provider.  
+- 🧭 Settings screen split into five tabs (General, Display, Cache, Cache Tools, System Info).  
+- 🗺️ Sitemap rendering now chunks post IDs via `$wpdb`, preventing memory spikes on large sites.  
+- ⚙️ Cache tools/information moved into dedicated tabs with live stats & release notes.  
+- ⏱️ API timeout increased to 45s for GPT-4 / Claude long-form answers.  
 
 = 1.9.0 (2025-11-23) – Admin UI Improvements & Bug Fixes =
 - ✨ **New:** Delete single static HTML file feature with question dropdown selection.  
