@@ -35,8 +35,8 @@ The answer page features a clean HTML layout, a typing animation effect, a built
   * HMAC hashing ensures URL safety and prevents guessing.  
   * Customizable route base (default `qna`) and cache directory name.  
 * **Shortcodes:**  
-  * `[moelog_aiqna]` — display the full question list.  
-  * `[moelog_aiqna index="N"]` — display a single question by index.  
+  * `[moelog_aiqna index="N"]` — insert a single question at any position in the post (index range: 1-8).  
+  * The full question list is automatically appended at the bottom, excluding questions already displayed via shortcode to avoid duplicates.  
 * **Security:**  
   * **API key encryption:** Stores API keys with `AES-256-CBC` (random IV), key material derived from WordPress salts.  
   * **Strict CSP:** Full **Content Security Policy** support; all inline scripts/styles use a `nonce`.  
@@ -73,9 +73,14 @@ STM helps search engines and AI crawlers **parse** your AI answer pages. **It do
 
 | Shortcode | Description |
 |----------|-------------|
-| `[moelog_aiqna]` | Displays the full question list (if detected, the auto list at the bottom is hidden) |
-| `[moelog_aiqna index="1"]` | Displays question #1 only |
-| `[moelog_aiqna index="3"]` | Displays question #3 only (supports 1–8) |
+| `[moelog_aiqna index="1"]` | Insert question #1 at any position in the post |
+| `[moelog_aiqna index="3"]` | Insert question #3 at any position in the post (supports 1–8) |
+
+**Usage Notes:**
+* Shortcodes are used to insert a **single question** link at **any position** in the post.
+* The full question list is **automatically appended** at the bottom of the post. Questions already displayed via shortcode are automatically excluded to avoid duplicates.
+* Example: Using `[moelog_aiqna index="1"]` to display question 1 in the middle of the post, the bottom list will automatically show only questions 2, 3, etc.
+* **Note:** `[moelog_aiqna]` (without index parameter) has been removed. Only single-question mode is supported to simplify usage and avoid conflicts with the auto-appended list.
 
 ---
 
@@ -139,6 +144,7 @@ The plugin only sends the following to AI providers (OpenAI / Gemini / Claude):
 - 🗺️ Sitemap rendering now chunks post IDs via `$wpdb`, preventing memory spikes on large sites.  
 - ⚙️ Cache tools/information moved into dedicated tabs with live stats & release notes.  
 - ⏱️ API timeout increased to 45s for GPT-4 / Claude long-form answers.  
+- 🔧 **Shortcode optimization:** Removed `[moelog_aiqna]` full list mode, now only supports `[moelog_aiqna index="N"]` single-question mode. Shortcodes can insert specific questions anywhere in the post, while the full list is automatically appended at the bottom with shortcode-displayed questions excluded to avoid duplicates. This also fixes content truncation issues caused by `<script>` tags in shortcode output.  
 
 = 1.9.0 (2025-11-23) – Admin UI Improvements & Bug Fixes =
 - ✨ **New:** Delete single static HTML file feature with question dropdown selection.  
