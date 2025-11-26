@@ -169,13 +169,19 @@ class Moelog_AIQnA_AI_Client
     }
 
     $code = wp_remote_retrieve_response_code($response);
-    $json = json_decode(wp_remote_retrieve_body($response), true);
+    $body = wp_remote_retrieve_body($response);
+    $json = json_decode($body, true);
+
+    // PHP 8.1+: 確保 $json 是陣列
+    if (!is_array($json)) {
+      $json = [];
+    }
 
     // 處理成功回應
     if ($code >= 200 && $code < 300) {
       $content = $json["choices"][0]["message"]["content"] ?? "";
       if ($content !== "") {
-        return trim($content);
+        return trim((string) $content);
       }
     }
 
@@ -287,13 +293,19 @@ class Moelog_AIQnA_AI_Client
     }
 
     $code = wp_remote_retrieve_response_code($response);
-    $json = json_decode(wp_remote_retrieve_body($response), true);
+    $body = wp_remote_retrieve_body($response);
+    $json = json_decode($body, true);
+
+    // PHP 8.1+: 確保 $json 是陣列
+    if (!is_array($json)) {
+      $json = [];
+    }
 
     // 處理成功回應
     if ($code >= 200 && $code < 300) {
       $content = $json["candidates"][0]["content"]["parts"][0]["text"] ?? "";
       if ($content !== "") {
-        return trim($content);
+        return trim((string) $content);
       }
     }
 
@@ -432,6 +444,11 @@ class Moelog_AIQnA_AI_Client
     $body_raw = wp_remote_retrieve_body($response);
     $json = json_decode($body_raw, true);
 
+    // PHP 8.1+: 確保 $json 是陣列
+    if (!is_array($json)) {
+      $json = [];
+    }
+
     // 成功:從 content 陣列中提取文字
     if ($code >= 200 && $code < 300) {
       $text = "";
@@ -446,7 +463,7 @@ class Moelog_AIQnA_AI_Client
       }
 
       if (!empty($text)) {
-        return trim($text); // ✅ 對齊專案用法
+        return trim((string) $text);
       }
     }
 

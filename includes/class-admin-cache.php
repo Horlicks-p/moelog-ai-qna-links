@@ -22,7 +22,6 @@ class Moelog_AIQnA_Admin_Cache
     $stats = Moelog_AIQnA_Cache::get_stats();
     $ttl_days = moelog_aiqna_get_cache_ttl_days();
     ?>
-        <hr style="margin:30px 0;">
         <h2><?php esc_html_e("🗑️ 快取管理", "moelog-ai-qna"); ?></h2>
 
         <div style="background:#f9f9f9;border-left:4px solid #2271b1;padding:15px;margin-bottom:20px;">
@@ -82,7 +81,7 @@ class Moelog_AIQnA_Admin_Cache
         </table>
 
         <!-- 清除所有快取 -->
-        <h3><?php esc_html_e("清除所有快取", "moelog-ai-qna"); ?></h3>
+        <h3><?php esc_html_e("🗑️ 清除所有快取", "moelog-ai-qna"); ?></h3>
         <form method="post" action="" style="margin-bottom:30px;">
             <?php wp_nonce_field(
               "moelog_aiqna_clear_cache",
@@ -106,8 +105,7 @@ class Moelog_AIQnA_Admin_Cache
         </form>
 
         <!-- 清理孤兒統計數據 -->
-        <hr style="margin:20px 0;">
-        <h3><?php esc_html_e("🧹 清理孤兒統計數據", "moelog-ai-qna"); ?></h3>
+        <h3 style="margin-top:30px;"><?php esc_html_e("🧹 清理孤兒統計數據", "moelog-ai-qna"); ?></h3>
         <form method="post" action="" style="margin-bottom:30px;">
             <?php wp_nonce_field(
               "moelog_aiqna_cleanup_orphaned",
@@ -131,8 +129,7 @@ class Moelog_AIQnA_Admin_Cache
         </form>
 
         <!-- 清除單一靜態 HTML -->
-        <hr style="margin:20px 0;">
-        <h3><?php esc_html_e("刪除單一問題的靜態 HTML", "moelog-ai-qna"); ?></h3>
+        <h3 style="margin-top:30px;"><?php esc_html_e("🔍 刪除單一問題的靜態 HTML", "moelog-ai-qna"); ?></h3>
         <form method="post" action="" id="moelog-clear-single-form">
             <?php wp_nonce_field(
               "moelog_aiqna_clear_single",

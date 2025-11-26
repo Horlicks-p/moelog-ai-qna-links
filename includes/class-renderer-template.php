@@ -236,11 +236,12 @@ class Moelog_AIQnA_Renderer_Template
     $safe_html = $answer ? wp_kses(wpautop($answer), $allowed) : "";
 
     // 移除事件處理器
+    // PHP 8.1+: 確保 preg_replace 不返回 null
     $safe_html = preg_replace(
       "/<(\w+)\s+[^>]*on\w+\s*=\s*[^>]*>/i",
       '<$1>',
       $safe_html,
-    );
+    ) ?? $safe_html;
 
     // 處理 URL(轉換為帶 title 的 span)
     $safe_html = preg_replace_callback(
@@ -254,7 +255,7 @@ class Moelog_AIQnA_Renderer_Template
           "</span>";
       },
       $safe_html,
-    );
+    ) ?? $safe_html;
 
     return $safe_html;
   }
@@ -267,8 +268,9 @@ class Moelog_AIQnA_Renderer_Template
    */
   public function build_original_link_html($vars)
   {
-    $domain = parse_url($vars["site_url"], PHP_URL_HOST);
-    $clean_domain = preg_replace("/^www\./", "", $domain);
+    // PHP 8.1+: 確保 parse_url 和 preg_replace 不返回 null
+    $domain = parse_url($vars["site_url"], PHP_URL_HOST) ?? "";
+    $clean_domain = preg_replace("/^www\./", "", $domain) ?? $domain;
     $display_url = urldecode($vars["post_url"]);
 
     return sprintf(
@@ -563,13 +565,14 @@ document.addEventListener('DOMContentLoaded',function(){
     // 如果是要儲存,HTML 中是真實 nonce,要替換成 placeholder
 
     // 替換 nonce 屬性
-    $html = preg_replace(
+    // PHP 8.1+: 確保 preg_replace 不返回 null
+    $result = preg_replace(
       '/nonce="[^"]*"/',
       'nonce="' . esc_attr($new_nonce) . '"',
       $html,
     );
 
-    return $html;
+    return $result ?? $html;
   }
 }
 

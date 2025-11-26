@@ -899,16 +899,13 @@ CSS
         // }
 
         // 觸發預生成 (與 AJAX 邏輯保持一致)
-        global $moelog_aiqna_instance;
-        if (
-            $moelog_aiqna_instance &&
-            isset($moelog_aiqna_instance->pregenerate) &&
-            method_exists(
-                $moelog_aiqna_instance->pregenerate,
-                "batch_pregenerate"
-            )
-        ) {
-            $moelog_aiqna_instance->pregenerate->batch_pregenerate($post_id);
+        // ✅ 修正: 使用 getter 方法存取私有屬性
+        $instance = moelog_aiqna_instance();
+        if ($instance) {
+            $pregenerate = $instance->get_pregenerate();
+            if ($pregenerate && method_exists($pregenerate, "batch_pregenerate")) {
+                $pregenerate->batch_pregenerate($post_id);
+            }
         }
     }
 
@@ -1027,15 +1024,14 @@ CSS
         }
 
         // 觸發預生成
-        global $moelog_aiqna_instance;
-        if (
-            $moelog_aiqna_instance &&
-            isset($moelog_aiqna_instance->pregenerate)
-        ) {
-            $result = $moelog_aiqna_instance->pregenerate->batch_pregenerate(
-                $post_id
-            );
-            wp_send_json_success($result);
+        // ✅ 修正: 使用 getter 方法存取私有屬性
+        $instance = moelog_aiqna_instance();
+        if ($instance) {
+            $pregenerate = $instance->get_pregenerate();
+            if ($pregenerate) {
+                $result = $pregenerate->batch_pregenerate($post_id);
+                wp_send_json_success($result);
+            }
         }
 
         wp_send_json_error("預生成類別未初始化");

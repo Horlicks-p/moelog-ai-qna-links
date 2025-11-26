@@ -320,7 +320,8 @@ class Moelog_AIQnA_Pregenerate
         $raw =
           $post->post_title . "\n\n" . strip_shortcodes($post->post_content);
         $raw = wp_strip_all_tags($raw);
-        $raw = preg_replace("/\s+/u", " ", $raw);
+        // PHP 8.1+: 確保 preg_replace 不返回 null
+        $raw = preg_replace("/\s+/u", " ", $raw) ?? "";
 
         if (function_exists("mb_strcut")) {
           $context =

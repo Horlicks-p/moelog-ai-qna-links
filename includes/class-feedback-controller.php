@@ -375,7 +375,8 @@ class Moelog_AIQnA_Feedback_Controller
             return null;
         }
 
-        $hash = strtolower(preg_replace('/[^a-f0-9]/', "", (string) $hash));
+        // PHP 8.1+: 確保 preg_replace 不返回 null
+        $hash = strtolower(preg_replace('/[^a-f0-9]/', "", (string) $hash) ?? "");
 
         if ($hash === "") {
             return null;

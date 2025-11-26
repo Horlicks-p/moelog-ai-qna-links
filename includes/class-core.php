@@ -20,16 +20,57 @@ class Moelog_AIQnA_Core
     const VERSION = MOELOG_AIQNA_VERSION;
 
     /**
+     * 單例實例
+     * @var Moelog_AIQnA_Core|null
+     */
+    private static $instance = null;
+
+    /**
      * 各模組實例
+     * @var Moelog_AIQnA_Router
      */
     private $router;
+
+    /**
+     * @var Moelog_AIQnA_Renderer
+     */
     private $renderer;
+
+    /**
+     * @var Moelog_AIQnA_Admin|null
+     */
     private $admin;
+
+    /**
+     * @var Moelog_AIQnA_Metabox|null
+     */
     private $metabox;
+
+    /**
+     * @var Moelog_AIQnA_Assets
+     */
     private $assets;
+
+    /**
+     * @var Moelog_AIQnA_AI_Client
+     */
     private $ai_client;
+
+    /**
+     * @var Moelog_AIQnA_Pregenerate
+     */
     private $pregenerate;
+
+    /**
+     * 是否已注入預抓取腳本
+     * @var bool
+     */
     private $prefetch_injected = false;
+
+    /**
+     * 是否需要預抓取腳本
+     * @var bool
+     */
     private $prefetch_needed = false;
 
     /**
@@ -45,7 +86,22 @@ class Moelog_AIQnA_Core
     private $initialized = false;
 
     /**
+     * 取得單例實例
+     *
+     * @return Moelog_AIQnA_Core
+     */
+    public static function get_instance()
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    /**
      * 建構函數
+     * 
+     * ✅ 優化: 雖然保留 public 以保持向下相容，但建議使用 get_instance()
      */
     public function __construct()
     {
@@ -63,6 +119,8 @@ class Moelog_AIQnA_Core
 
     /**
      * 初始化 HMAC 密鑰
+     *
+     * @return void
      */
     private function init_secret()
     {
@@ -82,6 +140,8 @@ class Moelog_AIQnA_Core
 
     /**
      * 載入所有依賴模組
+     *
+     * @return void
      */
     private function load_dependencies()
     {
@@ -116,6 +176,8 @@ class Moelog_AIQnA_Core
 
     /**
      * 註冊所有 WordPress 掛鉤
+     *
+     * @return void
      */
     private function register_hooks()
     {
@@ -179,6 +241,7 @@ class Moelog_AIQnA_Core
      * 清除文章的所有快取 (修改為排程非同步執行)
      *
      * @param int $post_id 文章 ID
+     * @return void
      */
     public function clear_post_cache($post_id)
     {
@@ -225,6 +288,7 @@ class Moelog_AIQnA_Core
      * ✅ 新增: 處理非同步快取清除的函式
      *
      * @param int $post_id 文章 ID
+     * @return void
      */
     public function clear_cache_async_handler($post_id)
     {
@@ -235,6 +299,7 @@ class Moelog_AIQnA_Core
      * ✅ 新增: 實際執行快取清除的私有方法
      *
      * @param int $post_id 文章 ID
+     * @return void
      */
     private function perform_cache_clearing($post_id)
     {
@@ -267,6 +332,7 @@ class Moelog_AIQnA_Core
      *
      * @param int     $post_id 文章 ID
      * @param WP_Post $post    文章物件
+     * @return void
      */
     public function handle_save_post_pregenerate($post_id, $post)
     {
@@ -377,6 +443,46 @@ class Moelog_AIQnA_Core
     public function get_renderer()
     {
         return $this->renderer;
+    }
+
+    /**
+     * 取得 Pregenerate 實例
+     *
+     * @return Moelog_AIQnA_Pregenerate
+     */
+    public function get_pregenerate()
+    {
+        return $this->pregenerate;
+    }
+
+    /**
+     * 取得 Admin 實例
+     *
+     * @return Moelog_AIQnA_Admin|null
+     */
+    public function get_admin()
+    {
+        return $this->admin;
+    }
+
+    /**
+     * 取得 Metabox 實例
+     *
+     * @return Moelog_AIQnA_Metabox|null
+     */
+    public function get_metabox()
+    {
+        return $this->metabox;
+    }
+
+    /**
+     * 取得 Assets 實例
+     *
+     * @return Moelog_AIQnA_Assets
+     */
+    public function get_assets()
+    {
+        return $this->assets;
     }
 
     /**
@@ -601,6 +707,8 @@ class Moelog_AIQnA_Core
     /**
      * 在 wp_footer 中注入預抓取腳本
      * 避免在短碼中直接輸出 <script> 標籤導致內容被截斷
+     *
+     * @return void
      */
     public function inject_prefetch_script()
     {

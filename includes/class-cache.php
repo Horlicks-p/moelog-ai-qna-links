@@ -672,7 +672,8 @@ class Moelog_AIQnA_Cache
   private static function delete_feedback_stats($post_id, $hash)
   {
     $post_id = absint($post_id);
-    $hash = preg_replace('/[^a-f0-9]/', "", strtolower($hash));
+    // PHP 8.1+: 確保 preg_replace 不返回 null
+    $hash = preg_replace('/[^a-f0-9]/', "", strtolower((string) $hash)) ?? "";
 
     if (!$post_id || empty($hash)) {
       return;
@@ -688,6 +689,9 @@ class Moelog_AIQnA_Cache
   /**
    * 取得快取統計資訊
    *
+   * ✅ 優化: 添加統計結果快取，避免頻繁的檔案系統操作
+   *
+   * @param bool $force_refresh 是否強制刷新快取
    * @return array {
    *     @type int    $static_count   靜態檔案數量
    *     @type int    $static_size    靜態檔案總大小(bytes)
@@ -702,11 +706,44 @@ class Moelog_AIQnA_Cache
    *     @type int    $static_hits 靜態檔案命中次數
    *     @type int    $static_misses 靜態檔案未命中次數
    *     @type float  $static_hit_rate 靜態檔案命中率(%)
+   *     @type int    $cached_at 統計快取時間
    * }
    */
-  public static function get_stats()
+  public static function get_stats($force_refresh = false)
   {
     self::init();
+
+    // ✅ 優化: 使用快取避免頻繁的檔案系統操作
+    $cache_key = 'moelog_aiqna_cache_stats';
+    
+    if (!$force_refresh) {
+      $cached_stats = get_transient($cache_key);
+      if ($cached_stats !== false && is_array($cached_stats)) {
+        // 添加即時的命中率統計（這些不需要快取）
+        $cached_stats["transient_requests"] = self::$stats['transient_requests'] ?? 0;
+        $cached_stats["transient_hits"] = self::$stats['transient_hits'] ?? 0;
+        $cached_stats["transient_misses"] = self::$stats['transient_misses'] ?? 0;
+        $cached_stats["static_checks"] = self::$stats['static_checks'] ?? 0;
+        $cached_stats["static_hits"] = self::$stats['static_hits'] ?? 0;
+        $cached_stats["static_misses"] = self::$stats['static_misses'] ?? 0;
+        
+        // 重新計算命中率
+        if ($cached_stats["transient_requests"] > 0) {
+          $cached_stats["transient_hit_rate"] = round(
+            ($cached_stats["transient_hits"] / $cached_stats["transient_requests"]) * 100,
+            2
+          );
+        }
+        if ($cached_stats["static_checks"] > 0) {
+          $cached_stats["static_hit_rate"] = round(
+            ($cached_stats["static_hits"] / $cached_stats["static_checks"]) * 100,
+            2
+          );
+        }
+        
+        return $cached_stats;
+      }
+    }
 
     $stats = [
       "static_count" => 0,
@@ -721,6 +758,9 @@ class Moelog_AIQnA_Cache
       "static_checks" => self::$stats['static_checks'] ?? 0,
       "static_hits" => self::$stats['static_hits'] ?? 0,
       "static_misses" => self::$stats['static_misses'] ?? 0,
+      "transient_hit_rate" => 0.0,
+      "static_hit_rate" => 0.0,
+      "cached_at" => time(),
     ];
 
     // 計算命中率
@@ -729,8 +769,6 @@ class Moelog_AIQnA_Cache
         ($stats["transient_hits"] / $stats["transient_requests"]) * 100,
         2
       );
-    } else {
-      $stats["transient_hit_rate"] = 0.0;
     }
 
     if ($stats["static_checks"] > 0) {
@@ -738,8 +776,6 @@ class Moelog_AIQnA_Cache
         ($stats["static_hits"] / $stats["static_checks"]) * 100,
         2
       );
-    } else {
-      $stats["static_hit_rate"] = 0.0;
     }
 
     // 靜態檔案統計
@@ -750,9 +786,15 @@ class Moelog_AIQnA_Cache
       if ($files !== false) {
         $stats["static_count"] = count($files);
 
+        // ✅ 優化: 批量處理檔案大小計算
+        $total_size = 0;
         foreach ($files as $file) {
-          $stats["static_size"] += filesize($file);
+          $size = @filesize($file);
+          if ($size !== false) {
+            $total_size += $size;
+          }
         }
+        $stats["static_size"] = $total_size;
       }
     }
 
@@ -763,7 +805,20 @@ class Moelog_AIQnA_Cache
              WHERE option_name LIKE '_transient_moe_aiqna_%'",
     );
 
+    // ✅ 優化: 快取統計結果 5 分鐘
+    set_transient($cache_key, $stats, 300);
+
     return $stats;
+  }
+
+  /**
+   * 清除統計快取
+   *
+   * @return bool
+   */
+  public static function clear_stats_cache()
+  {
+    return delete_transient('moelog_aiqna_cache_stats');
   }
 
   /**

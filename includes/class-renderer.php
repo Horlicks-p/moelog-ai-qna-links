@@ -297,7 +297,8 @@ class Moelog_AIQnA_Renderer
     $max_chars = Moelog_AIQnA_Settings::get_max_chars();
     $raw = $post->post_title . "\n\n" . strip_shortcodes($post->post_content);
     $raw = wp_strip_all_tags($raw);
-    $raw = preg_replace("/\s+/u", " ", $raw);
+    // PHP 8.1+: 確保 preg_replace 不返回 null
+    $raw = preg_replace("/\s+/u", " ", $raw) ?? "";
 
     // 截斷
     if (function_exists("mb_strlen") && function_exists("mb_strcut")) {
@@ -343,7 +344,9 @@ class Moelog_AIQnA_Renderer
   /**
    * 檢查頻率限制
    *
-   * ✅ 優化: 使用 SHA-256 替代 MD5，使用 wp_cache 替代 transient（更快）
+   * ✅ 優化: 使用雙層快取機制（wp_cache + transient）確保頻率限制有效
+   * - wp_cache: 高效能，但需要物件快取外掛
+   * - transient: 作為後備，確保在沒有物件快取時仍然有效
    *
    * @param int    $post_id  文章 ID
    * @param string $question 問題文字
@@ -355,18 +358,32 @@ class Moelog_AIQnA_Renderer
 
     // ✅ 安全增強: 使用 SHA-256 替代 MD5（更安全，避免碰撞）
     // 單一問題頻率限制(60秒內不能重複請求)
-    $freq_key = "moe_aiqna_freq_" . hash("sha256", $ip . "|" . $post_id . "|" . $question);
+    $freq_hash = hash("sha256", $ip . "|" . $post_id . "|" . $question);
+    $freq_key = "moe_aiqna_freq_" . substr($freq_hash, 0, 32); // 縮短 key 長度
     
-    // ✅ 性能優化: 使用 wp_cache 替代 transient（更快，支援物件快取）
+    // ✅ 雙層快取檢查: 優先使用 wp_cache，後備使用 transient
     $cached = wp_cache_get($freq_key, "moelog_aiqna_rate");
     if ($cached !== false) {
       return false;
     }
+    
+    // 後備檢查: Transient（確保沒有物件快取時仍有效）
+    if (get_transient($freq_key)) {
+      // 同步到 wp_cache 以提高後續檢查效率
+      wp_cache_set($freq_key, 1, "moelog_aiqna_rate", self::RATE_TTL);
+      return false;
+    }
 
-    // ✅ 安全增強: 使用 SHA-256
-    // IP 總請求數限制(每小時最多 10 次)
-    $ip_key = "moe_aiqna_ip_" . hash("sha256", $ip);
+    // ✅ IP 總請求數限制(每小時最多 10 次)
+    $ip_hash = hash("sha256", $ip);
+    $ip_key = "moe_aiqna_ip_" . substr($ip_hash, 0, 32);
+    
+    // 雙層檢查 IP 計數
     $ip_count = (int) wp_cache_get($ip_key, "moelog_aiqna_rate");
+    if ($ip_count === 0) {
+      // 從 transient 讀取後備值
+      $ip_count = (int) get_transient($ip_key);
+    }
     
     if ($ip_count >= self::MAX_REQUESTS_PER_HOUR) {
       if (Moelog_AIQnA_Debug::is_enabled()) {
@@ -382,9 +399,12 @@ class Moelog_AIQnA_Renderer
       return false;
     }
 
-    // ✅ 性能優化: 使用 wp_cache 替代 transient
+    // ✅ 雙層快取設定: 同時設定 wp_cache 和 transient
     wp_cache_set($freq_key, 1, "moelog_aiqna_rate", self::RATE_TTL);
+    set_transient($freq_key, 1, self::RATE_TTL);
+    
     wp_cache_set($ip_key, $ip_count + 1, "moelog_aiqna_rate", HOUR_IN_SECONDS);
+    set_transient($ip_key, $ip_count + 1, HOUR_IN_SECONDS);
 
     return true;
   }

@@ -242,7 +242,6 @@ class Moelog_AIQnA_Admin
   private function render_usage_guide()
   {
     ?>
-        <hr style="margin:30px 0;">
         <h2><?php esc_html_e("ℹ️ 使用說明", "moelog-ai-qna"); ?></h2>
         <ol style="line-height:1.8;">
             <li><?php esc_html_e(
@@ -281,8 +280,7 @@ class Moelog_AIQnA_Admin
 
     $stats = Moelog_AIQnA_Cache::get_stats();
     ?>
-        <hr style="margin:30px 0;">
-        <h2><?php esc_html_e("📊 快取統計", "moelog-ai-qna"); ?></h2>
+        <h2 style="margin-top:30px;"><?php esc_html_e("📊 快取統計", "moelog-ai-qna"); ?></h2>
         <table class="widefat" style="max-width:800px;">
             <thead>
                 <tr>
@@ -327,8 +325,7 @@ class Moelog_AIQnA_Admin
   private function render_release_notes()
   {
     ?>
-        <hr style="margin:30px 0;">
-        <h3>
+        <h3 style="margin-top:30px;">
             <?php
             printf(
               /* translators: %s: plugin version */
@@ -381,8 +378,7 @@ class Moelog_AIQnA_Admin
 
     $info = $this->get_system_info();
     ?>
-        <hr style="margin:30px 0;">
-        <h2><?php esc_html_e("🛠️ 系統資訊", "moelog-ai-qna"); ?></h2>
+        <h2 style="margin-top:30px;"><?php esc_html_e("🛠️ 系統資訊", "moelog-ai-qna"); ?></h2>
         <table class="widefat" style="max-width:800px;margin-top:15px;">
                     <tr>
                         <th style="width:30%;"><?php esc_html_e(

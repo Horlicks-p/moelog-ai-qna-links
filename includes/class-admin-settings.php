@@ -29,23 +29,23 @@ class Moelog_AIQnA_Admin_Settings
   {
     return [
       "general" => [
-        "label" => __("一般設定 (AI/內容)", "moelog-ai-qna"),
+        "label" => __("⚙️ 一般設定 (AI/內容)", "moelog-ai-qna"),
         "page" => self::PAGE_GENERAL,
       ],
       "display" => [
-        "label" => __("顯示設定 (顯示/介面)", "moelog-ai-qna"),
+        "label" => __("🎨 顯示設定 (顯示/介面)", "moelog-ai-qna"),
         "page" => self::PAGE_DISPLAY,
       ],
       "cache" => [
-        "label" => __("快取設定", "moelog-ai-qna"),
+        "label" => __("💾 快取設定", "moelog-ai-qna"),
         "page" => self::PAGE_CACHE,
       ],
       "cache_tools" => [
-        "label" => __("快取管理", "moelog-ai-qna"),
+        "label" => __("🗑️ 快取管理", "moelog-ai-qna"),
         "page" => self::PAGE_CACHE_TOOLS,
       ],
       "info" => [
-        "label" => __("系統資訊 / 說明", "moelog-ai-qna"),
+        "label" => __("ℹ️ 系統資訊 / 說明", "moelog-ai-qna"),
         "page" => self::PAGE_INFO,
       ],
     ];
@@ -64,7 +64,7 @@ class Moelog_AIQnA_Admin_Settings
     // === 一般設定區段 ===
     add_settings_section(
       "general",
-      __("一般設定", "moelog-ai-qna"),
+      __("⚙️ 一般設定", "moelog-ai-qna"),
       [$this, "render_general_section"],
       self::PAGE_GENERAL,
     );
@@ -108,7 +108,7 @@ class Moelog_AIQnA_Admin_Settings
     // === 內容設定區段 ===
     add_settings_section(
       "content",
-      __("內容設定", "moelog-ai-qna"),
+      __("📝 內容設定", "moelog-ai-qna"),
       [$this, "render_content_section"],
       self::PAGE_GENERAL,
     );
@@ -143,7 +143,7 @@ class Moelog_AIQnA_Admin_Settings
     // === 顯示設定區段 ===
     add_settings_section(
       "display",
-      __("顯示設定", "moelog-ai-qna"),
+      __("🎨 顯示設定", "moelog-ai-qna"),
       [$this, "render_display_section"],
       self::PAGE_DISPLAY,
     );
@@ -169,7 +169,7 @@ class Moelog_AIQnA_Admin_Settings
     // === 快取設定區段 ===
     add_settings_section(
       "cache",
-      __("快取設定", "moelog-ai-qna"),
+      __("💾 快取設定", "moelog-ai-qna"),
       [$this, "render_cache_section"],
       self::PAGE_CACHE,
     );
@@ -186,7 +186,7 @@ class Moelog_AIQnA_Admin_Settings
     // === 進階設定區塊 ===
     add_settings_section(
       "advanced",
-      __("進階設定", "moelog-ai-qna"),
+      __("🔧 進階設定", "moelog-ai-qna"),
       [$this, "render_advanced_section"],
       self::PAGE_CACHE,
     );
@@ -949,7 +949,8 @@ class Moelog_AIQnA_Admin_Settings
     // ✅ 驗證 pretty_base
     if (isset($input["pretty_base"])) {
       $pretty_base = sanitize_title($input["pretty_base"]);
-      $pretty_base = preg_replace("/[^a-z0-9\-]/", "", $pretty_base);
+      // PHP 8.1+: 確保 preg_replace 不返回 null
+      $pretty_base = preg_replace("/[^a-z0-9\-]/", "", $pretty_base) ?? "";
 
       if (empty($pretty_base)) {
         $pretty_base = "qna";
@@ -979,7 +980,8 @@ class Moelog_AIQnA_Admin_Settings
     // ✅ 驗證 static_dir
     if (isset($input["static_dir"])) {
       $static_dir = sanitize_title($input["static_dir"]);
-      $static_dir = preg_replace("/[^a-z0-9\-]/", "", $static_dir);
+      // PHP 8.1+: 確保 preg_replace 不返回 null
+      $static_dir = preg_replace("/[^a-z0-9\-]/", "", $static_dir) ?? "";
 
       if (empty($static_dir)) {
         $static_dir = "ai-answers";

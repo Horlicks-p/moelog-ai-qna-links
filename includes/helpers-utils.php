@@ -130,10 +130,11 @@ function moelog_aiqna_clean_text($text)
     $text = trim((string) $text);
 
     // 將多個空白替換為單一空白
-    $text = preg_replace("/\s+/u", " ", $text);
+    // PHP 8.1+: 確保 preg_replace 不返回 null
+    $text = preg_replace("/\s+/u", " ", $text) ?? $text;
 
     // 移除不可見字符
-    $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', "", $text);
+    $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', "", $text) ?? $text;
 
     return $text;
 }
@@ -147,8 +148,9 @@ function moelog_aiqna_clean_text($text)
 function moelog_aiqna_strip_html($html)
 {
     // 移除 script 和 style 標籤及內容
-    $html = preg_replace("/<script\b[^>]*>(.*?)<\/script>/is", "", $html);
-    $html = preg_replace("/<style\b[^>]*>(.*?)<\/style>/is", "", $html);
+    // PHP 8.1+: 確保 preg_replace 不返回 null
+    $html = preg_replace("/<script\b[^>]*>(.*?)<\/script>/is", "", $html) ?? $html;
+    $html = preg_replace("/<style\b[^>]*>(.*?)<\/style>/is", "", $html) ?? $html;
 
     // 移除所有 HTML 標籤
     $text = wp_strip_all_tags($html);
@@ -186,7 +188,8 @@ function moelog_aiqna_highlight_keyword($text, $keyword, $tag = "mark")
     $escaped_keyword = preg_quote($keyword, "/");
     $pattern = "/(" . $escaped_keyword . ")/ui";
 
-    return preg_replace($pattern, "<{$tag}>$1</{$tag}>", $text);
+    // PHP 8.1+: 確保 preg_replace 不返回 null
+    return preg_replace($pattern, "<{$tag}>$1</{$tag}>", $text) ?? $text;
 }
 
 // =========================================
@@ -355,7 +358,8 @@ function moelog_aiqna_get_clean_domain($url)
         return "";
     }
 
-    return preg_replace("/^www\./", "", $host);
+    // PHP 8.1+: 確保 preg_replace 不返回 null
+    return preg_replace("/^www\./", "", $host) ?? $host;
 }
 
 /**
