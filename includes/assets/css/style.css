@@ -8,7 +8,7 @@
 /* --- 1. 文章內「問題清單」區塊 (.moe-aiqna-block) --- */
 
 .single-post .moe-aiqna-block {
-	order: 3;
+	/* order: 3; */ /* 暫時註解：可能導致短碼顯示位置被固定 */
 }
 
 .moe-aiqna-block {
@@ -374,4 +374,195 @@ body.moe-aiqna-answer {
 	0%, 20% { content: '.'; }
 	40% { content: '..'; }
 	60%, 100% { content: '...'; }
+}
+
+/* --- 11. 文章回饋卡片 (.moe-feedback-card) --- */
+
+.moe-feedback-card {
+	margin: 50px auto 0px;
+	padding: 22px;
+	border-radius: 6px;
+	background: #fff;
+	border: 1px solid #E5E5E0;
+	width: 75%;
+	max-width: 540px;
+	min-width: 280px;
+}
+
+.moe-feedback-title {
+	margin: 0 0 16px;
+	font-size: 16px;
+	text-align: center;
+	color: #1d8ac3;
+	font-family: "Noto Sans TC", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	font-weight: 500;
+}
+
+.moe-feedback-actions {
+	display: flex;
+	gap: 16px;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+.moe-feedback-btn {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 24px;
+	border-radius: 50px;
+	border: 1px solid #e0e0e0;
+	background: #fff;
+	font-size: 15px;
+	font-weight: 500;
+	color: #666;
+	cursor: pointer;
+	transition: all .25s ease;
+}
+
+.moe-feedback-btn img {
+	width: 20px;
+	height: 20px;
+	display: block;
+	flex-shrink: 0;
+}
+
+/* 正確按鈕 - 橙色背景 */
+.moe-feedback-btn[data-action="like"] {
+	background: #ffaa00;
+	border-color: #ffaa00;
+	color: #fff;
+}
+
+.moe-feedback-btn[data-action="like"]:hover {
+	background: #ff9900;
+	border-color: #ff9900;
+}
+
+.moe-feedback-btn[data-action="like"].is-active {
+	background: #ffaa00;
+	border-color: #ffaa00;
+}
+
+/* 錯誤按鈕 - 白色背景 */
+.moe-feedback-btn[data-action="dislike"]:hover {
+	background: #f5f5f5;
+	border-color: #d0d0d0;
+}
+
+.moe-feedback-btn[data-action="dislike"].is-active {
+	background: #f0f0f0;
+	border-color: #c0c0c0;
+}
+
+/* 回報問題按鈕 - 白色背景 */
+.moe-feedback-btn[data-action="report"]:hover {
+	background: #f5f5f5;
+	border-color: #d0d0d0;
+}
+
+.moe-feedback-btn[data-action="report"].is-active {
+	background: #f0f0f0;
+	border-color: #c0c0c0;
+}
+
+.moe-feedback-report {
+	margin-top: 20px;
+	text-align: center;
+}
+
+.moe-feedback-report textarea {
+	width: 80%;
+	min-height: 140px;
+	border-radius: 12px;
+	border: 1px solid #dcdcdc;
+	padding: 14px;
+	font-size: 0.85rem;
+	resize: vertical;
+	color: #666;
+	font-family: "Noto Sans TC", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.moe-feedback-report-actions {
+	margin-top: 12px;
+	display: flex;
+	justify-content: center;
+	gap: 12px;
+}
+
+.moe-feedback-secondary,
+.moe-feedback-primary {
+	padding: 9px 22px;
+	border-radius: 40px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	border: 1px solid #111;
+	cursor: pointer;
+}
+
+.moe-feedback-secondary {
+	background: #fff;
+	color: #111;
+}
+
+.moe-feedback-primary {
+	background: #111;
+	color: #fff;
+}
+
+p#moe-feedback-message {
+	margin-top: 20px;
+	margin-bottom: 0px;
+	text-align: center;
+	font-size: 16px;
+}
+
+p#moe-feedback-message[data-state="error"] {
+	color: #c0392b;
+}
+
+p#moe-feedback-message[data-state="success"] {
+	color: #1f7a1f;
+}
+
+.moe-feedback-stats {
+	display: flex;
+	justify-content: center;
+	gap: 24px;
+	margin: 20px 0 10px;
+	font-size: 10px;
+	color: #444;
+}
+
+.moe-feedback-stat {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.moe-feedback-stat img {
+	width: 18px;
+	height: 18px;
+	display: block;
+}
+
+.moe-feedback-stat strong {
+	font-size: 14px;
+}
+
+@media (max-width: 900px) {
+	.moe-feedback-card {
+		width: 100%;
+		min-width: auto;
+		padding: 20px;
+	}
+
+	.moe-feedback-actions {
+		gap: 10px;
+	}
+
+	.moe-feedback-btn {
+		flex: 1 1 calc(50% - 10px);
+		justify-content: center;
+	}
 }
