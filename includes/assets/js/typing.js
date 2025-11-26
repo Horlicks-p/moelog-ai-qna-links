@@ -17,6 +17,10 @@
         ? G.typing_jitter_ms
         : 6,
     typing_disabled: !!G.typing_disabled,
+    typing_fallback:
+      typeof G.typing_fallback === 'string' && G.typing_fallback.trim().length
+        ? G.typing_fallback
+        : '抱歉,目前無法取得 AI 回答,請稍後再試。',
   };
 
   // ---- 工具：安全複製節點（僅允許白名單標籤 & 必要屬性）----
@@ -130,7 +134,11 @@
     prepareTyping(sourceRoot, target, queue);
 
     if (queue.length === 0) {
-      target.innerHTML = '<p>抱歉,目前無法取得 AI 回答,請稍後再試。</p>';
+      var fallback =
+        typeof CFG.typing_fallback === 'string' && CFG.typing_fallback.length
+          ? CFG.typing_fallback
+          : '抱歉,目前無法取得 AI 回答,請稍後再試。';
+      target.innerHTML = '<p>' + fallback + '</p>';
       return;
     }
     typeQueue(queue, target);
