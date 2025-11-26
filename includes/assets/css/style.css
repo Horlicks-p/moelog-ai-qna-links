@@ -412,7 +412,7 @@ body.moe-aiqna-answer {
 	padding: 12px 24px;
 	border-radius: 50px;
 	border: 1px solid #e0e0e0;
-	background: #fff;
+	background: #f5f5f5;
 	font-size: 15px;
 	font-weight: 500;
 	color: #666;
@@ -427,43 +427,17 @@ body.moe-aiqna-answer {
 	flex-shrink: 0;
 }
 
-/* 正確按鈕 - 橙色背景 */
-.moe-feedback-btn[data-action="like"] {
+/* 所有按鈕 hover 狀態 */
+.moe-feedback-btn:hover {
+	background: #f5f5f5;
+	border-color: #d0d0d0;
+}
+
+/* 所有按鈕選擇後（active）狀態 */
+.moe-feedback-btn.is-active {
 	background: #ffaa00;
 	border-color: #ffaa00;
 	color: #fff;
-}
-
-.moe-feedback-btn[data-action="like"]:hover {
-	background: #ff9900;
-	border-color: #ff9900;
-}
-
-.moe-feedback-btn[data-action="like"].is-active {
-	background: #ffaa00;
-	border-color: #ffaa00;
-}
-
-/* 錯誤按鈕 - 白色背景 */
-.moe-feedback-btn[data-action="dislike"]:hover {
-	background: #f5f5f5;
-	border-color: #d0d0d0;
-}
-
-.moe-feedback-btn[data-action="dislike"].is-active {
-	background: #f0f0f0;
-	border-color: #c0c0c0;
-}
-
-/* 回報問題按鈕 - 白色背景 */
-.moe-feedback-btn[data-action="report"]:hover {
-	background: #f5f5f5;
-	border-color: #d0d0d0;
-}
-
-.moe-feedback-btn[data-action="report"].is-active {
-	background: #f0f0f0;
-	border-color: #c0c0c0;
 }
 
 .moe-feedback-report {
