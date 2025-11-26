@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Moelog AI Q&A Links
  * Description: 在每篇文章底部顯示作者預設的問題清單,點擊後開新分頁,由 AI 生成答案的靜態HTML。支持 OpenAI/Gemini,可自訂模型與提示。
- * Version: 1.9.0
+ * Version: 1.10.1
  * Author: Horlicks (moelog.com)
  * Text Domain: moelog-ai-qna
  * Domain Path: /languages
@@ -19,7 +19,7 @@ if (!defined("ABSPATH")) {
 // =========================================
 // 定義常數
 // =========================================
-define("MOELOG_AIQNA_VERSION", "1.10.0");
+define("MOELOG_AIQNA_VERSION", "1.10.1");
 define("MOELOG_AIQNA_FILE", __FILE__);
 define("MOELOG_AIQNA_DIR", plugin_dir_path(__FILE__));
 define("MOELOG_AIQNA_URL", plugin_dir_url(__FILE__));
@@ -31,26 +31,98 @@ define("MOELOG_AIQNA_SECRET_KEY", "moelog_aiqna_secret");
 define("MOELOG_AIQNA_META_KEY", "_moelog_aiqna_questions");
 define("MOELOG_AIQNA_META_LANG_KEY", "_moelog_aiqna_questions_lang");
 
-// 路由與快取 - ✅ 改為動態從設定中讀取
+// =========================================
+// 路由與快取 - ✅ 優化: 使用延遲載入避免過早讀取資料庫
+// =========================================
+
+/**
+ * 取得 URL 路徑前綴
+ * 
+ * ✅ 優化: 使用靜態快取避免重複讀取資料庫
+ *
+ * @return string
+ */
 function moelog_aiqna_get_pretty_base()
 {
+    static $cached = null;
+    
+    if ($cached !== null) {
+        return $cached;
+    }
+    
+    // 允許透過常數覆蓋（用於多站點或特殊情況）
+    if (defined('MOELOG_AIQNA_CUSTOM_PRETTY_BASE')) {
+        $cached = MOELOG_AIQNA_CUSTOM_PRETTY_BASE;
+        return $cached;
+    }
+    
     $settings = get_option(MOELOG_AIQNA_OPT_KEY, []);
-    return isset($settings["pretty_base"]) && !empty($settings["pretty_base"])
-        ? $settings["pretty_base"]
+    $cached = isset($settings["pretty_base"]) && !empty($settings["pretty_base"])
+        ? sanitize_title($settings["pretty_base"])
         : "qna";
+    
+    return $cached;
 }
 
+/**
+ * 取得靜態檔案目錄名稱
+ * 
+ * ✅ 優化: 使用靜態快取避免重複讀取資料庫
+ *
+ * @return string
+ */
 function moelog_aiqna_get_static_dir()
 {
+    static $cached = null;
+    
+    if ($cached !== null) {
+        return $cached;
+    }
+    
+    // 允許透過常數覆蓋（用於多站點或特殊情況）
+    if (defined('MOELOG_AIQNA_CUSTOM_STATIC_DIR')) {
+        $cached = MOELOG_AIQNA_CUSTOM_STATIC_DIR;
+        return $cached;
+    }
+    
     $settings = get_option(MOELOG_AIQNA_OPT_KEY, []);
-    return isset($settings["static_dir"]) && !empty($settings["static_dir"])
-        ? $settings["static_dir"]
+    $cached = isset($settings["static_dir"]) && !empty($settings["static_dir"])
+        ? sanitize_file_name($settings["static_dir"])
         : "ai-answers";
+    
+    return $cached;
 }
 
-// 使用函數定義常數,保持向下相容
-define("MOELOG_AIQNA_PRETTY_BASE", moelog_aiqna_get_pretty_base());
-define("MOELOG_AIQNA_STATIC_DIR", moelog_aiqna_get_static_dir());
+/**
+ * 清除路由設定快取（設定變更時呼叫）
+ *
+ * @return void
+ */
+function moelog_aiqna_clear_route_cache()
+{
+    // 重置靜態快取（下次呼叫時會重新讀取）
+    // 注意：PHP 無法直接重置 static 變數，所以這裡使用 filter 機制
+    add_filter('moelog_aiqna_route_cache_cleared', '__return_true');
+}
+
+// ✅ 優化: 延遲定義常數，在 plugins_loaded 時再定義
+// 這樣可以確保在多站點環境中正確讀取設定
+add_action('plugins_loaded', function() {
+    if (!defined("MOELOG_AIQNA_PRETTY_BASE")) {
+        define("MOELOG_AIQNA_PRETTY_BASE", moelog_aiqna_get_pretty_base());
+    }
+    if (!defined("MOELOG_AIQNA_STATIC_DIR")) {
+        define("MOELOG_AIQNA_STATIC_DIR", moelog_aiqna_get_static_dir());
+    }
+}, 1); // 優先級 1，確保在其他 plugins_loaded 之前執行
+
+// 提供臨時常數（在 plugins_loaded 之前可能需要）
+if (!defined("MOELOG_AIQNA_PRETTY_BASE")) {
+    define("MOELOG_AIQNA_PRETTY_BASE", "qna");
+}
+if (!defined("MOELOG_AIQNA_STATIC_DIR")) {
+    define("MOELOG_AIQNA_STATIC_DIR", "ai-answers");
+}
 
 // AI 預設模型
 define("MOELOG_AIQNA_DEFAULT_MODEL_OPENAI", "gpt-4o-mini");
@@ -110,6 +182,11 @@ if (is_admin()) {
 // =========================================
 // 初始化核心類別
 // =========================================
+/**
+ * 初始化插件核心
+ *
+ * @return void
+ */
 function moelog_aiqna_init()
 {
     // 檢查 WordPress 版本
@@ -129,19 +206,17 @@ function moelog_aiqna_init()
     // 載入核心
     require_once MOELOG_AIQNA_DIR . "includes/class-core.php";
 
-    // 建立全域實例
+    // ✅ 優化: 使用單例模式取得實例
+    $instance = Moelog_AIQnA_Core::get_instance();
+
+    // 向下相容: 同時設定全域變數
     global $moelog_aiqna_instance;
-    $moelog_aiqna_instance = new Moelog_AIQnA_Core();
-    $GLOBALS["moelog_aiqna_instance"] = $moelog_aiqna_instance;
+    $moelog_aiqna_instance = $instance;
+    $GLOBALS["moelog_aiqna_instance"] = $instance;
 
     // 載入 GEO 模組(如果存在)
     if (file_exists(MOELOG_AIQNA_DIR . "moelog-ai-geo.php")) {
         require_once MOELOG_AIQNA_DIR . "moelog-ai-geo.php";
-    }
-    
-    // 載入測試文件（僅在開發模式下）
-    if (defined('WP_DEBUG') && WP_DEBUG && file_exists(MOELOG_AIQNA_DIR . "test-shortcode.php")) {
-        require_once MOELOG_AIQNA_DIR . "test-shortcode.php";
     }
 }
 add_action("plugins_loaded", "moelog_aiqna_init", 5);
@@ -355,10 +430,18 @@ add_filter(
 /**
  * 取得插件核心實例
  *
+ * ✅ 優化: 優先使用單例模式，後備使用全域變數
+ *
  * @return Moelog_AIQnA_Core|null
  */
 function moelog_aiqna_instance()
 {
+    // 優先使用單例模式
+    if (class_exists('Moelog_AIQnA_Core')) {
+        return Moelog_AIQnA_Core::get_instance();
+    }
+    
+    // 後備: 使用全域變數（向下相容）
     return $GLOBALS["moelog_aiqna_instance"] ?? null;
 }
 

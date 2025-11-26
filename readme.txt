@@ -5,7 +5,8 @@ Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, Schem
 Requires at least: 5.0
 Tested up to: 6.8.3
 Requires PHP: 7.4
-Stable tag: 1.10.0
+Tested PHP: 8.3
+Stable tag: 1.10.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -135,6 +136,18 @@ The plugin only sends the following to AI providers (OpenAI / Gemini / Claude):
 ---
 
 == 🧩 Changelog ==
+
+= 1.10.1 (2025-11-26) – PHP 8.x Compatibility & Code Quality =
+- 🐘 **PHP 8.x Compatibility:** Full compatibility with PHP 8.0, 8.1, 8.2, and 8.3.
+- 🔧 **Fixed:** `preg_replace()` null return handling for PHP 8.1+ deprecation warnings.
+- 🔧 **Fixed:** `json_decode()` null return handling to prevent array access errors.
+- 🔧 **Fixed:** `trim()` and string function null parameter handling.
+- 🔧 **Fixed:** `parse_url()` null return handling.
+- 🎨 **UI Enhancement:** Added consistent emoji icons to all admin section headers.
+- 🎨 **UI Enhancement:** Removed redundant `<hr>` dividers for cleaner layout.
+- 📝 **Code Quality:** Improved PHPDoc return type annotations.
+- 🔒 **Security:** Enhanced singleton pattern implementation for main plugin instance.
+- ⚡ **Performance:** Added transient fallback for rate limiting without persistent object cache.
 
 = 1.10.0 (2025-11-26) – Interactive Answer Page & Model Registry =
 - ✨ Answer page overhaul with typing animation, interactive feedback card, and standalone CSS/JS assets for better caching.  

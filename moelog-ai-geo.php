@@ -200,8 +200,9 @@ class Moelog_AIQnA_GEO
         $description = '';
         if (!empty($answer)) {
             $clean_answer = wp_strip_all_tags($answer);
-            $clean_answer = preg_replace('/\s+/', ' ', $clean_answer);
-            $clean_answer = trim($clean_answer);
+            // PHP 8.1+: 確保 preg_replace 不返回 null
+            $clean_answer = preg_replace('/\s+/', ' ', $clean_answer) ?? $clean_answer;
+            $clean_answer = trim((string) $clean_answer);
             
             if (function_exists('mb_strlen') && mb_strlen($clean_answer, 'UTF-8') > 155) {
                 $description = mb_substr($clean_answer, 0, 155, 'UTF-8') . '...';
