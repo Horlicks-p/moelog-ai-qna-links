@@ -47,8 +47,6 @@ class Moelog_AIQnA_GEO
         add_action("template_redirect", [$this, "render_sitemap"]);
         add_filter("robots_txt", [$this, "robots_announce_sitemap"], 10, 2);
 
-        // 後台提醒
-        add_action("admin_notices", [$this, "admin_notices"]);
     }
 
     // ---------------------------------------
@@ -93,14 +91,18 @@ class Moelog_AIQnA_GEO
             "moelog_aiqna_geo_section",
             "🚀 STM(Structured Data Mode)",
             [$this, "geo_section_callback"],
-            "moelog_aiqna_settings"
+            class_exists("Moelog_AIQnA_Admin_Settings")
+                ? Moelog_AIQnA_Admin_Settings::PAGE_DISPLAY
+                : "moelog_aiqna_settings"
         );
 
         add_settings_field(
             "moelog_aiqna_geo_mode",
             "啟用 STM 模式",
             [$this, "geo_mode_field_callback"],
-            "moelog_aiqna_settings",
+            class_exists("Moelog_AIQnA_Admin_Settings")
+                ? Moelog_AIQnA_Admin_Settings::PAGE_DISPLAY
+                : "moelog_aiqna_settings",
             "moelog_aiqna_geo_section"
         );
     }
@@ -524,25 +526,14 @@ class Moelog_AIQnA_GEO
             header("Vary: Accept-Encoding, User-Agent");
         }
         $post_types = apply_filters("moelog_aiqna_sitemap_post_types", ["post", "page"]);
-        $ids = get_posts([
-            "post_type" => $post_types,
-            "post_status" => "publish",
-            "fields" => "ids",
-            "numberposts" => -1,
-            "no_found_rows" => true,
-        ]);
-
-        // 計算所有問答 URL 總數
-        $total = 0;
-        foreach ($ids as $pid) {
-            $raw = get_post_meta($pid, "_moelog_aiqna_questions", true);
-            $qs = moelog_aiqna_parse_questions($raw);
-            if ($qs) {
-                $total += count($qs);
-            }
-        }
+        $chunk_size = $this->get_sitemap_chunk_size();
         $PER_PAGE = 49000;
-        $pages = max(1, (int) ceil($total / $PER_PAGE));
+        $pages = 1;
+
+        if ($is_index) {
+            $total = $this->count_total_questions($post_types, $chunk_size);
+            $pages = max(1, (int) ceil($total / $PER_PAGE));
+        }
 
         // ------ 索引檔 ------
         if ($is_index) {
@@ -560,9 +551,7 @@ class Moelog_AIQnA_GEO
                 echo "  </sitemap>\n";
             }
             echo "</sitemapindex>";
-            if (defined("WP_DEBUG") && WP_DEBUG) {
-                error_log("[Moelog AIQnA STM] Sitemap index generated: {$pages} files, {$total} total URLs");
-            }
+            $this->log_sitemap_debug(sprintf("Sitemap index generated: %d files", $pages));
             exit();
         }
 
@@ -571,63 +560,77 @@ class Moelog_AIQnA_GEO
         $start_index = ($target_part - 1) * $PER_PAGE;
         $emitted = 0;
         $seen = 0;
+        $offset = 0;
+        $stop = false;
         echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
         echo "\n";
         echo "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
-        $should_stop = false;
-        foreach ($ids as $pid) {
-            if ($should_stop) {
+        while (!$stop) {
+            $batch_ids = $this->get_question_post_ids($post_types, $chunk_size, $offset);
+            if (empty($batch_ids)) {
                 break;
             }
-            $raw = get_post_meta($pid, "_moelog_aiqna_questions", true);
-            // ✅ 修正: 這裡也必須使用全域函式 (你原始檔案這裡呼叫了 $this->parse_questions)
-            $qs = moelog_aiqna_parse_questions($raw); 
 
-            if (!$qs) {
-                continue;
-            }
-            $lastmod = get_post_modified_time("c", true, $pid);
-            foreach ($qs as $q) {
-                if ($seen++ < $start_index) {
-                    continue;
-                }
-                if ($emitted >= $PER_PAGE) {
-                    $should_stop = true;
-                    break;
-                }
-
-                // 由主外掛提供 URL
-                if (method_exists($this->main_plugin, "build_answer_url")) {
-                    $url = $this->main_plugin->build_answer_url($pid, $q);
-                } elseif (function_exists('moelog_aiqna_build_url')) {
-                    $url = moelog_aiqna_build_url($pid, $q);
-                } else {
-                    if (defined("WP_DEBUG") && WP_DEBUG) {
-                        error_log("[Moelog AIQnA STM] Cannot generate URL for question: " . substr($q, 0, 50));
-                    }
-                    continue;
-                }
-                echo "  <url>\n";
-                echo "    <loc>" . esc_url($url) . "</loc>\n";
-                echo "    <lastmod>" . esc_html($lastmod) . "</lastmod>\n";
-                echo "    <changefreq>weekly</changefreq>\n";
-                echo "    <priority>0.6</priority>\n";
-                echo "  </url>\n";
-                $emitted++;
-            }
-        }
-        echo "</urlset>";
-        if (defined("WP_DEBUG") && WP_DEBUG) {
-            error_log(
+            $this->log_sitemap_debug(
                 sprintf(
-                    "[Moelog AIQnA STM] Sitemap part %d/%d rendered: %d URLs (scanned %d total)",
-                    $target_part,
-                    $pages,
-                    $emitted,
-                    $seen
+                    "Sitemap part batch offset=%d ids=%d target_part=%d",
+                    $offset,
+                    count($batch_ids),
+                    $target_part
                 )
             );
+
+            foreach ($batch_ids as $pid) {
+                $raw = get_post_meta($pid, "_moelog_aiqna_questions", true);
+                $qs = moelog_aiqna_parse_questions($raw);
+
+                if (!$qs) {
+                    continue;
+                }
+                $lastmod = get_post_modified_time("c", true, $pid);
+                foreach ($qs as $q) {
+                    if ($seen++ < $start_index) {
+                        continue;
+                    }
+                    if ($emitted >= $PER_PAGE) {
+                        $stop = true;
+                        break;
+                    }
+
+                    // 由主外掛提供 URL
+                    if (method_exists($this->main_plugin, "build_answer_url")) {
+                        $url = $this->main_plugin->build_answer_url($pid, $q);
+                    } elseif (function_exists('moelog_aiqna_build_url')) {
+                        $url = moelog_aiqna_build_url($pid, $q);
+                    } else {
+                        $this->log_sitemap_debug("Cannot generate URL for question: " . substr((string) $q, 0, 50));
+                        continue;
+                    }
+                    echo "  <url>\n";
+                    echo "    <loc>" . esc_url($url) . "</loc>\n";
+                    echo "    <lastmod>" . esc_html($lastmod) . "</lastmod>\n";
+                    echo "    <changefreq>weekly</changefreq>\n";
+                    echo "    <priority>0.6</priority>\n";
+                    echo "  </url>\n";
+                    $emitted++;
+                }
+
+                if ($stop) {
+                    break;
+                }
+            }
+
+            $offset += $chunk_size;
         }
+        echo "</urlset>";
+        $this->log_sitemap_debug(
+            sprintf(
+                "Sitemap part %d rendered: %d URLs (scanned %d questions)",
+                $target_part,
+                $emitted,
+                $seen
+            )
+        );
         exit();
     }
 
@@ -642,43 +645,105 @@ class Moelog_AIQnA_GEO
         return $out;
     }
 
-    // =========================================
-    // 後台提醒
-    // =========================================
-    public function admin_notices()
+    /**
+     * 取得 Sitemap 查詢批次大小
+     */
+    private function get_sitemap_chunk_size(): int
     {
-        $screen = function_exists("get_current_screen") ? get_current_screen() : null;
-        if (!$screen || $screen->id !== "settings_page_moelog_aiqna") {
-            return;
+        $size = (int) apply_filters("moelog_aiqna_sitemap_chunk_size", 1000);
+        return $size > 0 ? $size : 1000;
+    }
+
+    /**
+     * 以 SQL 抓取具問答資料的文章 ID
+     *
+     * @param array $post_types
+     * @param int   $limit
+     * @param int   $offset
+     * @return array
+     */
+    private function get_question_post_ids(array $post_types, int $limit, int $offset): array
+    {
+        global $wpdb;
+
+        if (empty($post_types)) {
+            return [];
         }
-        if (get_option("moelog_aiqna_geo_mode")) {
-            $rules = get_option("rewrite_rules");
-            // ✅ 同時檢查 index 與分頁規則是否存在
-            $ok1 = is_array($rules) && isset($rules['^ai-qa-sitemap\.php$']);
-            $ok2 = false;
-            if (is_array($rules)) {
-                foreach ($rules as $pattern => $dest) {
-                    // 由於 rewrite_rules 的 key 常見是 regex 字串，這裡用 strpos 檢視
-                    if (strpos($pattern, '^ai-qa-sitemap-([0-9]+)\.php$') !== false) {
-                        $ok2 = true;
-                        break;
-                    }
-                }
+
+        $placeholders = implode(",", array_fill(0, count($post_types), "%s"));
+        $sql = "
+            SELECT p.ID
+            FROM {$wpdb->posts} AS p
+            INNER JOIN {$wpdb->postmeta} AS pm
+                ON pm.post_id = p.ID
+                AND pm.meta_key = %s
+                AND pm.meta_value <> ''
+            WHERE p.post_status = 'publish'
+              AND p.post_type IN ($placeholders)
+            ORDER BY p.ID ASC
+            LIMIT %d OFFSET %d
+        ";
+        $params = array_merge([MOELOG_AIQNA_META_KEY], $post_types, [$limit, $offset]);
+        $prepared = $wpdb->prepare($sql, $params);
+        $results = $wpdb->get_col($prepared);
+
+        if (empty($results)) {
+            return [];
+        }
+
+        return array_map("intval", $results);
+    }
+
+    /**
+     * 計算總問答數量（分批避免記憶體爆炸）
+     *
+     * @param array $post_types
+     * @param int   $chunk_size
+     * @return int
+     */
+    private function count_total_questions(array $post_types, int $chunk_size): int
+    {
+        $offset = 0;
+        $total = 0;
+
+        while (true) {
+            $ids = $this->get_question_post_ids($post_types, $chunk_size, $offset);
+            if (empty($ids)) {
+                break;
             }
-            if (!$ok1 || !$ok2) {
-                ?>
-                <div class="notice notice-warning">
-                    <p>
-                        <strong>Moelog AI Q&A STM:</strong>
-                        偵測到路由規則可能未正確設定。請至
-                        <a href="<?php echo esc_url(admin_url("options-permalink.php")); ?>">設定 → 永久連結</a>
-                        點擊「儲存變更」以重新整理規則。
-                    </p>
-                </div>
-                <?php
+
+            foreach ($ids as $pid) {
+                $raw = get_post_meta($pid, MOELOG_AIQNA_META_KEY, true);
+                $qs = moelog_aiqna_parse_questions($raw);
+                $total += count($qs);
             }
+
+            $offset += $chunk_size;
+            $this->log_sitemap_debug(
+                sprintf(
+                    "Sitemap count batch offset=%d ids=%d total=%d",
+                    $offset,
+                    count($ids),
+                    $total
+                )
+            );
+        }
+
+        return $total;
+    }
+
+    /**
+     * 簡易除錯紀錄
+     *
+     * @param string $message
+     */
+    private function log_sitemap_debug(string $message): void
+    {
+        if (defined("WP_DEBUG") && WP_DEBUG) {
+            error_log("[Moelog AIQnA STM] " . $message);
         }
     }
+
 }
 
 // =========================================

@@ -19,7 +19,7 @@ if (!defined("ABSPATH")) {
 // =========================================
 // 定義常數
 // =========================================
-define("MOELOG_AIQNA_VERSION", "1.9.0");
+define("MOELOG_AIQNA_VERSION", "1.10.0");
 define("MOELOG_AIQNA_FILE", __FILE__);
 define("MOELOG_AIQNA_DIR", plugin_dir_path(__FILE__));
 define("MOELOG_AIQNA_URL", plugin_dir_url(__FILE__));
@@ -55,7 +55,7 @@ define("MOELOG_AIQNA_STATIC_DIR", moelog_aiqna_get_static_dir());
 // AI 預設模型
 define("MOELOG_AIQNA_DEFAULT_MODEL_OPENAI", "gpt-4o-mini");
 define("MOELOG_AIQNA_DEFAULT_MODEL_GEMINI", "gemini-2.5-flash");
-define("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-sonnet-4-5-20250929");
+define("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-5-20251101");
 
 // 常數定義（避免魔術數字）
 define("MOELOG_AIQNA_DEFAULT_CACHE_TTL_DAYS", 30);
@@ -96,6 +96,7 @@ spl_autoload_register(function ($class_name) {
 // =========================================
 require_once MOELOG_AIQNA_DIR . "includes/helpers-utils.php";
 require_once MOELOG_AIQNA_DIR . "includes/helpers-encryption.php"; // 新增
+require_once MOELOG_AIQNA_DIR . "includes/class-feedback-controller.php";
 
 // =========================================
 // 載入 AJAX 處理器（確保 action 註冊）
@@ -136,6 +137,11 @@ function moelog_aiqna_init()
     // 載入 GEO 模組(如果存在)
     if (file_exists(MOELOG_AIQNA_DIR . "moelog-ai-geo.php")) {
         require_once MOELOG_AIQNA_DIR . "moelog-ai-geo.php";
+    }
+    
+    // 載入測試文件（僅在開發模式下）
+    if (defined('WP_DEBUG') && WP_DEBUG && file_exists(MOELOG_AIQNA_DIR . "test-shortcode.php")) {
+        require_once MOELOG_AIQNA_DIR . "test-shortcode.php";
     }
 }
 add_action("plugins_loaded", "moelog_aiqna_init", 5);

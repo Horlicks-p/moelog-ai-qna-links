@@ -5,7 +5,7 @@ Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, Schem
 Requires at least: 5.0  
 Tested up to: 6.8.3  
 Requires PHP: 7.4  
-Stable tag: 1.9.0  
+Stable tag: 1.10.0  
 License: GPLv2 or later  
 License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)  
 
@@ -15,9 +15,6 @@ License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/lic
 當讀者點擊問題時，會開啟一個新分頁，從 **OpenAI**、**Google Gemini** 或 **Anthropic Claude** 獲取 AI 生成的答案。  
 
 這個回答頁面具備乾淨的 HTML 佈局、打字機動畫效果、內建的快取系統（包含靜態檔案），以及一個可選的 **STM (結構化資料模式)**，旨在幫助搜尋引擎和 AI 爬蟲更好地理解頁面內容。  
-
-範例問題: GitHub是怎樣的一個網站?它的用途是什麼?  
-回答頁面: [https://www.moelog.com/qna/qba-4cb-3257/](https://www.moelog.com/qna/qba-4cb-3257/)  
 
 ---
 
@@ -38,8 +35,8 @@ License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/lic
     * 使用 HMAC 雜湊確保 URL 安全，防止猜測。  
     * 可自訂路由基底 (預設 `qna`) 與快取目錄名稱。  
 * **Shortcode 支援:**  
-    * `[moelog_aiqna]` - 顯示完整問題清單。  
-    * `[moelog_aiqna index="N"]` - 顯示指定索引的單一問題。  
+    * `[moelog_aiqna index="N"]` - 在文章任意位置插入指定問題（index 範圍：1-8）。  
+    * 完整問題清單會自動附加在文章底部，已通過短碼顯示的問題會自動排除，避免重複。  
 * **安全性:**  
     * **API 金鑰加密:** 使用 `AES-256-CBC` 強加密演算法 (搭配隨機 IV) 儲存 API Key，金鑰源自 WordPress Salts。  
     * **嚴格 CSP:** 完整支援**內容安全策略 (CSP)**，所有內聯腳本/樣式均使用 `nonce` 驗證。  
@@ -76,9 +73,14 @@ STM 模式可協助搜尋引擎和 AI 爬蟲「解析」你的 AI 答案頁，**
 
 | Shortcode | Description |
 |------------|-------------|
-| `[moelog_aiqna]` | 顯示完整的問題清單 (若偵測到 Shortcode，將自動隱藏文章底部的列表) |  
-| `[moelog_aiqna index="1"]` | 僅顯示問題 #1 |  
-| `[moelog_aiqna index="3"]` | 僅顯示問題 #3 (支援 1–8) |  
+| `[moelog_aiqna index="1"]` | 在文章任意位置插入問題 #1 |  
+| `[moelog_aiqna index="3"]` | 在文章任意位置插入問題 #3 (支援 1–8) |
+
+**使用說明：**
+* 短碼用於在文章**任意位置**插入**單一問題**連結。
+* 文章底部會**自動附加完整的問題清單**，已通過短碼顯示的問題會自動排除，避免重複顯示。
+* 例如：使用 `[moelog_aiqna index="1"]` 在文章中間顯示問題 1，底部清單會自動只顯示問題 2、3 等。
+* **注意：** `[moelog_aiqna]`（無 index 參數）已移除，改為只支援單一問題模式，以簡化使用並避免與自動附加清單衝突。  
 
 ---
 
@@ -133,6 +135,16 @@ STM 模式可協助搜尋引擎和 AI 爬蟲「解析」你的 AI 答案頁，**
 ---
 
 == 🧩 Changelog ==
+
+= 1.10.0 (2025-11-26) – Interactive Answer Page & Model Registry =
+- ✨ **Answer page overhaul:** 新增逐字打字動畫、互動式回饋卡、LocalStorage 防重複投票，並把 typing/feedback JS 與樣式抽離為獨立資產以利快取。  
+- 🎨 **CSS / JS 重構:** 調整回答頁 DOM 結構與樣式切分，讓主題覆寫與 CSP 管理更輕鬆。  
+- 🤖 **AI 模型管理:** 導入 Model Registry，後台提供建議清單 + 自訂輸入，OpenAI/Gemini/Claude 預設模型可由常數或遠端 filter 控制。  
+- 🧭 **設定頁分頁化:** 將原本冗長的設定畫面拆成「一般 / 顯示 / 快取設定 / 快取管理 / 系統資訊」，並保留快速連結與支援區塊。  
+- 🗺️ **Sitemap 優化:** `render_sitemap()` 改用 `$wpdb` chunk 讀取與計數，動態分頁不再一次載入所有文章，並保留 debug log。  
+- ⚙️ **快取工具/資訊整合:** 快取管理搬到專屬分頁，新增快取統計摘要、動態版本更新說明與系統資訊區塊。  
+- ⏱️ **API timeout 調整:** 預設逾時提升至 45 秒，避免 GPT-4 / Claude 長回答提早失敗。  
+- 🔧 **短碼優化:** 移除 `[moelog_aiqna]` 完整清單模式，改為只支援 `[moelog_aiqna index="N"]` 單一問題模式。短碼可在文章任意位置插入特定問題，完整清單會自動附加在底部並排除已通過短碼顯示的問題，避免重複且更靈活。同時解決了短碼中包含 `<script>` 標籤導致內容被截斷的問題。  
 
 = 1.9.0 (2025-11-23) – Admin UI Improvements & Bug Fixes =
 - ✨ **New:** Delete single static HTML file feature with question dropdown selection.  
