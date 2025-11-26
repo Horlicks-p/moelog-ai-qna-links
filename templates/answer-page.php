@@ -30,9 +30,15 @@ $robots = apply_filters("moelog_aiqna_answer_robots", $default_robots);
 <!-- <link rel="canonical" href="<?php echo esc_url($answer_url); ?>" /> -->
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+JP&family=Noto+Sans+TC:wght@100..900&family=Press+Start+2P&display=swap" rel="stylesheet">	
+<?php
+$moelog_aiqna_style_path = MOELOG_AIQNA_DIR . "includes/assets/css/style.css";
+$moelog_aiqna_style_ver = file_exists($moelog_aiqna_style_path)
+    ? filemtime($moelog_aiqna_style_path)
+    : MOELOG_AIQNA_VERSION;
+?>
 <link rel="stylesheet" href="<?php echo esc_url(
     MOELOG_AIQNA_URL . "includes/assets/css/style.css"
-); ?>?ver=<?php echo esc_attr(MOELOG_AIQNA_VERSION); ?>">
+); ?>?ver=<?php echo esc_attr($moelog_aiqna_style_ver); ?>">
 <link rel="stylesheet" href="<?php echo esc_url(
     get_stylesheet_uri()
 ); ?>?ver=<?php echo esc_attr(wp_get_theme()->get("Version")); ?>">
@@ -59,6 +65,51 @@ $title = sprintf(
     $question,
     $answer
 ); ?>
+<?php
+$feedback_stats = class_exists("Moelog_AIQnA_Feedback_Controller")
+    ? Moelog_AIQnA_Feedback_Controller::get_stats($post_id, $question_hash ?? null)
+    : [
+        "views" => 0,
+        "likes" => 0,
+        "dislikes" => 0,
+    ];
+$feedback_config = [
+    "ajaxUrl" => admin_url("admin-ajax.php"),
+    "nonce" => null,
+    "postId" => $post_id,
+    "question" => $question,
+    "questionHash" => $question_hash ?? "",
+    "stats" => $feedback_stats,
+    "i18n" => [
+        "unexpected" => __(
+            "發生未預期錯誤,請稍後再試。",
+            "moelog-ai-qna"
+        ),
+        "alreadyVoted" => __(
+            "您已經回覆過囉！",
+            "moelog-ai-qna"
+        ),
+        "submitting" => __(
+            "送出中…",
+            "moelog-ai-qna"
+        ),
+        "thanks" => __("感謝您的回饋！", "moelog-ai-qna"),
+        "failed" => __("送出失敗,請稍後再試。", "moelog-ai-qna"),
+        "needMore" => __(
+            "請提供至少 3 個字的描述。",
+            "moelog-ai-qna"
+        ),
+        "reportThanks" => __(
+            "已送出,感謝您的回饋！",
+            "moelog-ai-qna"
+        ),
+        "reportSeen" => __(
+            "已收到您稍早的回饋，感謝！",
+            "moelog-ai-qna"
+        ),
+    ],
+];
+?>
 
 <style nonce="<?php echo esc_attr($csp_nonce); ?>">
 /* 打字游標 - 如果不想顯示,可以設定 display: none */
@@ -70,7 +121,10 @@ $title = sprintf(
 .moe-original-section {padding: 0 45px 0 45px;font-size: 120%;letter-spacing: 0.5px;color: #666;}
 .moe-original-link {color: #94B800;text-decoration: none;}
 .moe-original-link:hover {color: #69644e; text-decoration: underline;}
-@media (max-width: 768px) {.moe-original-section {padding: 0 20px;}.moe-original-url { font-size: 0.85em;}}
+@media (max-width: 768px) {
+  .moe-original-section {padding: 0 20px;}
+  .moe-original-url { font-size: 0.85em;}
+}
 </style>
 <script nonce="<?php echo esc_attr($csp_nonce); ?>">
 // 可在任何頁面先寫入全域預設;之後也能在後台設定頁動態輸出
@@ -96,6 +150,12 @@ if (typeof window.MoelogAIQnA.typing_disabled === 'undefined') {
       ? "true"
       : "false"; ?>;
 }
+if (typeof window.MoelogAIQnA.typing_fallback === 'undefined') {
+  window.MoelogAIQnA.typing_fallback = '<?php echo esc_js(
+      esc_html__("抱歉,目前無法取得 AI 回答,請稍後再試。", "moelog-ai-qna")
+  ); ?>';
+}
+window.MoelogAIQnA.feedback = <?php echo wp_json_encode($feedback_config); ?>;
 </script>
 <script 
   src="<?php echo esc_url(
@@ -109,14 +169,11 @@ if (typeof window.MoelogAIQnA.typing_disabled === 'undefined') {
 <?php
 $banner_url = apply_filters("moelog_aiqna_banner_url", "");
 $banner_alt = apply_filters("moelog_aiqna_banner_alt", $post_title);
+$banner_style = $banner_url
+    ? sprintf("background-image:url('%s')", esc_url($banner_url))
+    : "";
 ?>
-<div class="moe-banner" <?php if (
-    $banner_url
-): ?>style="background-image:url('<?php echo esc_url(
-    $banner_url
-); ?>')"<?php endif; ?> role="img" aria-label="<?php echo esc_attr(
-     $banner_alt
- ); ?>"></div>
+<div class="moe-banner"<?php if ($banner_style): ?> style="<?php echo esc_attr($banner_style); ?>"<?php endif; ?> role="img" aria-label="<?php echo esc_attr($banner_alt); ?>"></div>
 
 <div class="moe-answer-wrap">
   <div class="moe-question-echo"><?php echo esc_html($question); ?></div>
@@ -192,123 +249,95 @@ $original_html =
               "moelog-ai-qna"
           ) .
           "</p>"; ?></noscript>
-  <script nonce="<?php echo esc_attr($csp_nonce); ?>">
-  (function(){
-    const srcTpl = document.getElementById('moe-ans-source');
-    const target = document.getElementById('moe-ans-target');
-    if(!srcTpl||!target) return;
-
-    // 允許的標籤：加入 A / DIV，確保連結可點與區塊結構
-    const ALLOWED = new Set(['P','UL','OL','LI','STRONG','EM','BR','SPAN','A','DIV']);
-    const SPEED = window.MoelogAIQnA.typing_ms || 12;
-
-    function cloneShallow(node){
-      if(node.nodeType===Node.TEXT_NODE) return document.createTextNode('');
-      if(node.nodeType===Node.ELEMENT_NODE){
-        const tag=node.tagName.toUpperCase();
-        if(!ALLOWED.has(tag)) return document.createTextNode(node.textContent||'');
-        if(tag==='BR') return document.createElement('br');
-
-        const el=document.createElement(tag.toLowerCase());
-
-        // 通用屬性
-        if(node.className) el.className=node.className;
-        if(node.title)     el.title=node.title;
-
-        // 超連結屬性
-        if(tag==='A'){
-          const href=node.getAttribute('href');   if(href) el.setAttribute('href', href);
-          const tgt =node.getAttribute('target'); if(tgt)  el.setAttribute('target', tgt);
-          const rel =node.getAttribute('rel');    if(rel)  el.setAttribute('rel', rel);
-        }
-        return el;
-      }
-      return document.createTextNode('');
-    }
-
-    function prepareTyping(srcParent, dstParent, queue){
-      Array.from(srcParent.childNodes).forEach(src=>{
-        if(src.nodeType===Node.TEXT_NODE){
-          const t=document.createTextNode('');
-          dstParent.appendChild(t);
-          const text=src.textContent||'';
-          if(text.length) queue.push({node:t, text});
-        }else if(src.nodeType===Node.ELEMENT_NODE){
-          const cloned=cloneShallow(src);
-          dstParent.appendChild(cloned);
-          if(cloned.nodeType===Node.TEXT_NODE){
-            const text=cloned.textContent||'';
-            if(text.length) queue.push({node:cloned, text});
-          }else if(cloned.tagName && cloned.tagName.toUpperCase()==='BR'){
-            // no-op
-          }else{
-            prepareTyping(src, cloned, queue);
-          }
-        }
-      });
-    }
-
-    async function typeQueue(queue){
-      if(window.MoelogAIQnA.typing_disabled){
-        // 禁用打字效果,直接顯示全部內容
-        for(const item of queue){
-          item.node.textContent = item.text;
-        }
-        return;
-      }
-
-      const cursor=document.createElement('span');
-      cursor.className='moe-typing-cursor';
-      target.appendChild(cursor);
-      
-      for(const item of queue){
-        const chars=Array.from(item.text);
-        for(let i=0;i<chars.length;i++){
-          item.node.textContent+=chars[i];
-          await new Promise(r=>setTimeout(r, SPEED));
-        }
-      }
-      
-      // 確保移除游標
-      if(cursor && cursor.parentNode){
-        cursor.parentNode.removeChild(cursor);
-      }
-    }
-
-    const sourceRoot=document.createElement('div');
-    sourceRoot.innerHTML=srcTpl.innerHTML;
-    const queue=[]; 
-    prepareTyping(sourceRoot, target, queue);
-
-    if(queue.length===0){
-      target.innerHTML='<p><?php echo esc_js(
-          esc_html__("抱歉,目前無法取得 AI 回答,請稍後再試。", "moelog-ai-qna")
-      ); ?></p>';
-    }else{
-      typeQueue(queue);
-    }
-  })();
-  </script>
-</div>
-
-<div class="moe-close-area">
-  <a href="#" id="moe-close-btn" class="moe-close-btn"><?php esc_html_e(
-      "← 關閉此頁",
-      "moelog-ai-qna"
-  ); ?></a>
-  <div id="moelog-fallback" class="moe-fallback" style="display:none;">
-    <?php esc_html_e(
-        "若瀏覽器不允許自動關閉視窗,請點此回到文章:",
+  <section class="moe-feedback-card" id="moe-feedback-card">
+    <h3 class="moe-feedback-title"><?php esc_html_e(
+        "你覺得AI回答的內容正確嗎？",
         "moelog-ai-qna"
-    ); ?>
-    <a href="<?php echo esc_url(
-        get_permalink($post_id)
-    ); ?>" target="_self" rel="noopener"><?php echo esc_html(
-    get_the_title($post_id)
-); ?></a>
+    ); ?></h3>
+    <div class="moe-feedback-actions" role="group" aria-label="<?php esc_attr_e(
+        "文章回饋操作",
+        "moelog-ai-qna"
+    ); ?>">
+      <button type="button" class="moe-feedback-btn" data-action="like">
+        <img src="<?php echo esc_url(plugins_url("includes/assets/images/good.png", dirname(__FILE__))); ?>" alt="<?php esc_attr_e("正確", "moelog-ai-qna"); ?>" width="28" height="28" aria-hidden="true">
+        <span><?php esc_html_e("正確", "moelog-ai-qna"); ?></span>
+      </button>
+      <button type="button" class="moe-feedback-btn" data-action="dislike">
+        <img src="<?php echo esc_url(plugins_url("includes/assets/images/bad.png", dirname(__FILE__))); ?>" alt="<?php esc_attr_e("錯誤", "moelog-ai-qna"); ?>" width="28" height="28" aria-hidden="true">
+        <span><?php esc_html_e("錯誤", "moelog-ai-qna"); ?></span>
+      </button>
+      <button type="button" class="moe-feedback-btn" data-action="report">
+        <img src="<?php echo esc_url(plugins_url("includes/assets/images/report.png", dirname(__FILE__))); ?>" alt="<?php esc_attr_e("回報問題", "moelog-ai-qna"); ?>" width="28" height="28" aria-hidden="true">
+        <span><?php esc_html_e("回報問題", "moelog-ai-qna"); ?></span>
+      </button>
+    </div>
+
+    <div class="moe-feedback-report" id="moe-feedback-report" hidden>
+      <textarea name="moe-feedback-text" placeholder="<?php esc_attr_e(
+          "請簡述您遇到的問題或建議",
+          "moelog-ai-qna"
+      ); ?>"></textarea>
+      <div class="moe-feedback-report-actions">
+        <button type="button" class="moe-feedback-secondary" data-feedback-cancel><?php esc_html_e(
+            "取消",
+            "moelog-ai-qna"
+        ); ?></button>
+        <button type="button" class="moe-feedback-primary" data-feedback-submit><?php esc_html_e(
+            "送出",
+            "moelog-ai-qna"
+        ); ?></button>
+      </div>
+    </div>
+    <p class="moe-feedback-message" id="moe-feedback-message"></p>
+  </section>
+  <div class="moe-feedback-stats">
+    <div class="moe-feedback-stat">
+      <img src="<?php echo esc_url(plugins_url("includes/assets/images/viewer.png", dirname(__FILE__))); ?>" alt="<?php esc_attr_e("瀏覽次數", "moelog-ai-qna"); ?>" width="28" height="28" aria-hidden="true">
+      <span data-stat="views"><?php echo esc_html(
+          $feedback_stats["views"]
+      ); ?></span>
+    </div>
+    <div class="moe-feedback-stat">
+      <img src="<?php echo esc_url(plugins_url("includes/assets/images/good.png", dirname(__FILE__))); ?>" alt="<?php esc_attr_e("好評", "moelog-ai-qna"); ?>" width="28" height="28" aria-hidden="true">
+      <span data-stat="likes"><?php echo esc_html(
+          $feedback_stats["likes"]
+      ); ?></span>
+    </div>
+    <div class="moe-feedback-stat">
+      <img src="<?php echo esc_url(plugins_url("includes/assets/images/bad.png", dirname(__FILE__))); ?>" alt="<?php esc_attr_e("差評", "moelog-ai-qna"); ?>" width="28" height="28" aria-hidden="true">
+      <span data-stat="dislikes"><?php echo esc_html(
+          $feedback_stats["dislikes"]
+      ); ?></span>
+    </div>
+  </div>
+<?php
+$close_label = esc_html__("← 關閉此頁", "moelog-ai-qna");
+$fallback_label = esc_html__(
+    "若瀏覽器不允許自動關閉視窗,請點此回到文章:",
+    "moelog-ai-qna"
+);
+$post_link = get_permalink($post_id);
+$post_title = get_the_title($post_id);
+?>
+<div class="moe-close-area">
+  <a href="#" id="moe-close-btn" class="moe-close-btn"><?php echo $close_label; ?></a>
+  <div id="moelog-fallback" class="moe-fallback" style="display:none;">
+    <?php echo $fallback_label; ?>
+    <a href="<?php echo esc_url($post_link); ?>" target="_self" rel="noopener">
+      <?php echo esc_html($post_title); ?>
+    </a>
   </div>
 </div>
-</div><div class="moe-bottom"></div>
+</div>
+</div>
+<div class="moe-bottom"></div>
+
+<script 
+  src="<?php echo esc_url(
+      plugins_url("includes/assets/js/answer.js", dirname(__FILE__))
+  ); ?>?ver=<?php echo esc_attr(MOELOG_AIQNA_VERSION); ?>" 
+  defer>
+</script>
 
 <?php
 // 免責聲明
