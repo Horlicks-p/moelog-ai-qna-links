@@ -192,11 +192,12 @@ $allowed = [
 $safe_html = $answer ? wp_kses(wpautop($answer), $allowed) : "";
 
 // 移除事件處理器
+// PHP 8.1+: 確保 preg_replace 不返回 null
 $safe_html = preg_replace(
     "/<(\w+)\s+[^>]*on\w+\s*=\s*[^>]*>/i",
     '<$1>',
     $safe_html
-);
+) ?? $safe_html;
 
 // 處理 URL - 轉換為帶 title 的 span (重要!)
 $safe_html = preg_replace_callback(
@@ -210,11 +211,11 @@ $safe_html = preg_replace_callback(
             "</span>";
     },
     $safe_html
-);
+) ?? $safe_html;
 
 // 取得乾淨的域名與原文連結
-$domain = parse_url(home_url(), PHP_URL_HOST);
-$clean_domain = preg_replace("/^www\./", "", $domain);
+$domain = parse_url(home_url(), PHP_URL_HOST) ?? "";
+$clean_domain = preg_replace("/^www\./", "", $domain) ?? $domain;
 $post_permalink = get_permalink($post_id);
 $display_url = urldecode($post_permalink);
 
