@@ -163,23 +163,14 @@ class Moelog_AIQnA_Settings
     public static function get_model()
     {
         $model = self::get("model", "");
-        
+
         if (!empty($model)) {
             return $model;
         }
 
-        // 根據 Provider 返回預設模型
+        // 根據 Provider 返回預設模型(可透過 registry/filter 擴充)
         $provider = self::get_provider();
-        
-        switch ($provider) {
-            case "gemini":
-                return Moelog_AIQnA_AI_Client::DEFAULT_MODEL_GEMINI;
-            case "anthropic":
-                return Moelog_AIQnA_AI_Client::DEFAULT_MODEL_ANTHROPIC;
-            case "openai":
-            default:
-                return Moelog_AIQnA_AI_Client::DEFAULT_MODEL_OPENAI;
-        }
+        return Moelog_AIQnA_Model_Registry::get_default_model($provider);
     }
 
     /**

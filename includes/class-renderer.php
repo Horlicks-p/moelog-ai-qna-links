@@ -204,6 +204,12 @@ class Moelog_AIQnA_Renderer
    */
   private function generate_and_render($params, $post)
   {
+    $question_hash = Moelog_AIQnA_Cache::generate_hash(
+      $params["post_id"],
+      $params["question"],
+    );
+    $params["question_hash"] = $question_hash;
+
     // 準備 AI 呼叫參數
     $ai_params = [
       "post_id" => $params["post_id"],
@@ -223,6 +229,13 @@ class Moelog_AIQnA_Renderer
       // 不寫入快取,直接渲染錯誤頁面
       $this->render_error(500, $answer);
       return;
+    }
+
+    if (!empty($question_hash)) {
+      delete_post_meta(
+        $params["post_id"],
+        "_moelog_aiqna_feedback_stats_" . $question_hash,
+      );
     }
 
     // 建立 HTML

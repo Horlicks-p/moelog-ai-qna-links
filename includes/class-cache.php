@@ -229,6 +229,8 @@ class Moelog_AIQnA_Cache
       // 刪除單一檔案
       $path = self::get_static_path($post_id, $question);
       $result = self::delete_file($path);
+      $hash = self::generate_hash($post_id, $question);
+      self::delete_feedback_stats($post_id, $hash);
       
       // 清除相關快取標記
       $cache_key = "static_exists_" . md5($post_id . "|" . $question);
@@ -246,7 +248,9 @@ class Moelog_AIQnA_Cache
 
       $count = 0;
       foreach ($files as $file) {
-        if (self::delete_file($file)) {
+        $deleted = self::delete_file($file);
+        self::delete_feedback_stats_from_filename($file);
+        if ($deleted) {
           $count++;
         }
       }
@@ -289,7 +293,9 @@ class Moelog_AIQnA_Cache
     // ✅ 優化: 批量刪除，避免過載
     foreach (array_chunk($files, $batch_size) as $batch) {
       foreach ($batch as $file) {
-        if (self::delete_file($file)) {
+        $deleted = self::delete_file($file);
+        self::delete_feedback_stats_from_filename($file);
+        if ($deleted) {
           $count++;
         }
       }
@@ -298,6 +304,11 @@ class Moelog_AIQnA_Cache
       if (count($files) > $batch_size) {
         usleep(10000); // 10ms
       }
+    }
+
+    // 同步清理無對應檔案的互動統計
+    if ($count > 0 && class_exists("Moelog_AIQnA_Feedback_Controller")) {
+      Moelog_AIQnA_Feedback_Controller::cleanup_orphaned_stats();
     }
 
     // ✅ 優化: 清除所有相關快取標記
@@ -336,10 +347,15 @@ class Moelog_AIQnA_Cache
     foreach ($files as $file) {
       $age = $now - filemtime($file);
       if ($age >= self::get_ttl()) {
+        self::delete_feedback_stats_from_filename($file);
         if (self::delete_file($file)) {
           $count++;
         }
       }
+    }
+
+    if ($count > 0 && class_exists("Moelog_AIQnA_Feedback_Controller")) {
+      Moelog_AIQnA_Feedback_Controller::cleanup_orphaned_stats();
     }
 
     if ($count > 0) {
@@ -501,7 +517,7 @@ class Moelog_AIQnA_Cache
    * @param string $question 問題文字
    * @return string 16 字元的 hash
    */
-  private static function generate_hash($post_id, $question)
+  public static function generate_hash($post_id, $question)
   {
     return substr(hash("sha256", $post_id . "|" . $question), 0, 16);
   }
@@ -628,6 +644,41 @@ class Moelog_AIQnA_Cache
     }
 
     return @unlink($path);
+  }
+
+  /**
+   * 依據檔名刪除對應的互動統計
+   *
+   * @param string $file 靜態檔案路徑
+   */
+  private static function delete_feedback_stats_from_filename($file)
+  {
+    $basename = basename($file);
+    if (
+      preg_match('/^(\d+)-([a-f0-9]{16})\.html$/', $basename, $matches) === 1
+    ) {
+      $post_id = absint($matches[1]);
+      $hash = $matches[2];
+      self::delete_feedback_stats($post_id, $hash);
+    }
+  }
+
+  /**
+   * 刪除特定問題的互動統計
+   *
+   * @param int    $post_id 文章 ID
+   * @param string $hash    問題雜湊
+   */
+  private static function delete_feedback_stats($post_id, $hash)
+  {
+    $post_id = absint($post_id);
+    $hash = preg_replace('/[^a-f0-9]/', "", strtolower($hash));
+
+    if (!$post_id || empty($hash)) {
+      return;
+    }
+
+    delete_post_meta($post_id, "_moelog_aiqna_feedback_stats_" . $hash);
   }
 
   // =========================================

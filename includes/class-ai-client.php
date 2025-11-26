@@ -24,7 +24,7 @@ class Moelog_AIQnA_AI_Client
    */
   const DEFAULT_MODEL_OPENAI = MOELOG_AIQNA_DEFAULT_MODEL_OPENAI; // 'gpt-4o-mini'
   const DEFAULT_MODEL_GEMINI = MOELOG_AIQNA_DEFAULT_MODEL_GEMINI; // 'gemini-2.5flash'
-  const DEFAULT_MODEL_ANTHROPIC = "claude-sonnet-4-5-20250929";
+  const DEFAULT_MODEL_ANTHROPIC = "claude-opus-4-5-20251101";
 
   /**
    * 單次請求生命週期的 API Key 快取（避免重複解密與重複記錄 log）
@@ -35,7 +35,8 @@ class Moelog_AIQnA_AI_Client
   /**
    * API 請求超時時間(秒)
    */
-  const TIMEOUT = 20;
+  // 增加預設逾時，避免大型模型回應被提早終止
+  const TIMEOUT = 45;
 
   /**
    * 最大重試次數
@@ -367,7 +368,7 @@ class Moelog_AIQnA_AI_Client
     $endpoint = "https://api.anthropic.com/v1/messages";
 
     $api_key = $params["api_key"] ?? "";
-    $model = $params["model"] ?? self::DEFAULT_MODEL_ANTHROPIC;
+    $model = $params["model"] ?? Moelog_AIQnA_Model_Registry::get_default_model("anthropic");
     $temperature = isset($params["temperature"])
       ? floatval($params["temperature"])
       : 0.3;
@@ -510,11 +511,7 @@ class Moelog_AIQnA_AI_Client
       $provider === "openai" &&
       stripos($params["model"], "gemini") !== false
     ) {
-      if (defined("MOELOG_AIQNA_DEFAULT_MODEL_OPENAI")) {
-        $params["model"] = MOELOG_AIQNA_DEFAULT_MODEL_OPENAI;
-      } else {
-        $params["model"] = "gpt-4o-mini";
-      }
+      $params["model"] = Moelog_AIQnA_Model_Registry::get_default_model("openai");
       Moelog_AIQnA_Debug::logf(
         "自動修正: OpenAI provider 不支持 Gemini 模型,改用 %s",
         $params["model"]
@@ -522,11 +519,7 @@ class Moelog_AIQnA_AI_Client
     }
 
     if ($provider === "gemini" && stripos($params["model"], "gpt") !== false) {
-      if (defined("MOELOG_AIQNA_DEFAULT_MODEL_GEMINI")) {
-        $params["model"] = MOELOG_AIQNA_DEFAULT_MODEL_GEMINI;
-      } else {
-        $params["model"] = "gemini-2.5-flash";
-      }
+      $params["model"] = Moelog_AIQnA_Model_Registry::get_default_model("gemini");
       Moelog_AIQnA_Debug::logf(
         "自動修正: Gemini provider 不支持 GPT 模型,改用 %s",
         $params["model"]
@@ -539,11 +532,7 @@ class Moelog_AIQnA_AI_Client
       (stripos($params["model"], "gpt") !== false ||
         stripos($params["model"], "gemini") !== false)
     ) {
-      if (defined("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC")) {
-        $params["model"] = MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC;
-      } else {
-        $params["model"] = "claude-sonnet-4-5-20250929";
-      }
+      $params["model"] = Moelog_AIQnA_Model_Registry::get_default_model("anthropic");
       Moelog_AIQnA_Debug::logf(
         "自動修正: Anthropic provider 不支持 GPT/Gemini 模型,改用 %s",
         $params["model"]
@@ -555,11 +544,7 @@ class Moelog_AIQnA_AI_Client
       $provider === "openai" &&
       stripos($params["model"], "claude") !== false
     ) {
-      if (defined("MOELOG_AIQNA_DEFAULT_MODEL_OPENAI")) {
-        $params["model"] = MOELOG_AIQNA_DEFAULT_MODEL_OPENAI;
-      } else {
-        $params["model"] = "gpt-4o-mini";
-      }
+      $params["model"] = Moelog_AIQnA_Model_Registry::get_default_model("openai");
       Moelog_AIQnA_Debug::logf(
         "自動修正: OpenAI provider 不支持 Claude 模型,改用 %s",
         $params["model"]
@@ -571,11 +556,7 @@ class Moelog_AIQnA_AI_Client
       $provider === "gemini" &&
       stripos($params["model"], "claude") !== false
     ) {
-      if (defined("MOELOG_AIQNA_DEFAULT_MODEL_GEMINI")) {
-        $params["model"] = MOELOG_AIQNA_DEFAULT_MODEL_GEMINI;
-      } else {
-        $params["model"] = "gemini-2.5-flash";
-      }
+      $params["model"] = Moelog_AIQnA_Model_Registry::get_default_model("gemini");
       Moelog_AIQnA_Debug::logf(
         "自動修正: Gemini provider 不支持 Claude 模型,改用 %s",
         $params["model"]
@@ -655,16 +636,15 @@ class Moelog_AIQnA_AI_Client
   private function prepare_api_params($params, $settings)
   {
     $provider = $settings["provider"] ?? "openai";
-    $default_model = "gpt-4o-mini"; // 預設 OpenAI
-    if ($provider === "gemini") {
-      $default_model = self::DEFAULT_MODEL_GEMINI;
-    } elseif ($provider === "anthropic") {
-      $default_model = self::DEFAULT_MODEL_ANTHROPIC;
+    $configured_model = isset($settings["model"])
+      ? trim((string) $settings["model"])
+      : "";
+    if ($configured_model === "") {
+      $configured_model = Moelog_AIQnA_Model_Registry::get_default_model($provider);
     }
-
     return [
       "api_key" => $this->get_api_key(),
-      "model" => $settings["model"] ?? $default_model,
+      "model" => $configured_model,
       "temperature" => isset($settings["temperature"])
         ? floatval($settings["temperature"])
         : 0.3,
@@ -913,11 +893,14 @@ class Moelog_AIQnA_AI_Client
     if ($settings === null) {
       $settings = Moelog_AIQnA_Settings::get();
     }
-    $model =
-      $settings["model"] ??
-      (($settings["provider"] ?? "openai") === "gemini"
-        ? self::DEFAULT_MODEL_GEMINI
-        : self::DEFAULT_MODEL_OPENAI);
+    $provider = $settings["provider"] ?? "openai";
+    $configured_model = isset($settings["model"])
+      ? trim((string) $settings["model"])
+      : "";
+    if ($configured_model === "") {
+      $configured_model = Moelog_AIQnA_Model_Registry::get_default_model($provider);
+    }
+    $model = $configured_model;
 
     $context_hash = substr(hash("sha256", $params["context"] ?? ""), 0, 32);
 
@@ -1038,13 +1021,7 @@ class Moelog_AIQnA_AI_Client
 
     // ✅ 修改這裡:根據 provider 使用對應的預設模型
     if (empty($model)) {
-      if ($provider === "gemini") {
-        $model = self::DEFAULT_MODEL_GEMINI;
-      } elseif ($provider === "anthropic") {
-        $model = self::DEFAULT_MODEL_ANTHROPIC;
-      } else {
-        $model = self::DEFAULT_MODEL_OPENAI;
-      }
+      $model = Moelog_AIQnA_Model_Registry::get_default_model($provider);
     }
 
     // 準備測試參數

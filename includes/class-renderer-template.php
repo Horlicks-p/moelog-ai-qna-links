@@ -107,10 +107,15 @@ class Moelog_AIQnA_Renderer_Template
     $post,
     $answer
   ) {
+    $question_hash = isset($params["question_hash"])
+      ? $params["question_hash"]
+      : Moelog_AIQnA_Cache::generate_hash($params["post_id"], $params["question"]);
+
     // 基本資訊
     $vars = [
       "post_id" => $params["post_id"],
       "question" => $params["question"],
+      "question_hash" => $question_hash,
       "answer" => $answer,
       "post_title" => get_the_title($post),
       "post_url" => get_permalink($post),

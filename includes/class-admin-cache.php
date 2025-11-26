@@ -105,6 +105,31 @@ class Moelog_AIQnA_Admin_Cache
             </button>
         </form>
 
+        <!-- 清理孤兒統計數據 -->
+        <hr style="margin:20px 0;">
+        <h3><?php esc_html_e("🧹 清理孤兒統計數據", "moelog-ai-qna"); ?></h3>
+        <form method="post" action="" style="margin-bottom:30px;">
+            <?php wp_nonce_field(
+              "moelog_aiqna_cleanup_orphaned",
+              "moelog_aiqna_cleanup_orphaned_nonce",
+            ); ?>
+            <p><?php esc_html_e(
+              "如果手動刪除了靜態 HTML 檔案（例如透過 FTP），對應的統計數據可能會殘留在資料庫中。此功能會掃描所有統計數據，並刪除對應檔案已不存在的孤兒數據。",
+              "moelog-ai-qna",
+            ); ?></p>
+            <button type="submit"
+                    name="moelog_aiqna_cleanup_orphaned"
+                    class="button button-secondary"
+                    onclick="return confirm('<?php echo esc_js(
+                      __(
+                        "確定要清理孤兒統計數據嗎？此操作會掃描資料庫並刪除對應檔案已不存在的統計數據。",
+                        "moelog-ai-qna",
+                      ),
+                    ); ?>');">
+                🧹 <?php esc_html_e("清理孤兒數據", "moelog-ai-qna"); ?>
+            </button>
+        </form>
+
         <!-- 清除單一靜態 HTML -->
         <hr style="margin:20px 0;">
         <h3><?php esc_html_e("刪除單一問題的靜態 HTML", "moelog-ai-qna"); ?></h3>
@@ -359,6 +384,40 @@ class Moelog_AIQnA_Admin_Cache
    */
   public function handle_cache_actions()
   {
+    // 清理孤兒統計數據
+    if (
+      isset($_POST["moelog_aiqna_cleanup_orphaned"]) &&
+      check_admin_referer(
+        "moelog_aiqna_cleanup_orphaned",
+        "moelog_aiqna_cleanup_orphaned_nonce",
+      )
+    ) {
+      $result = Moelog_AIQnA_Feedback_Controller::cleanup_orphaned_stats();
+
+      if ($result["deleted"] > 0) {
+        add_settings_error(
+          "moelog_aiqna_messages",
+          "orphaned_cleaned",
+          sprintf(
+            __("✅ 清理完成！掃描了 %d 筆統計數據，刪除了 %d 筆孤兒數據。", "moelog-ai-qna"),
+            $result["scanned"],
+            $result["deleted"],
+          ),
+          "success",
+        );
+      } else {
+        add_settings_error(
+          "moelog_aiqna_messages",
+          "no_orphaned",
+          sprintf(
+            __("ℹ️ 掃描了 %d 筆統計數據，未發現孤兒數據。", "moelog-ai-qna"),
+            $result["scanned"],
+          ),
+          "info",
+        );
+      }
+    }
+
     // 清除所有快取
     if (
       isset($_POST["moelog_aiqna_clear_cache"]) &&

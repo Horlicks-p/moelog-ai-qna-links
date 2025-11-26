@@ -82,6 +82,20 @@ class Moelog_AIQnA_Admin
 
     // 處理快取清除
     $this->cache_manager->handle_cache_actions();
+    $tabs = Moelog_AIQnA_Admin_Settings::get_tabs();
+    $current_tab = isset($_GET["tab"]) ? sanitize_key($_GET["tab"]) : "general";
+    if (!isset($tabs[$current_tab])) {
+      $current_tab = "general";
+    }
+    $current_page_slug = $tabs[$current_tab]["page"] ?? "";
+    $form_tabs = ["general", "display", "cache"];
+    $is_form_tab = in_array($current_tab, $form_tabs, true);
+    $base_url = add_query_arg(
+      [
+        "page" => "moelog_aiqna",
+      ],
+      admin_url("options-general.php"),
+    );
     ?>
         <div class="wrap">
             <h1>
@@ -91,18 +105,40 @@ class Moelog_AIQnA_Admin
                 </span>
             </h1>
 
-            <?php settings_errors("moelog_aiqna_messages"); ?>
+            <?php settings_errors("moelog_aiqna_messages", false, true); ?>
+
+            <h2 class="nav-tab-wrapper">
+              <?php foreach ($tabs as $slug => $tab): 
+                  $url = esc_url(add_query_arg("tab", $slug, $base_url));
+                  $active = $slug === $current_tab ? " nav-tab-active" : "";
+              ?>
+                <a href="<?php echo $url; ?>" class="nav-tab<?php echo esc_attr($active); ?>">
+                  <?php echo esc_html($tab["label"]); ?>
+                </a>
+              <?php endforeach; ?>
+            </h2>
 
             <div class="moelog-aiqna-admin-wrapper" style="display:flex;gap:20px;margin-top:20px;">
                 <!-- 左側: 主要設定 -->
                 <div style="flex:1;max-width:800px;">
-                    <form method="post" action="options.php">
-                        <?php
-                        settings_fields(MOELOG_AIQNA_OPT_KEY);
-                        do_settings_sections(MOELOG_AIQNA_OPT_KEY);
-                        submit_button();
-                        ?>
-                    </form>
+                    <?php if ($is_form_tab): ?>
+                      <form method="post" action="options.php">
+                          <?php
+                          settings_fields(MOELOG_AIQNA_OPT_KEY);
+                          do_settings_sections($current_page_slug);
+                          submit_button();
+                          ?>
+                      </form>
+                    <?php elseif ($current_tab === "cache_tools"): ?>
+                      <?php $this->cache_manager->render_cache_management(); ?>
+                    <?php else: ?>
+                      <?php
+                        $this->render_usage_guide();
+                        $this->render_cache_stats();
+                        $this->render_release_notes();
+                        $this->render_system_info();
+                      ?>
+                    <?php endif; ?>
                 </div>
 
                 <!-- 右側: 側邊欄 -->
@@ -111,14 +147,6 @@ class Moelog_AIQnA_Admin
                 </div>
             </div>
 
-            <!-- 快取管理 -->
-            <?php $this->cache_manager->render_cache_management(); ?>
-
-            <!-- 使用說明 -->
-            <?php $this->render_usage_guide(); ?>
-
-            <!-- 系統資訊 -->
-            <?php $this->render_system_info(); ?>
         </div>
 
         <!-- JavaScript -->
@@ -180,12 +208,13 @@ class Moelog_AIQnA_Admin
                   "使用 Shortcode:",
                   "moelog-ai-qna",
                 ); ?></p>
-                <code>[moelog_aiqna]</code>
-                <p style="margin:10px 0 5px;"><?php esc_html_e(
-                  "單一問題:",
-                  "moelog-ai-qna",
-                ); ?></p>
                 <code>[moelog_aiqna index="1"]</code>
+                <p style="margin:10px 0 5px;font-size:0.9em;color:#666;">
+                    <?php esc_html_e(
+                      "顯示第 1 題（index 範圍：1-8）",
+                      "moelog-ai-qna",
+                    ); ?>
+                </p>
             </div>
         </div>
 
@@ -230,35 +259,113 @@ class Moelog_AIQnA_Admin
             ); ?></li>
             <li>
                 <?php esc_html_e("或使用短碼", "moelog-ai-qna"); ?>
-                <code>[moelog_aiqna]</code>
-                <?php esc_html_e("手動插入問題清單。", "moelog-ai-qna"); ?>
-            </li>
-            <li>
-                <?php esc_html_e("也可用", "moelog-ai-qna"); ?>
-                <code>[moelog_aiqna index="3"]</code>
+                <code>[moelog_aiqna index="1"]</code>
                 <?php esc_html_e(
-                  "將第 3 題單獨放在任意段落（index 範圍 1–8）。",
+                  "將指定問題單獨放在任意段落（index 範圍 1–8）。",
                   "moelog-ai-qna",
                 ); ?>
             </li>
         </ol>
 
-        <h3><?php esc_html_e("🧾 v1.9.0 更新", "moelog-ai-qna"); ?></h3>
+        <?php
+  }
+
+  /**
+   * 快取統計
+   */
+  private function render_cache_stats()
+  {
+    if (!current_user_can("manage_options")) {
+      return;
+    }
+
+    $stats = Moelog_AIQnA_Cache::get_stats();
+    ?>
+        <hr style="margin:30px 0;">
+        <h2><?php esc_html_e("📊 快取統計", "moelog-ai-qna"); ?></h2>
+        <table class="widefat" style="max-width:800px;">
+            <thead>
+                <tr>
+                    <th style="width:200px;"><?php esc_html_e("項目", "moelog-ai-qna"); ?></th>
+                    <th><?php esc_html_e("數值", "moelog-ai-qna"); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th><?php esc_html_e("靜態檔案數量", "moelog-ai-qna"); ?></th>
+                    <td><strong><?php echo number_format($stats["static_count"]); ?></strong></td>
+                </tr>
+                <tr>
+                    <th><?php esc_html_e("靜態檔案總大小", "moelog-ai-qna"); ?></th>
+                    <td><strong><?php echo esc_html(
+                      moelog_aiqna_format_bytes($stats["static_size"])
+                    ); ?></strong></td>
+                </tr>
+                <tr>
+                    <th><?php esc_html_e("Transient 總筆數", "moelog-ai-qna"); ?></th>
+                    <td><strong><?php echo number_format($stats["transient_count"]); ?></strong></td>
+                </tr>
+                <tr>
+                    <th><?php esc_html_e("快取目錄", "moelog-ai-qna"); ?></th>
+                    <td>
+                        <code><?php echo esc_html($stats["directory"]); ?></code>
+                        <?php if ($stats["directory_writable"]): ?>
+                            <span style="color:green;">✓ <?php esc_html_e("可寫", "moelog-ai-qna"); ?></span>
+                        <?php else: ?>
+                            <span style="color:#d63638;">✗ <?php esc_html_e("不可寫", "moelog-ai-qna"); ?></span>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <?php
+  }
+
+  /**
+   * 更新內容
+   */
+  private function render_release_notes()
+  {
+    ?>
+        <hr style="margin:30px 0;">
+        <h3>
+            <?php
+            printf(
+              /* translators: %s: plugin version */
+              esc_html__("🧾 v%s 更新內容", "moelog-ai-qna"),
+              esc_html(MOELOG_AIQNA_VERSION),
+            );
+            ?>
+        </h3>
         <ul style="list-style-type:circle;margin-left:20px;line-height:1.8;">
-            <li>✅ <?php esc_html_e(
-              "加密 API Key 儲存",
+            <li>✨ <?php esc_html_e(
+              "回答頁互動功能：新增逐字打字動畫、互動式回饋卡、LocalStorage 防重複投票",
               "moelog-ai-qna",
             ); ?></li>
-            <li>✅ <?php esc_html_e("智慧預生成機制", "moelog-ai-qna"); ?></li>
-            <li>✅ <?php esc_html_e(
-              "靜態 HTML 快取機制",
+            <li>🎨 <?php esc_html_e(
+              "CSS / JS 重構：調整回答頁 DOM 結構與樣式切分，讓主題覆寫與 CSP 管理更輕鬆",
               "moelog-ai-qna",
             ); ?></li>
-            <li>✅ <?php esc_html_e(
-              "CDN 完全快取支援",
+            <li>🤖 <?php esc_html_e(
+              "AI 模型管理：導入 Model Registry，後台提供建議清單 + 自訂輸入",
               "moelog-ai-qna",
             ); ?></li>
-            <li>✅ <?php esc_html_e("模組化架構", "moelog-ai-qna"); ?></li>
+            <li>🧭 <?php esc_html_e(
+              "設定頁分頁化：將設定畫面拆成「一般 / 顯示 / 快取設定 / 快取管理 / 系統資訊」",
+              "moelog-ai-qna",
+            ); ?></li>
+            <li>🗺️ <?php esc_html_e(
+              "Sitemap 優化：改用 chunk 讀取與計數，動態分頁不再一次載入所有文章",
+              "moelog-ai-qna",
+            ); ?></li>
+            <li>⚙️ <?php esc_html_e(
+              "快取工具/資訊整合：快取管理搬到專屬分頁，新增快取統計摘要與系統資訊區塊",
+              "moelog-ai-qna",
+            ); ?></li>
+            <li>⏱️ <?php esc_html_e(
+              "API timeout 調整：預設逾時提升至 45 秒，避免 GPT-4 / Claude 長回答提早失敗",
+              "moelog-ai-qna",
+            ); ?></li>
         </ul>
         <?php
   }
@@ -275,12 +382,8 @@ class Moelog_AIQnA_Admin
     $info = $this->get_system_info();
     ?>
         <hr style="margin:30px 0;">
-        <details style="margin-bottom:30px;">
-            <summary style="cursor:pointer;font-size:1.1em;font-weight:600;">
-                <?php esc_html_e("🛠️ 系統資訊", "moelog-ai-qna"); ?>
-            </summary>
-            <div style="margin-top:15px;">
-                <table class="widefat" style="max-width:800px;">
+        <h2><?php esc_html_e("🛠️ 系統資訊", "moelog-ai-qna"); ?></h2>
+        <table class="widefat" style="max-width:800px;margin-top:15px;">
                     <tr>
                         <th style="width:30%;"><?php esc_html_e(
                           "插件版本",
@@ -447,111 +550,6 @@ class Moelog_AIQnA_Admin
                         ); ?></code></td>
                     </tr>
                 </table>
-
-                <!-- 快取統計 -->
-                <h3 style="margin-top:30px;"><?php esc_html_e("📊 快取統計", "moelog-ai-qna"); ?></h3>
-                <table class="widefat" style="margin-top:10px;">
-                    <thead>
-                        <tr>
-                            <th style="width:200px;"><?php esc_html_e("項目", "moelog-ai-qna"); ?></th>
-                            <th><?php esc_html_e("數值", "moelog-ai-qna"); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Post 快取統計 -->
-                        <tr>
-                            <th><?php esc_html_e("Post 快取請求", "moelog-ai-qna"); ?></th>
-                            <td><?php echo number_format($info["post_cache_stats"]["requests"]); ?></td>
-                        </tr>
-                        <tr>
-                            <th><?php esc_html_e("Post 快取命中", "moelog-ai-qna"); ?></th>
-                            <td>
-                                <?php echo number_format($info["post_cache_stats"]["hits"]); ?>
-                                <?php if ($info["post_cache_stats"]["requests"] > 0): ?>
-                                    <span style="color:#2271b1;">
-                                        (<?php echo esc_html($info["post_cache_stats"]["hit_rate"]); ?>%)
-                                    </span>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><?php esc_html_e("Post 快取未命中", "moelog-ai-qna"); ?></th>
-                            <td>
-                                <?php echo number_format($info["post_cache_stats"]["misses"]); ?>
-                                <?php if ($info["post_cache_stats"]["requests"] > 0): ?>
-                                    <span style="color:#d63638;">
-                                        (<?php echo esc_html($info["post_cache_stats"]["miss_rate"]); ?>%)
-                                    </span>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><?php esc_html_e("物件快取命中", "moelog-ai-qna"); ?></th>
-                            <td>
-                                <?php echo number_format($info["post_cache_stats"]["object_cache_hits"]); ?>
-                                <?php if ($info["post_cache_stats"]["hits"] > 0): ?>
-                                    <span style="color:#00a32a;">
-                                        (<?php echo esc_html($info["post_cache_stats"]["object_cache_hit_rate"]); ?>%)
-                                    </span>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><?php esc_html_e("資料庫查詢", "moelog-ai-qna"); ?></th>
-                            <td><?php echo number_format($info["post_cache_stats"]["db_queries"]); ?></td>
-                        </tr>
-                        
-                        <!-- Transient 快取統計 -->
-                        <tr style="background:#f9f9f9;">
-                            <th colspan="2"><strong><?php esc_html_e("Transient 快取", "moelog-ai-qna"); ?></strong></th>
-                        </tr>
-                        <tr>
-                            <th><?php esc_html_e("Transient 請求", "moelog-ai-qna"); ?></th>
-                            <td><?php echo number_format($info["cache_stats"]["transient_requests"] ?? 0); ?></td>
-                        </tr>
-                        <tr>
-                            <th><?php esc_html_e("Transient 命中率", "moelog-ai-qna"); ?></th>
-                            <td>
-                                <?php 
-                                $transient_requests = $info["cache_stats"]["transient_requests"] ?? 0;
-                                if ($transient_requests > 0): 
-                                ?>
-                                    <span style="color:#2271b1;">
-                                        <?php echo esc_html($info["cache_stats"]["transient_hit_rate"] ?? 0); ?>%
-                                    </span>
-                                <?php else: ?>
-                                    <span style="color:#999;"><?php esc_html_e("無資料", "moelog-ai-qna"); ?></span>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        
-                        <!-- 靜態檔案快取統計 -->
-                        <tr style="background:#f9f9f9;">
-                            <th colspan="2"><strong><?php esc_html_e("靜態檔案快取", "moelog-ai-qna"); ?></strong></th>
-                        </tr>
-                        <tr>
-                            <th><?php esc_html_e("檔案檢查次數", "moelog-ai-qna"); ?></th>
-                            <td><?php echo number_format($info["cache_stats"]["static_checks"] ?? 0); ?></td>
-                        </tr>
-                        <tr>
-                            <th><?php esc_html_e("檔案快取命中率", "moelog-ai-qna"); ?></th>
-                            <td>
-                                <?php 
-                                $static_checks = $info["cache_stats"]["static_checks"] ?? 0;
-                                if ($static_checks > 0): 
-                                ?>
-                                    <span style="color:#2271b1;">
-                                        <?php echo esc_html($info["cache_stats"]["static_hit_rate"] ?? 0); ?>%
-                                    </span>
-                                <?php else: ?>
-                                    <span style="color:#999;"><?php esc_html_e("無資料", "moelog-ai-qna"); ?></span>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </details>
         <?php
   }
 
@@ -621,14 +619,6 @@ class Moelog_AIQnA_Admin
             });
         });
 
-        // 根據供應商顯示對應的模型提示
-        function updateModelHint() {
-            var provider = $('#provider').val();
-            $('#model-hint-openai, #model-hint-gemini, #model-hint-anthropic').hide();
-            $('#model-hint-' + provider).show();
-        }
-        $('#provider').on('change', updateModelHint);
-        updateModelHint();
     });
     </script>
     <?php
@@ -687,7 +677,6 @@ class Moelog_AIQnA_Admin
   private function get_system_info()
   {
     $cache_stats = Moelog_AIQnA_Cache::get_stats();
-    $post_cache_stats = Moelog_AIQnA_Post_Cache::get_stats();
 
     // 檢查 Rewrite Rules
     $pretty_base = Moelog_AIQnA_Settings::get_pretty_base();
@@ -714,7 +703,6 @@ class Moelog_AIQnA_Admin
       "memory_limit" => ini_get("memory_limit"),
       "upload_max_size" => ini_get("upload_max_filesize"),
       "cache_stats" => $cache_stats,
-      "post_cache_stats" => $post_cache_stats,
     ];
   }
 

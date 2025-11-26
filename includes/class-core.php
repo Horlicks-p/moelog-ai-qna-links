@@ -30,6 +30,7 @@ class Moelog_AIQnA_Core
     private $ai_client;
     private $pregenerate;
     private $prefetch_injected = false;
+    private $prefetch_needed = false;
 
     /**
      * HMAC 密鑰
@@ -136,6 +137,9 @@ class Moelog_AIQnA_Core
             [$this->assets, "enqueue_frontend_assets"],
             10
         );
+
+        // === 預抓取腳本注入 ===
+        add_action("wp_footer", [$this, "inject_prefetch_script"], 10);
 
         // === 管理後台(僅在後台載入) ===
         if (is_admin()) {
@@ -410,21 +414,23 @@ class Moelog_AIQnA_Core
         if (!is_singular() || !in_the_loop() || !is_main_query()) {
             return $content;
         }
-        if (!empty($GLOBALS["moelog_aiqna_shortcode_used"])) {
-            return $content;
+        // 移除短碼檢查：現在短碼只顯示單一問題，與完整清單不衝突
+        // 完整清單會自動附加在文章底部
+        $block = $this->get_questions_block(get_the_ID());
+        if (!empty($block)) {
+            // 標記需要注入預抓取腳本
+            $this->prefetch_needed = true;
         }
-        if (has_shortcode($content, "moelog_aiqna")) {
-            return $content;
-        }
-        return $content . $this->get_questions_block(get_the_ID());
+        return $content . $block;
     }
 
     /**
      * Shortcode 處理函數
      *
      * 用法:
-     * [moelog_aiqna] - 顯示完整問題清單
-     * [moelog_aiqna index="1"] - 只顯示第 1 題
+     * [moelog_aiqna index="1"] - 顯示第 1 題
+     * [moelog_aiqna index="2"] - 顯示第 2 題
+     * ...以此類推 (index 範圍: 1-8)
      *
      * @param array $atts Shortcode 屬性
      * @return string
@@ -434,29 +440,52 @@ class Moelog_AIQnA_Core
         $content = "",
         $tag = "moelog_aiqna"
     ) {
-        $post_id = get_the_ID();
-        if (!$post_id) {
-            return "";
-        }
-
-        // 本文已使用短碼 → 立旗標，避免 append_questions_block 再自動附加清單
-        $GLOBALS["moelog_aiqna_shortcode_used"] = true;
-
+        // 解析短碼屬性
         $atts = shortcode_atts(
             [
-                "index" => "", // 1..8；空白=整份清單
+                "index" => "", // 必填：1..8
+                "post_id" => "", // 可選：指定文章 ID
             ],
             $atts,
             $tag
         );
 
+        // 必須提供 index 屬性
         $idx = intval($atts["index"]);
-        if ($idx >= 1 && $idx <= 8) {
-            return $this->shortcode_single_question($post_id, $idx);
+        if ($idx < 1 || $idx > 8) {
+            return "";
         }
 
-        // 整份清單
-        return $this->get_questions_block($post_id);
+        // 獲取 post_id：優先使用屬性中的 post_id，否則嘗試從當前上下文獲取
+        $post_id = 0;
+        
+        if (!empty($atts["post_id"])) {
+            $post_id = intval($atts["post_id"]);
+        } else {
+            // 嘗試多種方式獲取 post_id
+            $post_id = get_the_ID();
+            
+            // 如果 get_the_ID() 失敗，嘗試從全域 $post 獲取
+            if (!$post_id) {
+                global $post;
+                if ($post && isset($post->ID)) {
+                    $post_id = $post->ID;
+                }
+            }
+        }
+        
+        if (!$post_id) {
+            return "";
+        }
+
+        // 記錄已通過短碼顯示的問題 index，避免在完整清單中重複顯示
+        if (!isset($GLOBALS["moelog_aiqna_shortcode_indexes"])) {
+            $GLOBALS["moelog_aiqna_shortcode_indexes"] = [];
+        }
+        $GLOBALS["moelog_aiqna_shortcode_indexes"][$post_id][] = $idx;
+
+        // 短碼只顯示單一問題，不影響自動附加的完整清單
+        return $this->shortcode_single_question($post_id, $idx);
     }
 
     /**
@@ -486,9 +515,23 @@ class Moelog_AIQnA_Core
         $heading = Moelog_AIQnA_Settings::get_list_heading();
         $heading = apply_filters("moelog_aiqna_list_heading", $heading);
 
-        // 生成問題列表
+        // 取得已通過短碼顯示的問題 index（1-based）
+        $excluded_indexes = [];
+        if (isset($GLOBALS["moelog_aiqna_shortcode_indexes"][$post_id])) {
+            $excluded_indexes = $GLOBALS["moelog_aiqna_shortcode_indexes"][$post_id];
+        }
+
+        // 生成問題列表（排除已通過短碼顯示的問題）
         $items = "";
         foreach ($questions as $idx => $question) {
+            // $idx 是 0-based，轉換為 1-based 來比對
+            $question_index = $idx + 1;
+            
+            // 如果這個問題已經通過短碼顯示，則跳過
+            if (in_array($question_index, $excluded_indexes, true)) {
+                continue;
+            }
+
             $url = $this->build_answer_url($post_id, $question);
             $lang = $langs[$idx] ?? "auto";
 
@@ -500,15 +543,19 @@ class Moelog_AIQnA_Core
             );
         }
 
-        // 預抓取腳本
-        $prefetch_js = $this->ensure_prefetch_script_once();
+        // 如果所有問題都通過短碼顯示了，返回空字串
+        if (empty($items)) {
+            return "";
+        }
 
-        // 修正版本: 改為 h3 標題供一般使用者自行調整layout
+        // 標記需要注入預抓取腳本
+        $this->prefetch_needed = true;
+
+        // 修正版本: 不顯示 h3 標題,只保留作為 title 屬性
         return sprintf(
-            '<div class="moe-aiqna-block"><h3>%s</h3><ul>%s</ul></div>%s',
+            '<p class="ask_chatgpt" title="%s"></p><div class="moe-aiqna-block"><ul>%s</ul></div>',
             esc_attr($heading),
-            $items,
-            $prefetch_js
+            $items
         );
     }
     /**
@@ -539,28 +586,36 @@ class Moelog_AIQnA_Core
 
         $url = $this->build_answer_url($post_id, $q);
 
+        // 標記需要注入預抓取腳本
+        $this->prefetch_needed = true;
+
         // 輸出單題連結（沿用 .moe-aiqna-link class，樣式/預抓取一致）
-        $html = sprintf(
+        return sprintf(
             '<a class="moe-aiqna-link" target="_blank" rel="noopener" href="%s" data-lang="%s">%s</a>',
             esc_url($url),
             esc_attr($lang),
             esc_html($q)
         );
-
-        // 確保頁面上至少注入一次預抓取腳本（避免只放單題時未載入）
-        $html .= $this->ensure_prefetch_script_once();
-
-        return $html;
     }
 
-    private function ensure_prefetch_script_once()
+    /**
+     * 在 wp_footer 中注入預抓取腳本
+     * 避免在短碼中直接輸出 <script> 標籤導致內容被截斷
+     */
+    public function inject_prefetch_script()
     {
+        // 只有在需要時才注入（有使用短碼或自動附加清單）
+        if (!$this->prefetch_needed) {
+            return;
+        }
+
+        // 確保只注入一次
         if ($this->prefetch_injected) {
-            return "";
+            return;
         }
         $this->prefetch_injected = true;
 
-        return <<<HTML
+        echo <<<HTML
 <script>
 (function(){
   if (navigator.connection && navigator.connection.saveData) return;
@@ -658,4 +713,3 @@ HTML;
         // 由主檔的 moelog_aiqna_uninstall() 函數處理
     }
 }
-

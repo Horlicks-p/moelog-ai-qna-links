@@ -14,6 +14,42 @@ if (!defined("ABSPATH")) {
 
 class Moelog_AIQnA_Admin_Settings
 {
+  public const PAGE_GENERAL = "moelog_aiqna_page_general";
+  public const PAGE_DISPLAY = "moelog_aiqna_page_display";
+  public const PAGE_CACHE = "moelog_aiqna_page_cache";
+  public const PAGE_CACHE_TOOLS = "moelog_aiqna_page_cache_tools";
+  public const PAGE_INFO = "moelog_aiqna_page_info";
+
+  /**
+   * 取得設定分頁資訊
+   *
+   * @return array
+   */
+  public static function get_tabs(): array
+  {
+    return [
+      "general" => [
+        "label" => __("一般設定 (AI/內容)", "moelog-ai-qna"),
+        "page" => self::PAGE_GENERAL,
+      ],
+      "display" => [
+        "label" => __("顯示設定 (顯示/介面)", "moelog-ai-qna"),
+        "page" => self::PAGE_DISPLAY,
+      ],
+      "cache" => [
+        "label" => __("快取設定", "moelog-ai-qna"),
+        "page" => self::PAGE_CACHE,
+      ],
+      "cache_tools" => [
+        "label" => __("快取管理", "moelog-ai-qna"),
+        "page" => self::PAGE_CACHE_TOOLS,
+      ],
+      "info" => [
+        "label" => __("系統資訊 / 說明", "moelog-ai-qna"),
+        "page" => self::PAGE_INFO,
+      ],
+    ];
+  }
   /**
    * 註冊設定
    */
@@ -30,7 +66,7 @@ class Moelog_AIQnA_Admin_Settings
       "general",
       __("一般設定", "moelog-ai-qna"),
       [$this, "render_general_section"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_GENERAL,
     );
 
     // AI 供應商
@@ -38,7 +74,7 @@ class Moelog_AIQnA_Admin_Settings
       "provider",
       __("AI 供應商", "moelog-ai-qna"),
       [$this, "render_provider_field"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_GENERAL,
       "general",
     );
 
@@ -47,7 +83,7 @@ class Moelog_AIQnA_Admin_Settings
       "api_key",
       __("API Key", "moelog-ai-qna"),
       [$this, "render_api_key_field"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_GENERAL,
       "general",
     );
 
@@ -56,7 +92,7 @@ class Moelog_AIQnA_Admin_Settings
       "model",
       __("模型", "moelog-ai-qna"),
       [$this, "render_model_field"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_GENERAL,
       "general",
     );
 
@@ -65,7 +101,7 @@ class Moelog_AIQnA_Admin_Settings
       "temperature",
       __("Temperature", "moelog-ai-qna"),
       [$this, "render_temperature_field"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_GENERAL,
       "general",
     );
 
@@ -74,7 +110,7 @@ class Moelog_AIQnA_Admin_Settings
       "content",
       __("內容設定", "moelog-ai-qna"),
       [$this, "render_content_section"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_GENERAL,
     );
 
     // 是否附上文章內容
@@ -82,7 +118,7 @@ class Moelog_AIQnA_Admin_Settings
       "include_content",
       __("附上文章內容", "moelog-ai-qna"),
       [$this, "render_include_content_field"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_GENERAL,
       "content",
     );
 
@@ -91,7 +127,7 @@ class Moelog_AIQnA_Admin_Settings
       "max_chars",
       __("內容截斷長度", "moelog-ai-qna"),
       [$this, "render_max_chars_field"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_GENERAL,
       "content",
     );
 
@@ -100,7 +136,7 @@ class Moelog_AIQnA_Admin_Settings
       "system_prompt",
       __("System Prompt", "moelog-ai-qna"),
       [$this, "render_system_prompt_field"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_GENERAL,
       "content",
     );
 
@@ -109,7 +145,7 @@ class Moelog_AIQnA_Admin_Settings
       "display",
       __("顯示設定", "moelog-ai-qna"),
       [$this, "render_display_section"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_DISPLAY,
     );
 
     // 問題清單抬頭
@@ -117,7 +153,7 @@ class Moelog_AIQnA_Admin_Settings
       "list_heading",
       __("問題清單抬頭", "moelog-ai-qna"),
       [$this, "render_list_heading_field"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_DISPLAY,
       "display",
     );
 
@@ -126,7 +162,7 @@ class Moelog_AIQnA_Admin_Settings
       "disclaimer_text",
       __("免責聲明", "moelog-ai-qna"),
       [$this, "render_disclaimer_field"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_DISPLAY,
       "display",
     );
 
@@ -135,7 +171,7 @@ class Moelog_AIQnA_Admin_Settings
       "cache",
       __("快取設定", "moelog-ai-qna"),
       [$this, "render_cache_section"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_CACHE,
     );
 
     // 快取有效期限
@@ -143,7 +179,7 @@ class Moelog_AIQnA_Admin_Settings
       "cache_ttl_days",
       __("快取有效期限", "moelog-ai-qna"),
       [$this, "render_cache_ttl_field"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_CACHE,
       "cache",
     );
 
@@ -152,7 +188,7 @@ class Moelog_AIQnA_Admin_Settings
       "advanced",
       __("進階設定", "moelog-ai-qna"),
       [$this, "render_advanced_section"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_CACHE,
     );
 
     // URL 路徑前綴
@@ -160,7 +196,7 @@ class Moelog_AIQnA_Admin_Settings
       "pretty_base",
       __("URL 路徑前綴", "moelog-ai-qna"),
       [$this, "render_pretty_base_field"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_CACHE,
       "advanced",
     );
 
@@ -169,7 +205,7 @@ class Moelog_AIQnA_Admin_Settings
       "static_dir",
       __("快取目錄名稱", "moelog-ai-qna"),
       [$this, "render_static_dir_field"],
-      MOELOG_AIQNA_OPT_KEY,
+      self::PAGE_CACHE,
       "advanced",
     );
   }
@@ -319,75 +355,152 @@ class Moelog_AIQnA_Admin_Settings
   public function render_model_field()
   {
     $provider = Moelog_AIQnA_Settings::get_provider();
-    $default = Moelog_AIQnA_Settings::get_model();
-    $value = Moelog_AIQnA_Settings::get("model", $default);
+    $default = Moelog_AIQnA_Model_Registry::get_default_model($provider);
+    $value = Moelog_AIQnA_Settings::get("model", "");
+    $registry = Moelog_AIQnA_Model_Registry::get_registry();
+    $models = Moelog_AIQnA_Model_Registry::get_models_for_provider($provider);
+    $all_models = Moelog_AIQnA_Model_Registry::get_all_models();
+    $defaults = [];
+    $hints = [];
+    foreach ($registry as $key => $data) {
+      $defaults[$key] = $data["default"] ?? "";
+      $hints[$key] = $data["hint"] ?? "";
+    }
+    $model_ids = array_column($models, "id");
+    $is_custom = $value !== "" && !in_array($value, $model_ids, true);
     ?>
-    <input type="text"
+    <input type="hidden"
            name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[model]"
            id="model"
-           class="regular-text"
-           value="<?php echo esc_attr($value); ?>"
-           placeholder="<?php echo esc_attr($default); ?>"
-           data-default-openai="<?php echo esc_attr(
-             Moelog_AIQnA_AI_Client::DEFAULT_MODEL_OPENAI,
-           ); ?>"
-           data-default-gemini="<?php echo esc_attr(
-             Moelog_AIQnA_AI_Client::DEFAULT_MODEL_GEMINI,
-           ); ?>"
-           data-default-anthropic="<?php echo esc_attr(
-             Moelog_AIQnA_AI_Client::DEFAULT_MODEL_ANTHROPIC,
-           ); ?>">
+           value="<?php echo esc_attr($value); ?>">
+
+    <select id="model-picker" class="regular-text">
+      <option value=""><?php printf(
+        esc_html__("使用預設 (%s)", "moelog-ai-qna"),
+        esc_html($default)
+      ); ?></option>
+      <?php foreach ($models as $option): ?>
+        <option value="<?php echo esc_attr($option["id"]); ?>">
+          <?php echo esc_html($option["label"] ?? $option["id"]); ?>
+        </option>
+      <?php endforeach; ?>
+      <option value="__custom"><?php esc_html_e("自訂模型…", "moelog-ai-qna"); ?></option>
+    </select>
 
     <p class="description">
-        <?php printf(
-          /* translators: %s: 預設模型名稱 */
-          esc_html__("留空使用預設模型: %s", "moelog-ai-qna"),
-          "<code>" . esc_html($default) . "</code>",
-        ); ?>
+        <?php esc_html_e("可直接選擇建議模型，或選擇「自訂模型」輸入完整 ID。", "moelog-ai-qna"); ?>
+    </p>
+    <p class="description" id="model-hint">
+        <?php echo esc_html(Moelog_AIQnA_Model_Registry::get_provider_hint($provider)); ?>
     </p>
 
-    <p class="description" id="model-hint-openai" style="display:none;">
-        <?php esc_html_e(
-          "OpenAI 模型範例: gpt-4o-mini, gpt-4o, gpt-4.1, gpt-4.1-mini",
-          "moelog-ai-qna",
-        ); ?>
-    </p>
-    <p class="description" id="model-hint-gemini" style="display:none;">
-        <?php esc_html_e(
-          "Gemini 模型範例: gemini-2.5-flash, gemini-1.5-pro",
-          "moelog-ai-qna",
-        ); ?>
-    </p>
-    <p class="description" id="model-hint-anthropic" style="display:none;">
-        <?php esc_html_e(
-          "Anthropic 模型範例: claude-sonnet-4-5-20250929, claude-opus-4-1",
-          "moelog-ai-qna",
-        ); ?>
-    </p>
+    <div id="model-custom-wrap" style="display:<?php echo $is_custom ? "block" : "none"; ?>;margin-top:8px;">
+        <label for="model-custom-input"><?php esc_html_e("自訂模型 ID", "moelog-ai-qna"); ?></label>
+        <input type="text"
+               id="model-custom-input"
+               class="regular-text"
+               value="<?php echo esc_attr($is_custom ? $value : ""); ?>"
+               placeholder="<?php esc_attr_e("輸入供應商提供的完整模型 ID", "moelog-ai-qna"); ?>">
+    </div>
 
     <script>
     (function() {
-        // 依 provider 顯示對應提示 & 更新 placeholder
-        function updateModelUI() {
-            var provider = document.getElementById('provider');
-            var model    = document.getElementById('model');
-            if (!provider || !model) return;
+        const registry = <?php echo wp_json_encode($all_models, JSON_UNESCAPED_UNICODE); ?>;
+        const defaults = <?php echo wp_json_encode($defaults, JSON_UNESCAPED_UNICODE); ?>;
+        const hints = <?php echo wp_json_encode($hints, JSON_UNESCAPED_UNICODE); ?>;
+        const valueInput = document.getElementById('model');
+        const picker = document.getElementById('model-picker');
+        const providerSelect = document.getElementById('provider');
+        const customWrap = document.getElementById('model-custom-wrap');
+        const customInput = document.getElementById('model-custom-input');
+        const hintEl = document.getElementById('model-hint');
 
-            var pv = provider.value;
-            // 切換說明塊
-            ['openai','gemini','anthropic'].forEach(function(k) {
-                var el = document.getElementById('model-hint-' + k);
-                if (el) el.style.display = (k === pv) ? 'block' : 'none';
-            });
-            // 更新 placeholder（不覆蓋使用者已填值）
-            var ph = model.getAttribute('data-default-' + pv);
-            if (ph) model.setAttribute('placeholder', ph);
+        if (!picker || !valueInput || !providerSelect) {
+            return;
         }
 
-        document.addEventListener('DOMContentLoaded', updateModelUI);
-        document.addEventListener('change', function(e) {
-            if (e.target && e.target.id === 'provider') updateModelUI();
+        function buildOptions(provider) {
+            const list = registry[provider] || [];
+            const fragment = document.createDocumentFragment();
+            const defaultLabel = defaults[provider]
+                ? '<?php echo esc_js(__("使用預設", "moelog-ai-qna")); ?>' + ' (' + defaults[provider] + ')'
+                : '<?php echo esc_js(__("使用預設", "moelog-ai-qna")); ?>';
+            fragment.appendChild(new Option(defaultLabel, ''));
+            list.forEach(function(item) {
+                fragment.appendChild(new Option(item.label || item.id, item.id));
+            });
+            fragment.appendChild(new Option('<?php echo esc_js(__("自訂模型…", "moelog-ai-qna")); ?>', '__custom'));
+            picker.innerHTML = '';
+            picker.appendChild(fragment);
+        }
+
+        function toggleCustom(show) {
+            if (!customWrap) return;
+            customWrap.style.display = show ? 'block' : 'none';
+            if (!show && customInput) {
+                customInput.value = '';
+            }
+        }
+
+        function updateHint(provider) {
+            if (!hintEl) return;
+            hintEl.textContent = hints[provider] || '<?php echo esc_js(__("可輸入供應商提供的模型 ID。", "moelog-ai-qna")); ?>';
+        }
+
+        function syncSelection() {
+            const provider = providerSelect.value;
+            const current = (valueInput.value || '').trim();
+            const list = (registry[provider] || []).map(function(item) { return item.id; });
+
+            if (!current) {
+                picker.value = '';
+                toggleCustom(false);
+            } else if (list.indexOf(current) !== -1) {
+                picker.value = current;
+                toggleCustom(false);
+            } else {
+                picker.value = '__custom';
+                toggleCustom(true);
+                if (customInput && customInput.value !== current) {
+                    customInput.value = current;
+                }
+            }
+
+            updateHint(provider);
+        }
+
+        picker.addEventListener('change', function() {
+            if (this.value === '__custom') {
+                toggleCustom(true);
+                if (customInput) {
+                    customInput.focus();
+                    valueInput.value = customInput.value.trim();
+                }
+            } else {
+                toggleCustom(false);
+                valueInput.value = this.value;
+            }
         });
+
+        if (customInput) {
+            customInput.addEventListener('input', function() {
+                valueInput.value = this.value.trim();
+            });
+        }
+
+        providerSelect.addEventListener('change', function() {
+            buildOptions(this.value);
+            valueInput.value = '';
+            if (customInput) {
+                customInput.value = '';
+            }
+            picker.value = '';
+            toggleCustom(false);
+            syncSelection();
+        });
+
+        buildOptions(providerSelect.value);
+        syncSelection();
     })();
     </script>
     <?php
@@ -669,9 +782,14 @@ class Moelog_AIQnA_Admin_Settings
     // =========================================
     // 2. Model (模型名稱)
     // =========================================
-    $output["model"] = sanitize_text_field(
+    $model_value = sanitize_text_field(
       moelog_aiqna_array_get($input, "model", ""),
     );
+    if ($model_value !== "") {
+      $output["model"] = $model_value;
+    } else {
+      unset($output["model"]);
+    }
 
     // =========================================
     // 3. Temperature (溫度參數)
