@@ -149,7 +149,7 @@ The plugin only sends the following to AI providers (OpenAI / Gemini / Claude):
 - 🔒 **Security:** Enhanced singleton pattern implementation for main plugin instance.
 - ⚡ **Performance:** Added transient fallback for rate limiting without persistent object cache.
 
-= 1.10.0 (2025-11-26) – Interactive Answer Page & Model Registry =
+= 1.10.0 (2025-11-25) – Interactive Answer Page & Model Registry =
 - ✨ Answer page overhaul with typing animation, interactive feedback card, and standalone CSS/JS assets for better caching.  
 - 🎨 Structural cleanup for CSP-friendly templates (links, original source block, sanitized markup).  
 - 🤖 Model Registry + dropdown/custom inputs in admin, dynamic defaults per provider.  
@@ -204,5 +204,6 @@ GitHub: https://github.com/Horlicks-p/moelog-ai-qna-links
 This plugin is licensed under **GPL v2 or later**.  
 You are free to modify and redistribute it.  
 © 2025 Horlicks / moelog.com
+
 
 
