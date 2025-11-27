@@ -260,15 +260,27 @@
         setMessage(t('needMore'), 'error');
         return;
       }
+      
+      // 🔒 檢查訊息長度限制
+      if (value.length > 300) {
+        setMessage(t('failed'), 'error');
+        return;
+      }
 
       setMessage(t('submitting'));
       if (submitBtn) {
         submitBtn.disabled = true;
       }
+      
+      // 🔒 蜜罐欄位：讀取隱藏欄位的值（正常應為空）
+      var honeypot = document.getElementById('moe-hp-field');
+      var hpValue = honeypot ? honeypot.value : '';
+      
       sendRequest('moelog_aiqna_report_issue', {
         post_id: config.postId,
         question: config.question || '',
         message: value,
+        website: hpValue  // 蜜罐欄位
       })
         .then(function (res) {
           if (res && res.success) {

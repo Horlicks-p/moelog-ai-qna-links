@@ -140,6 +140,7 @@ The plugin only sends the following to AI providers (OpenAI / Gemini / Claude):
 = 1.10.2 (2025-11-27) – Bug Fixes & Improvements =
 - 🐛 **Fixed:** Cache statistics now update immediately after deleting cache files.
 - 🐛 **Fixed:** STM (Structured Data Mode) settings no longer reset when saving other tabs.
+- 🔒 **Security:** Added anti-abuse measures to issue reporting (IP rate limit, honeypot, message length limit).
 - 🎨 **UI:** Removed duplicate cache statistics from System Info page.
 - ⚡ **Performance:** Cache management page now always shows real-time statistics.
 

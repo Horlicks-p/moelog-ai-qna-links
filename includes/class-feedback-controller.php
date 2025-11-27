@@ -146,21 +146,78 @@ class Moelog_AIQnA_Feedback_Controller
     }
 
     /**
+     * 問題回報頻率限制常數
+     */
+    const REPORT_RATE_LIMIT = 3;        // 每小時最大回報次數
+    const REPORT_RATE_WINDOW = 3600;    // 頻率限制時間窗口 (秒)
+    const REPORT_MAX_LENGTH = 300;      // 訊息最大字數
+
+    /**
      * AJAX: 回報問題
      */
     public static function ajax_report_issue()
     {
         self::verify_nonce();
 
+        // =========================================
+        // 🔒 防濫用檢查
+        // =========================================
+        
+        // 1. 蜜罐欄位檢查 (機器人陷阱)
+        // 前端會有一個隱藏的 website 欄位，正常用戶不會填寫
+        $honeypot = trim($_POST["website"] ?? "");
+        if (!empty($honeypot)) {
+            // 機器人填寫了蜜罐欄位，靜默拒絕
+            Moelog_AIQnA_Debug::log_warning("Report blocked: honeypot triggered");
+            wp_send_json_success([
+                "message" => __("已送出,感謝您的回饋!", "moelog-ai-qna"),
+            ]);
+            return;
+        }
+
+        // 2. IP 頻率限制
+        $client_ip = self::get_client_ip();
+        $rate_key = "moe_aiqna_report_" . md5($client_ip);
+        
+        // 使用 transient 進行頻率限制
+        $report_count = (int) get_transient($rate_key);
+        
+        if ($report_count >= self::REPORT_RATE_LIMIT) {
+            Moelog_AIQnA_Debug::log_warning("Report rate limited: " . $client_ip);
+            wp_send_json_error([
+                "message" => __("回報次數過多,請稍後再試", "moelog-ai-qna"),
+            ]);
+            return;
+        }
+
         $post_id = absint($_POST["post_id"] ?? 0);
         $message = sanitize_textarea_field($_POST["message"] ?? "");
         $question = sanitize_text_field($_POST["question"] ?? "");
         $question_hash = sanitize_text_field($_POST["question_hash"] ?? "");
 
+        // 3. 訊息長度限制
+        if (mb_strlen($message, 'UTF-8') > self::REPORT_MAX_LENGTH) {
+            wp_send_json_error([
+                "message" => sprintf(
+                    __("訊息過長,請限制在 %d 字以內", "moelog-ai-qna"),
+                    self::REPORT_MAX_LENGTH
+                ),
+            ]);
+            return;
+        }
+
         if (!$post_id || empty($message)) {
             wp_send_json_error([
                 "message" => __("請輸入回饋內容", "moelog-ai-qna"),
             ]);
+        }
+
+        // 4. 最小長度檢查 (防止空白或單字元垃圾)
+        if (mb_strlen(trim($message), 'UTF-8') < 5) {
+            wp_send_json_error([
+                "message" => __("請輸入更詳細的回饋內容", "moelog-ai-qna"),
+            ]);
+            return;
         }
 
         $post = get_post($post_id);
@@ -203,7 +260,7 @@ class Moelog_AIQnA_Feedback_Controller
         $body[] =
             __("來源 IP：", "moelog-ai-qna") .
             " " .
-            sanitize_text_field($_SERVER["REMOTE_ADDR"] ?? "unknown");
+            sanitize_text_field($client_ip);
 
         $sent = wp_mail(
             $admin_email,
@@ -218,9 +275,43 @@ class Moelog_AIQnA_Feedback_Controller
             ]);
         }
 
+        // ✅ 成功發送後，更新頻率限制計數
+        set_transient($rate_key, $report_count + 1, self::REPORT_RATE_WINDOW);
+
         wp_send_json_success([
             "message" => __("已送出,感謝您的回饋!", "moelog-ai-qna"),
         ]);
+    }
+
+    /**
+     * 取得客戶端 IP
+     *
+     * @return string
+     */
+    private static function get_client_ip()
+    {
+        $ip = "0.0.0.0";
+
+        // Cloudflare
+        if (!empty($_SERVER["HTTP_CF_CONNECTING_IP"])) {
+            $ip = $_SERVER["HTTP_CF_CONNECTING_IP"];
+        }
+        // 代理伺服器
+        elseif (!empty($_SERVER["HTTP_X_FORWARDED_FOR"])) {
+            $ips = explode(",", $_SERVER["HTTP_X_FORWARDED_FOR"]);
+            $ip = trim($ips[0]);
+        }
+        // 直接連線
+        elseif (!empty($_SERVER["REMOTE_ADDR"])) {
+            $ip = $_SERVER["REMOTE_ADDR"];
+        }
+
+        // 驗證 IP 格式
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            $ip = "0.0.0.0";
+        }
+
+        return $ip;
     }
 
     /**

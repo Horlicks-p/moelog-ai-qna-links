@@ -275,9 +275,11 @@ $original_html =
 
     <div class="moe-feedback-report" id="moe-feedback-report" hidden>
       <textarea name="moe-feedback-text" placeholder="<?php esc_attr_e(
-          "請簡述您遇到的問題或建議",
+          "請簡述您遇到的問題或建議 (最多 300 字)",
           "moelog-ai-qna"
-      ); ?>"></textarea>
+      ); ?>" maxlength="300"></textarea>
+      <!-- 🔒 蜜罐欄位：機器人陷阱，正常用戶看不到也不會填寫 -->
+      <input type="text" name="website" id="moe-hp-field" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;">
       <div class="moe-feedback-report-actions">
         <button type="button" class="moe-feedback-secondary" data-feedback-cancel><?php esc_html_e(
             "取消",
