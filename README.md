@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 6.8.3  
 Requires PHP: 7.4  
 Tested PHP: 8.3  
-Stable tag: 1.10.1  
+Stable tag: 1.10.2  
 License: GPLv2 or later  
 License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)  
 
@@ -141,57 +141,31 @@ STM 模式可協助搜尋引擎和 AI 爬蟲「解析」你的 AI 答案頁，**
 
 == 🧩 Changelog ==
 
+= 1.10.2 (2025-11-27) – 錯誤修正 & 改進 =
+- 🐛 **修正:** 刪除快取檔案後，快取統計立即更新（不再顯示舊數據）。
+- 🐛 **修正:** STM (結構化資料模式) 設定不再因儲存其他分頁而被重置。
+- 🎨 **UI:** 移除系統資訊頁面中重複的快取統計區塊。
+- ⚡ **效能:** 快取管理頁面現在始終顯示即時統計。
+
 = 1.10.1 (2025-11-26) – PHP 8.x 相容性 & 程式碼品質 =
 - 🐘 **PHP 8.x 相容性:** 完整支援 PHP 8.0, 8.1, 8.2, 8.3。
-- 🔧 **修正:** `preg_replace()` 返回 null 的處理 (PHP 8.1+ 棄用警告)。
-- 🔧 **修正:** `json_decode()` 返回 null 時的陣列存取錯誤。
-- 🔧 **修正:** `trim()` 等字串函數 null 參數處理。
-- 🔧 **修正:** `parse_url()` 返回 null 的處理。
+- 🔧 **修正:** `preg_replace()`, `json_decode()`, `trim()`, `parse_url()` null 處理。
 - 🎨 **UI 優化:** 為所有後台區段標題添加統一的 Emoji 圖示。
 - 🎨 **UI 優化:** 移除多餘的 `<hr>` 分隔線，版面更整潔。
-- 📝 **程式碼品質:** 改善 PHPDoc 返回類型註解。
 - 🔒 **安全性:** 增強主插件實例的單例模式實作。
 - ⚡ **效能:** 為沒有持久物件快取的環境添加 transient 頻率限制備援。
 
 = 1.10.0 (2025-11-25) – Interactive Answer Page & Model Registry =
-- ✨ **Answer page overhaul:** 新增逐字打字動畫、互動式回饋卡、LocalStorage 防重複投票，並把 typing/feedback JS 與樣式抽離為獨立資產以利快取。  
-- 🎨 **CSS / JS 重構:** 調整回答頁 DOM 結構與樣式切分，讓主題覆寫與 CSP 管理更輕鬆。  
-- 🤖 **AI 模型管理:** 導入 Model Registry，後台提供建議清單 + 自訂輸入，OpenAI/Gemini/Claude 預設模型可由常數或遠端 filter 控制。  
-- 🧭 **設定頁分頁化:** 將原本冗長的設定畫面拆成「一般 / 顯示 / 快取設定 / 快取管理 / 系統資訊」，並保留快速連結與支援區塊。  
-- 🗺️ **Sitemap 優化:** `render_sitemap()` 改用 `$wpdb` chunk 讀取與計數，動態分頁不再一次載入所有文章，並保留 debug log。  
-- ⚙️ **快取工具/資訊整合:** 快取管理搬到專屬分頁，新增快取統計摘要、動態版本更新說明與系統資訊區塊。  
-- ⏱️ **API timeout 調整:** 預設逾時提升至 45 秒，避免 GPT-4 / Claude 長回答提早失敗。  
-- 🔧 **短碼優化:** 移除 `[moelog_aiqna]` 完整清單模式，改為只支援 `[moelog_aiqna index="N"]` 單一問題模式。短碼可在文章任意位置插入特定問題，完整清單會自動附加在底部並排除已通過短碼顯示的問題，避免重複且更靈活。同時解決了短碼中包含 `<script>` 標籤導致內容被截斷的問題。  
+- ✨ 新增逐字打字動畫、互動式回饋卡。
+- 🤖 導入 Model Registry，後台提供建議清單 + 自訂輸入。
+- 🧭 設定頁分頁化：一般 / 顯示 / 快取設定 / 快取管理 / 系統資訊。
+- 🗺️ Sitemap 改用 chunk 讀取，避免大量文章時記憶體問題。
+- ⏱️ API timeout 提升至 45 秒。
 
 = 1.9.0 (2025-11-23) – Admin UI Improvements & Bug Fixes =
-- ✨ **New:** Delete single static HTML file feature with question dropdown selection.  
-- 🔧 **Enhancement:** Improved AJAX error handling and nonce verification.  
-- 🐛 **Fix:** Fixed PHP warnings and deprecated function calls in cache statistics.  
-- 🔒 **Security:** Enhanced IP validation and rate limiting using wp_cache.  
-- ⚡ **Performance:** Optimized cache operations with batch processing and extended cache TTL.  
-- 📝 **Refactor:** Split large admin and renderer classes into smaller, focused modules.
-
-= 1.8.3 (2025-10-21) – Encrypted API Key Storage =  
-- 🔒 **安全升級:** 新增 API 金鑰加密功能 (AES-256-CBC)。  
-- ✨ **自動遷移:** 啟用時自動將資料庫中現有的明文 API Key 升級為加密格式。  
-- 🔧 強化：更新 `helpers-encryption.php`，包含 OpenSSL 降級方案 (XOR 混淆)。  
-
-= 1.8.2 (2025-10-20) – Smart Pregeneration Optimization & Bug Fixes =  
-- ✨ **新功能:** 新增基於**內容雜湊 (content hash)** 的智慧預生成偵測。  
-- 🎯 **優化:** 僅在文章內容或 Q&A 列表變更時才重新生成答案。  
-- (其他錯誤修復...)  
-
-= 1.8.1 (2025-10-19) – Added Claude AI Support =  
-- ✨ **新功能:** 新增 Anthropic Claude (claude.ai) 支援。  
-- (其他錯誤修復...)  
-
-= 1.8.0 (2025-10-18) – Full Modular Refactor =  
-- 🚀 **架構重構:** 重建為模組化架構 (Core / Router / Renderer / Cache 等)。  
-- ✨ **新功能:** 新增可選的 STM (結構化資料) 模式 (`moelog-ai-geo.php`)。  
-- ✨ **新功能:** 新增可自訂快取 TTL (1–365 天) 的設定。  
-- 🔧 **相容性:** Sitemap 改用 `.php` 結尾，避免與 SEO 外掛衝突。  
-- 🔒 **安全強化:** 導入 CSP Nonce、HMAC-URL 及更嚴格的輸出過濾。  
-- 📝 更新：更新管理介面 UI 與內聯文件。  
+- ✨ 新增刪除單一靜態 HTML 檔案功能。
+- 🔧 改善 AJAX 錯誤處理與 nonce 驗證。
+- ⚡ 批量處理快取操作優化。  
 
 ---
 

@@ -1017,6 +1017,23 @@ class Moelog_AIQnA_Admin_Settings
       Moelog_AIQnA_Cache::prepare_static_root();
     }
 
+    // =========================================
+    // 13. STM (Structured Data Mode) - 獨立 option
+    // =========================================
+    // ✅ 修正: geo_mode 是獨立的 option，需要在這裡單獨處理
+    // 檢查表單中是否有 geo_mode 欄位（只有「顯示設定」頁面會有）
+    if (isset($_POST["moelog_aiqna_geo_mode"])) {
+      $old_geo = (bool) get_option("moelog_aiqna_geo_mode", false);
+      $new_geo = !empty($_POST["moelog_aiqna_geo_mode"]);
+      
+      update_option("moelog_aiqna_geo_mode", $new_geo ? 1 : 0);
+      
+      // 如果狀態變更，刷新 rewrite rules
+      if ($old_geo !== $new_geo) {
+        flush_rewrite_rules(false);
+      }
+    }
+
     // ✅ 確保有成功訊息
     if (empty(get_settings_errors("moelog_aiqna_messages"))) {
       add_settings_error(

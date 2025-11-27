@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 6.8.3
 Requires PHP: 7.4
 Tested PHP: 8.3
-Stable tag: 1.10.1
+Stable tag: 1.10.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -137,57 +137,31 @@ The plugin only sends the following to AI providers (OpenAI / Gemini / Claude):
 
 == 🧩 Changelog ==
 
+= 1.10.2 (2025-11-27) – Bug Fixes & Improvements =
+- 🐛 **Fixed:** Cache statistics now update immediately after deleting cache files.
+- 🐛 **Fixed:** STM (Structured Data Mode) settings no longer reset when saving other tabs.
+- 🎨 **UI:** Removed duplicate cache statistics from System Info page.
+- ⚡ **Performance:** Cache management page now always shows real-time statistics.
+
 = 1.10.1 (2025-11-26) – PHP 8.x Compatibility & Code Quality =
 - 🐘 **PHP 8.x Compatibility:** Full compatibility with PHP 8.0, 8.1, 8.2, and 8.3.
-- 🔧 **Fixed:** `preg_replace()` null return handling for PHP 8.1+ deprecation warnings.
-- 🔧 **Fixed:** `json_decode()` null return handling to prevent array access errors.
-- 🔧 **Fixed:** `trim()` and string function null parameter handling.
-- 🔧 **Fixed:** `parse_url()` null return handling.
+- 🔧 **Fixed:** `preg_replace()`, `json_decode()`, `trim()`, `parse_url()` null handling.
 - 🎨 **UI Enhancement:** Added consistent emoji icons to all admin section headers.
 - 🎨 **UI Enhancement:** Removed redundant `<hr>` dividers for cleaner layout.
-- 📝 **Code Quality:** Improved PHPDoc return type annotations.
 - 🔒 **Security:** Enhanced singleton pattern implementation for main plugin instance.
 - ⚡ **Performance:** Added transient fallback for rate limiting without persistent object cache.
 
 = 1.10.0 (2025-11-25) – Interactive Answer Page & Model Registry =
-- ✨ Answer page overhaul with typing animation, interactive feedback card, and standalone CSS/JS assets for better caching.  
-- 🎨 Structural cleanup for CSP-friendly templates (links, original source block, sanitized markup).  
-- 🤖 Model Registry + dropdown/custom inputs in admin, dynamic defaults per provider.  
-- 🧭 Settings screen split into five tabs (General, Display, Cache, Cache Tools, System Info).  
-- 🗺️ Sitemap rendering now chunks post IDs via `$wpdb`, preventing memory spikes on large sites.  
-- ⚙️ Cache tools/information moved into dedicated tabs with live stats & release notes.  
-- ⏱️ API timeout increased to 45s for GPT-4 / Claude long-form answers.  
-- 🔧 **Shortcode optimization:** Removed `[moelog_aiqna]` full list mode, now only supports `[moelog_aiqna index="N"]` single-question mode. Shortcodes can insert specific questions anywhere in the post, while the full list is automatically appended at the bottom with shortcode-displayed questions excluded to avoid duplicates. This also fixes content truncation issues caused by `<script>` tags in shortcode output.  
+- ✨ Answer page overhaul with typing animation, interactive feedback card.
+- 🤖 Model Registry + dropdown/custom inputs in admin, dynamic defaults per provider.
+- 🧭 Settings screen split into five tabs (General, Display, Cache, Cache Tools, System Info).
+- 🗺️ Sitemap rendering now chunks post IDs via `$wpdb`, preventing memory spikes.
+- ⏱️ API timeout increased to 45s for GPT-4 / Claude long-form answers.
 
 = 1.9.0 (2025-11-23) – Admin UI Improvements & Bug Fixes =
-- ✨ **New:** Delete single static HTML file feature with question dropdown selection.  
-- 🔧 **Enhancement:** Improved AJAX error handling and nonce verification.  
-- 🐛 **Fix:** Fixed PHP warnings and deprecated function calls in cache statistics.  
-- 🔒 **Security:** Enhanced IP validation and rate limiting using wp_cache.  
-- ⚡ **Performance:** Optimized cache operations with batch processing and extended cache TTL.  
-- 📝 **Refactor:** Split large admin and renderer classes into smaller, focused modules.
-
-= 1.8.3 (2025-10-21) – Encrypted API Key Storage =
-- 🔒 **Security upgrade:** Added AES-256-CBC encryption for API keys.  
-- ✨ **Automatic migration:** On activation, existing plaintext API keys in the database are upgraded to the encrypted format.  
-- 🔧 Enhancement: Updated `helpers-encryption.php`, including an OpenSSL fallback (XOR obfuscation).
-
-= 1.8.2 (2025-10-20) – Smart Pregeneration Optimization & Bug Fixes =
-- ✨ **New:** Smart pregeneration based on **content hash**.  
-- 🎯 **Optimization:** Regenerate answers only when post content or Q&A list changes.  
-- (Additional fixes and improvements…)
-
-= 1.8.1 (2025-10-19) – Added Claude AI Support =
-- ✨ **New:** Anthropic Claude (claude.ai) provider added.  
-- (Additional notes…)
-
-= 1.8.0 (2025-10-18) – Full Modular Refactor =
-- 🚀 **Refactor:** Modularized architecture (Core / Router / Renderer / Cache, etc.).  
-- ✨ **New:** Optional STM (Structured Data Mode) via `moelog-ai-geo.php`.  
-- ✨ **New:** Configurable cache TTL (1–365 days).  
-- 🔧 **Compat:** Sitemap switched to `.php` to avoid SEO plugin conflicts.  
-- 🔒 **Security:** Added CSP nonce, HMAC URLs, and stricter output sanitization.  
-- 📝 Admin UI and inline docs updated.
+- ✨ Delete single static HTML file feature with question dropdown selection.
+- 🔧 Improved AJAX error handling and nonce verification.
+- ⚡ Optimized cache operations with batch processing.
 
 ---
 

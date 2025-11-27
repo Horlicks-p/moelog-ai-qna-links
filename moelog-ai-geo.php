@@ -81,11 +81,8 @@ class Moelog_AIQnA_GEO
     // =========================================
     public function register_settings()
     {
-        register_setting("moelog_aiqna_settings", "moelog_aiqna_geo_mode", [
-            "type" => "boolean",
-            "default" => false,
-            "sanitize_callback" => [$this, "sanitize_geo_mode"],
-        ]);
+        // ✅ 注意: moelog_aiqna_geo_mode 是獨立的 option，不在主設定陣列中
+        // 但我們不需要再次 register_setting，因為我們會用 AJAX 處理或直接 update_option
 
         add_settings_section(
             "moelog_aiqna_geo_section",

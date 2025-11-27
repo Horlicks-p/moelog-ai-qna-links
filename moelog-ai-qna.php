@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Moelog AI Q&A Links
  * Description: 在每篇文章底部顯示作者預設的問題清單,點擊後開新分頁,由 AI 生成答案的靜態HTML。支持 OpenAI/Gemini,可自訂模型與提示。
- * Version: 1.10.1
+ * Version: 1.10.2
  * Author: Horlicks (moelog.com)
  * Text Domain: moelog-ai-qna
  * Domain Path: /languages
@@ -19,7 +19,7 @@ if (!defined("ABSPATH")) {
 // =========================================
 // 定義常數
 // =========================================
-define("MOELOG_AIQNA_VERSION", "1.10.1");
+define("MOELOG_AIQNA_VERSION", "1.10.2");
 define("MOELOG_AIQNA_FILE", __FILE__);
 define("MOELOG_AIQNA_DIR", plugin_dir_path(__FILE__));
 define("MOELOG_AIQNA_URL", plugin_dir_url(__FILE__));
