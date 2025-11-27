@@ -55,6 +55,12 @@ class Moelog_AIQnA_Feedback_Controller
             "wp_ajax_nopriv_moelog_aiqna_feedback_bootstrap",
             [__CLASS__, "ajax_bootstrap"]
         );
+
+        // 後台：清除所有回饋統計
+        add_action(
+            "wp_ajax_moelog_aiqna_clear_feedback_stats",
+            [__CLASS__, "ajax_clear_all_stats"]
+        );
     }
 
     /**
@@ -351,6 +357,57 @@ class Moelog_AIQnA_Feedback_Controller
                 "message" => __("驗證失敗", "moelog-ai-qna"),
             ]);
         }
+    }
+
+    /**
+     * AJAX: 清除所有回饋統計（僅限管理員）
+     */
+    public static function ajax_clear_all_stats()
+    {
+        // 驗證管理員權限
+        if (!current_user_can("manage_options")) {
+            wp_send_json_error([
+                "message" => __("權限不足", "moelog-ai-qna"),
+            ]);
+            return;
+        }
+
+        // 驗證 nonce
+        $nonce = sanitize_text_field($_POST["nonce"] ?? "");
+        if (!wp_verify_nonce($nonce, "moelog_aiqna_clear_feedback")) {
+            wp_send_json_error([
+                "message" => __("驗證失敗", "moelog-ai-qna"),
+            ]);
+            return;
+        }
+
+        global $wpdb;
+
+        // 刪除所有回饋統計相關的 post meta
+        $deleted = $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE %s",
+                $wpdb->esc_like(self::META_KEY_PREFIX) . "%"
+            )
+        );
+
+        // 也刪除舊版的通用 key
+        $deleted += $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s",
+                self::META_KEY
+            )
+        );
+
+        Moelog_AIQnA_Debug::log_info("Cleared all feedback stats, deleted {$deleted} records");
+
+        wp_send_json_success([
+            "message" => sprintf(
+                __("已清除所有回饋統計（共 %d 筆記錄）", "moelog-ai-qna"),
+                $deleted
+            ),
+            "deleted" => $deleted,
+        ]);
     }
 
     /**

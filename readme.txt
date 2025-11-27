@@ -141,6 +141,8 @@ The plugin only sends the following to AI providers (OpenAI / Gemini / Claude):
 - 🐛 **Fixed:** Cache statistics now update immediately after deleting cache files.
 - 🐛 **Fixed:** STM (Structured Data Mode) settings no longer reset when saving other tabs.
 - 🔒 **Security:** Added anti-abuse measures to issue reporting (IP rate limit, honeypot, message length limit).
+- ✨ **New:** Added "Feedback Feature" toggle in Display Settings to enable/disable interactive feedback.
+- ✨ **New:** Added "Clear All Feedback Stats" button to delete all views/likes/dislikes data.
 - 🎨 **UI:** Removed duplicate cache statistics from System Info page.
 - ⚡ **Performance:** Cache management page now always shows real-time statistics.
 

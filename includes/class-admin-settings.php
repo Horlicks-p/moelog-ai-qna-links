@@ -166,6 +166,15 @@ class Moelog_AIQnA_Admin_Settings
       "display",
     );
 
+    // 啟用回饋功能
+    add_settings_field(
+      "feedback_enabled",
+      __("回饋功能", "moelog-ai-qna"),
+      [$this, "render_feedback_enabled_field"],
+      self::PAGE_DISPLAY,
+      "display",
+    );
+
     // === 快取設定區段 ===
     add_settings_section(
       "cache",
@@ -658,6 +667,92 @@ class Moelog_AIQnA_Admin_Settings
   }
 
   /**
+   * 渲染「回饋功能」開關欄位
+   */
+  public function render_feedback_enabled_field()
+  {
+    $enabled = Moelog_AIQnA_Settings::get("feedback_enabled", true);
+    ?>
+    <label style="display:block;margin-bottom:8px;">
+        <input type="checkbox"
+               name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[feedback_enabled]"
+               value="1"
+               <?php checked($enabled, true); ?>>
+        <strong><?php esc_html_e("啟用互動回饋功能", "moelog-ai-qna"); ?></strong>
+    </label>
+    <p class="description">
+        <?php esc_html_e(
+          "在 AI 回答頁底部顯示「正確/錯誤」投票按鈕、問題回報功能和瀏覽統計。",
+          "moelog-ai-qna",
+        ); ?>
+    </p>
+    <p class="description" style="color:#666;">
+        <?php esc_html_e(
+          "停用後，回答頁將不顯示任何互動元素，僅顯示 AI 回答內容。",
+          "moelog-ai-qna",
+        ); ?>
+    </p>
+    
+    <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
+    
+    <p style="margin-bottom: 8px;">
+        <strong><?php esc_html_e("🗑️ 清除回饋統計", "moelog-ai-qna"); ?></strong>
+    </p>
+    <p class="description" style="margin-bottom: 10px;">
+        <?php esc_html_e(
+          "刪除所有文章的瀏覽次數、好評、差評統計。此操作無法復原。",
+          "moelog-ai-qna",
+        ); ?>
+    </p>
+    <button type="button" 
+            id="moelog-clear-feedback-stats" 
+            class="button button-secondary"
+            style="color: #b32d2e;">
+        <?php esc_html_e("清除所有回饋統計", "moelog-ai-qna"); ?>
+    </button>
+    <span id="moelog-clear-feedback-result" style="margin-left: 10px;"></span>
+    
+    <script>
+    jQuery(document).ready(function($) {
+        $('#moelog-clear-feedback-stats').on('click', function() {
+            var $btn = $(this);
+            var $result = $('#moelog-clear-feedback-result');
+            
+            if (!confirm('<?php echo esc_js(__("確定要清除所有回饋統計嗎？此操作無法復原。", "moelog-ai-qna")); ?>')) {
+                return;
+            }
+            
+            $btn.prop('disabled', true).text('<?php echo esc_js(__("處理中...", "moelog-ai-qna")); ?>');
+            $result.text('');
+            
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'moelog_aiqna_clear_feedback_stats',
+                    nonce: '<?php echo wp_create_nonce("moelog_aiqna_clear_feedback"); ?>'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $result.css('color', 'green').text('✅ ' + response.data.message);
+                    } else {
+                        $result.css('color', 'red').text('❌ ' + (response.data.message || '<?php echo esc_js(__("發生錯誤", "moelog-ai-qna")); ?>'));
+                    }
+                },
+                error: function() {
+                    $result.css('color', 'red').text('❌ <?php echo esc_js(__("請求失敗", "moelog-ai-qna")); ?>');
+                },
+                complete: function() {
+                    $btn.prop('disabled', false).text('<?php echo esc_js(__("清除所有回饋統計", "moelog-ai-qna")); ?>');
+                }
+            });
+        });
+    });
+    </script>
+    <?php
+  }
+
+  /**
    * 渲染快取有效期限欄位
    */
   public function render_cache_ttl_field()
@@ -767,187 +862,204 @@ class Moelog_AIQnA_Admin_Settings
     // 取得目前儲存的設定 (用於保留未修改的值)
     $previous = Moelog_AIQnA_Settings::get();
 
-    // 初始化輸出陣列
-    $output = [];
+    // 初始化輸出陣列 - 先複製現有設定，避免其他分頁儲存時重置
+    $output = is_array($previous) ? $previous : [];
 
     // =========================================
-    // 1. Provider (AI 供應商)
+    // 判斷目前是哪個分頁提交
     // =========================================
-    $input_provider = moelog_aiqna_array_get($input, "provider", "openai");
-
-    $output["provider"] = Moelog_AIQnA_Settings::is_valid_provider($input_provider)
-      ? $input_provider
-      : "openai";
+    $is_general_tab = isset($input["provider"]) || isset($input["api_key"]) || isset($input["temperature"]);
+    $is_display_tab = isset($input["list_heading"]) || isset($input["disclaimer_text"]);
+    $is_cache_tab = isset($input["cache_ttl_days"]) || isset($input["pretty_base"]) || isset($input["static_dir"]);
 
     // =========================================
-    // 2. Model (模型名稱)
+    // 1. Provider (AI 供應商) - 只在一般設定分頁處理
     // =========================================
-    $model_value = sanitize_text_field(
-      moelog_aiqna_array_get($input, "model", ""),
-    );
-    if ($model_value !== "") {
-      $output["model"] = $model_value;
-    } else {
-      unset($output["model"]);
+    if ($is_general_tab && isset($input["provider"])) {
+      $input_provider = moelog_aiqna_array_get($input, "provider", "openai");
+      $output["provider"] = Moelog_AIQnA_Settings::is_valid_provider($input_provider)
+        ? $input_provider
+        : "openai";
     }
 
     // =========================================
-    // 3. Temperature (溫度參數)
+    // 2. Model (模型名稱) - 只在一般設定分頁處理
     // =========================================
-    $temp = floatval(moelog_aiqna_array_get($input, "temperature", MOELOG_AIQNA_DEFAULT_TEMPERATURE));
-    $output["temperature"] = max(MOELOG_AIQNA_MIN_TEMPERATURE, min(MOELOG_AIQNA_MAX_TEMPERATURE, $temp));
-
-    // =========================================
-    // 4. Include Content (是否附上文章內容)
-    // =========================================
-    $output["include_content"] = !empty($input["include_content"]) ? 1 : 0;
-
-    // =========================================
-    // 5. Block Enabled (是否在文章底部顯示問題區塊)
-    // =========================================
-    $output["block_enabled"] = !empty($input["block_enabled"]) ? 1 : 0;
-
-    // =========================================
-    // 6. Max Chars (內容截斷長度)
-    // =========================================
-    $max_chars = absint(moelog_aiqna_array_get($input, "max_chars", MOELOG_AIQNA_DEFAULT_MAX_CHARS));
-    $output["max_chars"] = max(MOELOG_AIQNA_MIN_MAX_CHARS, min(MOELOG_AIQNA_MAX_MAX_CHARS, $max_chars));
-
-    // =========================================
-    // 7. System Prompt / Custom Prompt (自訂提示詞)
-    // =========================================
-    $output["custom_prompt"] = sanitize_textarea_field(
-      moelog_aiqna_array_get($input, "custom_prompt", ""),
-    );
-
-    // 也可能是 system_prompt,根據您的欄位名稱調整
-    if (isset($input["system_prompt"])) {
-      $output["system_prompt"] = wp_kses_post(
-        moelog_aiqna_array_get($input, "system_prompt", ""),
-      );
-    }
-
-    // =========================================
-    // 8. List Heading (問題清單標題)
-    // =========================================
-    $default_heading = __(
-      "還有其他問題嗎?以下是 AI 可以回答的問題",
-      "moelog-ai-qna",
-    );
-    $output["list_heading"] = sanitize_text_field(
-      moelog_aiqna_array_get($input, "list_heading", $default_heading),
-    );
-
-    if (empty($output["list_heading"])) {
-      $output["list_heading"] = $default_heading;
-    }
-
-    // =========================================
-    // 9. Disclaimer (免責聲明)
-    // =========================================
-    $default_disclaimer =
-      "使用本 AI 生成內容服務即表示您同意此內容僅供個人參考,且您了解輸出內容可能不準確。\n" .
-      "所有爭議內容 {site} 保有最終解釋權。";
-
-    $output["disclaimer_text"] = sanitize_textarea_field(
-      moelog_aiqna_array_get($input, "disclaimer_text", $default_disclaimer),
-    );
-
-    if (empty($output["disclaimer_text"])) {
-      $output["disclaimer_text"] = $default_disclaimer;
-    }
-
-    // =========================================
-    // 10. API Key 處理 (★★★ 核心安全邏輯 ★★★)
-    // =========================================
-
-    // 步驟 1: 檢查是否使用 wp-config.php 常數定義
-    if (defined("MOELOG_AIQNA_API_KEY") && constant("MOELOG_AIQNA_API_KEY")) {
-      // 使用常數,不儲存到資料庫 (最安全的方式)
-      $output["api_key"] = "";
-
-      Moelog_AIQnA_Debug::log_info("Using API Key from wp-config.php constant");
-    } else {
-      // 步驟 2: 使用資料庫儲存 (需要加密)
-      $input_key = trim(moelog_aiqna_array_get($input, "api_key", ""));
-
-      // 步驟 2a: 檢查是否為遮罩值或空值
-      if (empty($input_key) || preg_match('/^\*+$/', $input_key)) {
-        // 保留原有的 Key (不變更)
-        $output["api_key"] = moelog_aiqna_array_get($previous, "api_key", "");
-
-        Moelog_AIQnA_Debug::log_info("API Key unchanged (masked input)");
+    if ($is_general_tab && isset($input["model"])) {
+      $model_value = sanitize_text_field($input["model"]);
+      if ($model_value !== "") {
+        $output["model"] = $model_value;
       } else {
-        // 步驟 2b: 有新的 API Key 輸入
+        unset($output["model"]);
+      }
+    }
 
-        // 檢查是否已經是加密格式 (避免重複加密)
-        if (
-          function_exists("moelog_aiqna_is_encrypted") &&
-          moelog_aiqna_is_encrypted($input_key)
-        ) {
-          // 已經是加密格式,直接儲存
-          $output["api_key"] = $input_key;
+    // =========================================
+    // 3. Temperature (溫度參數) - 只在一般設定分頁處理
+    // =========================================
+    if ($is_general_tab && isset($input["temperature"])) {
+      $temp = floatval($input["temperature"]);
+      $output["temperature"] = max(MOELOG_AIQNA_MIN_TEMPERATURE, min(MOELOG_AIQNA_MAX_TEMPERATURE, $temp));
+    }
 
-          Moelog_AIQnA_Debug::log_info("API Key already encrypted, saved as-is");
+    // =========================================
+    // 4. Include Content (是否附上文章內容) - 只在一般設定分頁處理
+    // =========================================
+    if ($is_general_tab) {
+      $output["include_content"] = !empty($input["include_content"]) ? 1 : 0;
+    }
+
+    // =========================================
+    // 5. Block Enabled (是否在文章底部顯示問題區塊) - 只在一般設定分頁處理
+    // =========================================
+    if ($is_general_tab) {
+      $output["block_enabled"] = !empty($input["block_enabled"]) ? 1 : 0;
+    }
+
+    // =========================================
+    // 6. Max Chars (內容截斷長度) - 只在一般設定分頁處理
+    // =========================================
+    if ($is_general_tab && isset($input["max_chars"])) {
+      $max_chars = absint($input["max_chars"]);
+      $output["max_chars"] = max(MOELOG_AIQNA_MIN_MAX_CHARS, min(MOELOG_AIQNA_MAX_MAX_CHARS, $max_chars));
+    }
+
+    // =========================================
+    // 7. System Prompt / Custom Prompt (自訂提示詞) - 只在一般設定分頁處理
+    // =========================================
+    if ($is_general_tab) {
+      if (isset($input["custom_prompt"])) {
+        $output["custom_prompt"] = sanitize_textarea_field($input["custom_prompt"]);
+      }
+      if (isset($input["system_prompt"])) {
+        $output["system_prompt"] = wp_kses_post($input["system_prompt"]);
+      }
+    }
+
+    // =========================================
+    // 8. List Heading (問題清單標題) - 只在顯示設定分頁處理
+    // =========================================
+    if ($is_display_tab && isset($input["list_heading"])) {
+      $default_heading = __(
+        "還有其他問題嗎?以下是 AI 可以回答的問題",
+        "moelog-ai-qna",
+      );
+      $output["list_heading"] = sanitize_text_field($input["list_heading"]);
+      if (empty($output["list_heading"])) {
+        $output["list_heading"] = $default_heading;
+      }
+    }
+
+    // =========================================
+    // 9. Disclaimer (免責聲明) - 只在顯示設定分頁處理
+    // =========================================
+    if ($is_display_tab && isset($input["disclaimer_text"])) {
+      $default_disclaimer =
+        "使用本 AI 生成內容服務即表示您同意此內容僅供個人參考,且您了解輸出內容可能不準確。\n" .
+        "所有爭議內容 {site} 保有最終解釋權。";
+      $output["disclaimer_text"] = sanitize_textarea_field($input["disclaimer_text"]);
+      if (empty($output["disclaimer_text"])) {
+        $output["disclaimer_text"] = $default_disclaimer;
+      }
+    }
+
+    // =========================================
+    // 9.5 Feedback Enabled (回饋功能開關) - 只在顯示設定分頁處理
+    // =========================================
+    if ($is_display_tab) {
+      $output["feedback_enabled"] = !empty($input["feedback_enabled"]) ? 1 : 0;
+    }
+
+    // =========================================
+    // 10. API Key 處理 (★★★ 核心安全邏輯 ★★★) - 只在一般設定分頁處理
+    // =========================================
+    if ($is_general_tab) {
+      // 步驟 1: 檢查是否使用 wp-config.php 常數定義
+      if (defined("MOELOG_AIQNA_API_KEY") && constant("MOELOG_AIQNA_API_KEY")) {
+        // 使用常數,不儲存到資料庫 (最安全的方式)
+        $output["api_key"] = "";
+
+        Moelog_AIQnA_Debug::log_info("Using API Key from wp-config.php constant");
+      } else {
+        // 步驟 2: 使用資料庫儲存 (需要加密)
+        $input_key = trim(moelog_aiqna_array_get($input, "api_key", ""));
+
+        // 步驟 2a: 檢查是否為遮罩值或空值
+        if (empty($input_key) || preg_match('/^\*+$/', $input_key)) {
+          // 保留原有的 Key (不變更)
+          $output["api_key"] = moelog_aiqna_array_get($previous, "api_key", "");
+
+          Moelog_AIQnA_Debug::log_info("API Key unchanged (masked input)");
         } else {
-          // 步驟 2c: 新的明文 API Key - 進行加密
-          if (function_exists("moelog_aiqna_encrypt_api_key")) {
-            $encrypted_key = moelog_aiqna_encrypt_api_key($input_key);
+          // 步驟 2b: 有新的 API Key 輸入
 
-            if (!empty($encrypted_key)) {
-              $output["api_key"] = $encrypted_key;
+          // 檢查是否已經是加密格式 (避免重複加密)
+          if (
+            function_exists("moelog_aiqna_is_encrypted") &&
+            moelog_aiqna_is_encrypted($input_key)
+          ) {
+            // 已經是加密格式,直接儲存
+            $output["api_key"] = $input_key;
 
-              Moelog_AIQnA_Debug::log_info("New API Key encrypted and saved");
+            Moelog_AIQnA_Debug::log_info("API Key already encrypted, saved as-is");
+          } else {
+            // 步驟 2c: 新的明文 API Key - 進行加密
+            if (function_exists("moelog_aiqna_encrypt_api_key")) {
+              $encrypted_key = moelog_aiqna_encrypt_api_key($input_key);
 
-              // 顯示成功訊息
-              add_settings_error(
-                "moelog_aiqna_messages",
-                "api_key_encrypted",
-                __("✓ API Key 已加密儲存", "moelog-ai-qna"),
-                "success",
-              );
+              if (!empty($encrypted_key)) {
+                $output["api_key"] = $encrypted_key;
+
+                Moelog_AIQnA_Debug::log_info("New API Key encrypted and saved");
+
+                // 顯示成功訊息
+                add_settings_error(
+                  "moelog_aiqna_messages",
+                  "api_key_encrypted",
+                  __("✓ API Key 已加密儲存", "moelog-ai-qna"),
+                  "success",
+                );
+              } else {
+                // 加密失敗,使用明文 (降級處理)
+                $output["api_key"] = sanitize_text_field($input_key);
+
+                add_settings_error(
+                  "moelog_aiqna_messages",
+                  "api_key_encryption_failed",
+                  __(
+                    "⚠ API Key 加密失敗,已使用明文儲存。建議使用 wp-config.php 常數定義。",
+                    "moelog-ai-qna",
+                  ),
+                  "warning",
+                );
+              }
             } else {
-              // 加密失敗,使用明文 (降級處理)
+              // 加密函數不存在,降級為明文 (舊版相容)
               $output["api_key"] = sanitize_text_field($input_key);
 
-              add_settings_error(
-                "moelog_aiqna_messages",
-                "api_key_encryption_failed",
-                __(
-                  "⚠ API Key 加密失敗,已使用明文儲存。建議使用 wp-config.php 常數定義。",
-                  "moelog-ai-qna",
-                ),
-                "warning",
-              );
+              Moelog_AIQnA_Debug::log_warning("Encryption function not available, storing plaintext");
             }
-          } else {
-            // 加密函數不存在,降級為明文 (舊版相容)
-            $output["api_key"] = sanitize_text_field($input_key);
-
-            Moelog_AIQnA_Debug::log_warning("Encryption function not available, storing plaintext");
           }
         }
       }
     }
 
     // =========================================
-    // 11. Cache TTL (快取有效期限 - 天數)
+    // 11. Cache TTL (快取有效期限 - 天數) - 只在快取設定分頁處理
     // =========================================
-    $cache_ttl_days = absint(
-      moelog_aiqna_array_get($input, "cache_ttl_days", MOELOG_AIQNA_DEFAULT_CACHE_TTL_DAYS),
-    );
-
-    // 限制在有效範圍內
-    $cache_ttl_days = max(MOELOG_AIQNA_MIN_CACHE_TTL_DAYS, min(MOELOG_AIQNA_MAX_CACHE_TTL_DAYS, $cache_ttl_days));
-
-    $output["cache_ttl_days"] = $cache_ttl_days;
+    if ($is_cache_tab && isset($input["cache_ttl_days"])) {
+      $cache_ttl_days = absint($input["cache_ttl_days"]);
+      // 限制在有效範圍內
+      $cache_ttl_days = max(MOELOG_AIQNA_MIN_CACHE_TTL_DAYS, min(MOELOG_AIQNA_MAX_CACHE_TTL_DAYS, $cache_ttl_days));
+      $output["cache_ttl_days"] = $cache_ttl_days;
+    }
 
     // =========================================
-    // 12. 其他可能的設定欄位
+    // 12. 進階設定 - 只在快取設定分頁處理
     // =========================================
 
     // ✅ 驗證 pretty_base
-    if (isset($input["pretty_base"])) {
+    if ($is_cache_tab && isset($input["pretty_base"])) {
       $pretty_base = sanitize_title($input["pretty_base"]);
       // PHP 8.1+: 確保 preg_replace 不返回 null
       $pretty_base = preg_replace("/[^a-z0-9\-]/", "", $pretty_base) ?? "";
@@ -978,7 +1090,7 @@ class Moelog_AIQnA_Admin_Settings
     }
 
     // ✅ 驗證 static_dir
-    if (isset($input["static_dir"])) {
+    if ($is_cache_tab && isset($input["static_dir"])) {
       $static_dir = sanitize_title($input["static_dir"]);
       // PHP 8.1+: 確保 preg_replace 不返回 null
       $static_dir = preg_replace("/[^a-z0-9\-]/", "", $static_dir) ?? "";
@@ -1008,7 +1120,7 @@ class Moelog_AIQnA_Admin_Settings
 
       $output["static_dir"] = $static_dir;
     }
-    $output = array_merge($previous, $output);
+
     // 儲存同時就把新目錄與保護檔建好（掛在 wp-content）
     if (
       class_exists("Moelog_AIQnA_Cache") &&
@@ -1020,9 +1132,9 @@ class Moelog_AIQnA_Admin_Settings
     // =========================================
     // 13. STM (Structured Data Mode) - 獨立 option
     // =========================================
-    // ✅ 修正: geo_mode 是獨立的 option，需要在這裡單獨處理
-    // 檢查表單中是否有 geo_mode 欄位（只有「顯示設定」頁面會有）
-    if (isset($_POST["moelog_aiqna_geo_mode"])) {
+    // ✅ 修正: geo_mode 是獨立的 option，只在「顯示設定」分頁處理
+    // 注意：checkbox 取消勾選時不會出現在 POST 中，所以用 $is_display_tab 判斷
+    if ($is_display_tab) {
       $old_geo = (bool) get_option("moelog_aiqna_geo_mode", false);
       $new_geo = !empty($_POST["moelog_aiqna_geo_mode"]);
       

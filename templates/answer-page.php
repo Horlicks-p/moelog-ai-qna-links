@@ -66,6 +66,11 @@ $title = sprintf(
     $answer
 ); ?>
 <?php
+// 🔧 檢查回饋功能是否啟用
+// 注意：值可能是 1, 0, true, false, "1", "0" 等，需要明確轉換為布林
+$feedback_enabled_raw = Moelog_AIQnA_Settings::get("feedback_enabled", 1);
+$feedback_enabled = ($feedback_enabled_raw === true || $feedback_enabled_raw === 1 || $feedback_enabled_raw === "1");
+
 $feedback_stats = class_exists("Moelog_AIQnA_Feedback_Controller")
     ? Moelog_AIQnA_Feedback_Controller::get_stats($post_id, $question_hash ?? null)
     : [
@@ -155,7 +160,9 @@ if (typeof window.MoelogAIQnA.typing_fallback === 'undefined') {
       esc_html__("抱歉,目前無法取得 AI 回答,請稍後再試。", "moelog-ai-qna")
   ); ?>';
 }
+<?php if ($feedback_enabled): ?>
 window.MoelogAIQnA.feedback = <?php echo wp_json_encode($feedback_config); ?>;
+<?php endif; ?>
 </script>
 <script 
   src="<?php echo esc_url(
@@ -250,6 +257,7 @@ $original_html =
               "moelog-ai-qna"
           ) .
           "</p>"; ?></noscript>
+  <?php if ($feedback_enabled): ?>
   <section class="moe-feedback-card" id="moe-feedback-card">
     <h3 class="moe-feedback-title"><?php esc_html_e(
         "你覺得AI回答的內容正確嗎？",
@@ -313,6 +321,7 @@ $original_html =
       ); ?></span>
     </div>
   </div>
+  <?php endif; ?>
 <?php
 $close_label = esc_html__("← 關閉此頁", "moelog-ai-qna");
 $fallback_label = esc_html__(
@@ -335,12 +344,14 @@ $post_title = get_the_title($post_id);
 </div>
 <div class="moe-bottom"></div>
 
+<?php if ($feedback_enabled): ?>
 <script 
   src="<?php echo esc_url(
       plugins_url("includes/assets/js/answer.js", dirname(__FILE__))
   ); ?>?ver=<?php echo esc_attr(MOELOG_AIQNA_VERSION); ?>" 
   defer>
 </script>
+<?php endif; ?>
 
 <?php
 // 免責聲明
