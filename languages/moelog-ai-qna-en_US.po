@@ -1,0 +1,807 @@
+# English translation for Moelog AI Q&A Links
+# Copyright (C) 2025 Horlicks (moelog.com)
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Moelog AI Q&A Links 1.10.2\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/moelog-ai-qna-links\n"
+"Last-Translator: Horlicks <contact@moelog.com>\n"
+"Language-Team: English <en_US@li.org>\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-11-27T20:00:00+08:00\n"
+"PO-Revision-Date: 2025-11-27T20:00:00+08:00\n"
+"X-Generator: Cursor IDE\n"
+"X-Domain: moelog-ai-qna\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Plugin Name
+msgid "Moelog AI Q&A Links"
+msgstr "Moelog AI Q&A Links"
+
+#. Plugin Description
+msgid "在每篇文章底部顯示作者預設的問題清單,點擊後開新分頁,由 AI 生成答案的靜態HTML。支持 OpenAI/Gemini,可自訂模型與提示。"
+msgstr "Display a list of preset questions at the bottom of each post. When clicked, opens a new tab with AI-generated answers as static HTML. Supports OpenAI/Gemini with customizable models and prompts."
+
+#. Author
+msgid "Horlicks (moelog.com)"
+msgstr "Horlicks (moelog.com)"
+
+#: includes/class-admin-settings.php
+msgid "⚙️ 一般設定 (AI/內容)"
+msgstr "⚙️ General Settings (AI/Content)"
+
+#: includes/class-admin-settings.php
+msgid "🎨 顯示設定 (顯示/介面)"
+msgstr "🎨 Display Settings (Display/UI)"
+
+#: includes/class-admin-settings.php
+msgid "💾 快取設定"
+msgstr "💾 Cache Settings"
+
+#: includes/class-admin-settings.php
+msgid "🗑️ 快取管理"
+msgstr "🗑️ Cache Management"
+
+#: includes/class-admin-settings.php
+msgid "ℹ️ 系統資訊 / 說明"
+msgstr "ℹ️ System Info / Help"
+
+#: includes/class-admin-settings.php
+msgid "⚙️ 一般設定"
+msgstr "⚙️ General Settings"
+
+#: includes/class-admin-settings.php
+msgid "AI 供應商"
+msgstr "AI Provider"
+
+#: includes/class-admin-settings.php
+msgid "API Key"
+msgstr "API Key"
+
+#: includes/class-admin-settings.php
+msgid "模型"
+msgstr "Model"
+
+#: includes/class-admin-settings.php
+msgid "Temperature"
+msgstr "Temperature"
+
+#: includes/class-admin-settings.php
+msgid "📝 內容設定"
+msgstr "📝 Content Settings"
+
+#: includes/class-admin-settings.php
+msgid "附上文章內容"
+msgstr "Include Post Content"
+
+#: includes/class-admin-settings.php
+msgid "內容截斷長度"
+msgstr "Content Truncation Length"
+
+#: includes/class-admin-settings.php
+msgid "System Prompt"
+msgstr "System Prompt"
+
+#: includes/class-admin-settings.php
+msgid "🎨 顯示設定"
+msgstr "🎨 Display Settings"
+
+#: includes/class-admin-settings.php
+msgid "問題清單抬頭"
+msgstr "Question List Heading"
+
+#: includes/class-admin-settings.php
+msgid "免責聲明"
+msgstr "Disclaimer"
+
+#: includes/class-admin-settings.php
+msgid "回饋功能"
+msgstr "Feedback Feature"
+
+#: includes/class-admin-settings.php
+msgid "🔧 進階設定"
+msgstr "🔧 Advanced Settings"
+
+#: includes/class-admin-settings.php
+msgid "URL 路徑前綴"
+msgstr "URL Path Prefix"
+
+#: includes/class-admin-settings.php
+msgid "快取目錄名稱"
+msgstr "Cache Directory Name"
+
+#: includes/class-admin-settings.php
+msgid "設定 AI 供應商與 API 連線資訊。"
+msgstr "Configure AI provider and API connection settings."
+
+#: includes/class-admin-settings.php
+msgid "調整 AI 如何處理文章內容與生成答案。"
+msgstr "Adjust how AI processes post content and generates answers."
+
+#: includes/class-admin-settings.php
+msgid "自訂前台顯示的文字內容。"
+msgstr "Customize the text displayed on the frontend."
+
+#: includes/class-admin-settings.php
+msgid "設定靜態 HTML 快取檔案的保存時間。"
+msgstr "Set the retention time for static HTML cache files."
+
+#: includes/class-admin-settings.php
+msgid "調整 URL 路徑及檔案儲存位置（一般情況不需修改）。"
+msgstr "Adjust URL paths and file storage locations (usually no changes needed)."
+
+#: includes/class-admin-settings.php
+msgid "OpenAI"
+msgstr "OpenAI"
+
+#: includes/class-admin-settings.php
+msgid "Google Gemini"
+msgstr "Google Gemini"
+
+#: includes/class-admin-settings.php
+msgid "Anthropic (Claude)"
+msgstr "Anthropic (Claude)"
+
+#: includes/class-admin-settings.php
+msgid "選擇要使用的 AI 供應商。不同供應商需要各自的 API Key。"
+msgstr "Select the AI provider to use. Different providers require their own API keys."
+
+#: includes/class-admin-settings.php
+msgid "測試連線"
+msgstr "Test Connection"
+
+#: includes/class-admin-settings.php
+msgid "使用預設 (%s)"
+msgstr "Use Default (%s)"
+
+#: includes/class-admin-settings.php
+msgid "自訂模型…"
+msgstr "Custom Model…"
+
+#: includes/class-admin-settings.php
+msgid "可直接選擇建議模型，或選擇「自訂模型」輸入完整 ID。"
+msgstr "Select a recommended model or choose 'Custom Model' to enter the full ID."
+
+#: includes/class-admin-settings.php
+msgid "自訂模型 ID"
+msgstr "Custom Model ID"
+
+#: includes/class-admin-settings.php
+msgid "輸入供應商提供的完整模型 ID"
+msgstr "Enter the full model ID provided by the vendor"
+
+#: includes/class-admin-settings.php
+msgid "使用預設"
+msgstr "Use Default"
+
+#: includes/class-admin-settings.php
+msgid "可輸入供應商提供的模型 ID。"
+msgstr "You can enter the model ID provided by the vendor."
+
+#: includes/class-admin-settings.php
+msgid "數值越高,回答越多元。建議範圍 0.1 ~ 1.0。"
+msgstr "Higher values produce more diverse answers. Recommended range: 0.1 - 1.0."
+
+#: includes/class-admin-settings.php
+msgid "將文章內容附加到 AI 請求中"
+msgstr "Append post content to AI requests"
+
+#: includes/class-admin-settings.php
+msgid "建議開啟,讓 AI 可參考文章內容回答問題。"
+msgstr "Recommended to enable, allowing AI to reference post content when answering."
+
+#: includes/class-admin-settings.php
+msgid "字元"
+msgstr "characters"
+
+#: includes/class-admin-settings.php
+msgid "當文章字數超過此值時自動截斷,設 0 表示不限制。"
+msgstr "Auto-truncate when post exceeds this length. Set 0 for no limit."
+
+#: includes/class-admin-settings.php
+msgid "你是嚴謹的專業編輯，提供簡潔準確的答案。"
+msgstr "You are a rigorous professional editor providing concise and accurate answers."
+
+#: includes/class-admin-settings.php
+msgid "設定 AI 的行為與風格。此段文字會在每次請求時傳給 AI。"
+msgstr "Define AI behavior and style. This text is sent to AI with every request."
+
+#: includes/class-admin-settings.php
+msgid "Have more questions? Ask the AI below."
+msgstr "Have more questions? Ask the AI below."
+
+#: includes/class-admin-settings.php
+msgid "顯示在文章底部問題清單上方的提示文字。"
+msgstr "Text displayed above the question list at the bottom of posts."
+
+#: includes/class-admin-settings.php
+msgid "如為空白,會在回答頁底部顯示預設免責聲明。"
+msgstr "If empty, a default disclaimer will be shown at the bottom of answer pages."
+
+#: includes/class-admin-settings.php
+msgid "啟用互動回饋功能"
+msgstr "Enable Interactive Feedback"
+
+#: includes/class-admin-settings.php
+msgid "開啟後,回答頁將顯示「正確/錯誤/回報問題」等互動按鈕及統計資訊。"
+msgstr "When enabled, answer pages will display interactive buttons (Correct/Wrong/Report) and statistics."
+
+#: includes/class-admin-settings.php
+msgid "停用後,回答頁將不顯示互動區塊,但現有統計資料會保留。"
+msgstr "When disabled, interactive elements won't be shown, but existing statistics are retained."
+
+#: includes/class-admin-settings.php
+msgid "🗑️ 清除回饋統計"
+msgstr "🗑️ Clear Feedback Statistics"
+
+#: includes/class-admin-settings.php
+msgid "清除所有文章的瀏覽次數、好評/差評及回報統計資料。"
+msgstr "Clear all view counts, likes/dislikes, and report statistics for all posts."
+
+#: includes/class-admin-settings.php
+msgid "清除所有回饋統計"
+msgstr "Clear All Feedback Statistics"
+
+#: includes/class-admin-settings.php
+msgid "確定要清除所有回饋統計嗎？此操作無法復原。"
+msgstr "Are you sure you want to clear all feedback statistics? This cannot be undone."
+
+#: includes/class-admin-settings.php
+msgid "處理中..."
+msgstr "Processing..."
+
+#: includes/class-admin-settings.php
+msgid "發生錯誤"
+msgstr "An error occurred"
+
+#: includes/class-admin-settings.php
+msgid "請求失敗"
+msgstr "Request failed"
+
+#: includes/class-admin-settings.php
+msgid "天"
+msgstr "days"
+
+#: includes/class-admin-settings.php
+msgid "快取會在此時間後自動刪除並重新生成。"
+msgstr "Cache will be automatically deleted and regenerated after this time."
+
+#: includes/class-admin-settings.php
+msgid "相當於 %s 秒"
+msgstr "Equivalent to %s seconds"
+
+#: includes/class-admin-settings.php
+msgid "回答頁面的 URL 路徑前綴,例如: "
+msgstr "URL path prefix for answer pages, e.g.: "
+
+#: includes/class-admin-settings.php
+msgid "修改後需重新整理固定網址,並手動刪除舊快取。"
+msgstr "After changes, refresh permalinks and manually delete old cache."
+
+#: includes/class-admin-settings.php
+msgid "常見格式: ask、answer 等英文字詞。"
+msgstr "Common formats: ask, answer, etc."
+
+#: includes/class-admin-settings.php
+msgid "快取檔案儲存的目錄名稱,位於: "
+msgstr "Cache file storage directory name, located at: "
+
+#: includes/class-admin-settings.php
+msgid "如需自訂,建議使用純英文與數字組合。"
+msgstr "For customization, use alphanumeric characters only."
+
+#: includes/class-admin-settings.php
+msgid "✓ API Key 已加密儲存"
+msgstr "✓ API Key is encrypted"
+
+#: includes/class-admin-settings.php
+msgid "⚠ 請輸入有效的 API Key 以使用 AI 功能。"
+msgstr "⚠ Please enter a valid API Key to use AI features."
+
+#: includes/class-admin-settings.php
+msgid "✅ 設定已成功儲存!"
+msgstr "✅ Settings saved successfully!"
+
+#: includes/class-admin.php
+msgid "Moelog AI Q&A 設定"
+msgstr "Moelog AI Q&A Settings"
+
+#: includes/class-admin.php
+msgid "Moelog AI Q&A"
+msgstr "Moelog AI Q&A"
+
+#: includes/class-admin.php
+msgid "🔗 快速連結"
+msgstr "🔗 Quick Links"
+
+#: includes/class-admin.php
+msgid "📖 文件"
+msgstr "📖 Documentation"
+
+#: includes/class-admin.php
+msgid "查看 GitHub"
+msgstr "View on GitHub"
+
+#: includes/class-admin.php
+msgid "💬 支援"
+msgstr "💬 Support"
+
+#: includes/class-admin.php
+msgid "遇到問題?"
+msgstr "Having issues?"
+
+#: includes/class-admin.php
+msgid "訪問網站"
+msgstr "Visit Website"
+
+#: includes/class-admin.php
+msgid "ℹ️ 使用說明"
+msgstr "ℹ️ Instructions"
+
+#: includes/class-admin.php
+msgid "在編輯文章時,可於側邊欄找到「AI Q&A 問題」區塊設定預設問題。"
+msgstr "When editing a post, find the 'AI Q&A Questions' panel in the sidebar to set up preset questions."
+
+#: includes/class-admin.php
+msgid "讀者點擊問題後,將開啟新分頁顯示由 AI 生成的回答。"
+msgstr "When readers click a question, a new tab opens with AI-generated answers."
+
+#: includes/class-admin.php
+msgid "可使用區塊編輯器的「AI問答清單」區塊自由插入問題清單。"
+msgstr "Use the 'AI Q&A List' block in the block editor to insert question lists anywhere."
+
+#: includes/class-admin.php
+msgid "或使用短碼"
+msgstr "Or use shortcode"
+
+#: includes/class-admin.php
+msgid "顯示問題清單。"
+msgstr "to display the question list."
+
+#: includes/class-admin.php
+msgid "🧾 v%s 更新內容"
+msgstr "🧾 v%s Updates"
+
+#: includes/class-admin.php
+msgid "互動回饋功能：可啟用好評/差評/問題回報按鈕"
+msgstr "Interactive feedback: Enable like/dislike/report buttons"
+
+#: includes/class-admin.php
+msgid "UI 整合：統一後台界面風格與圖示"
+msgstr "UI integration: Unified admin interface style and icons"
+
+#: includes/class-admin.php
+msgid "支援 OpenAI / Gemini / Anthropic Claude"
+msgstr "Support for OpenAI / Gemini / Anthropic Claude"
+
+#: includes/class-admin.php
+msgid "支援 Structured Data (STM) 模式"
+msgstr "Support for Structured Data (STM) mode"
+
+#: includes/class-admin.php
+msgid "支援 Sitemap 整合"
+msgstr "Sitemap integration support"
+
+#: includes/class-admin.php
+msgid "雙層快取：Transient + 靜態 HTML"
+msgstr "Dual-layer cache: Transient + Static HTML"
+
+#: includes/class-admin.php
+msgid "預生成與批次更新"
+msgstr "Pre-generation and batch updates"
+
+#: includes/class-admin.php
+msgid "🛠️ 系統資訊"
+msgstr "🛠️ System Information"
+
+#: includes/class-admin.php
+msgid "PHP 版本"
+msgstr "PHP Version"
+
+#: includes/class-admin.php
+msgid "WordPress 版本"
+msgstr "WordPress Version"
+
+#: includes/class-admin.php
+msgid "快取目錄"
+msgstr "Cache Directory"
+
+#: includes/class-admin.php
+msgid "URL 前綴"
+msgstr "URL Prefix"
+
+#: includes/class-admin-cache.php
+msgid "說明:"
+msgstr "Note:"
+
+#: includes/class-admin-cache.php
+msgid "回答頁使用雙層快取:Transient + 靜態 HTML。清除快取後,下次訪問時會自動重新生成。"
+msgstr "Answer pages use dual-layer caching: Transient + Static HTML. After clearing, cache regenerates on next visit."
+
+#: includes/class-admin-cache.php
+msgid "📊 快取統計"
+msgstr "📊 Cache Statistics"
+
+#: includes/class-admin-cache.php
+msgid "靜態檔案數量"
+msgstr "Static File Count"
+
+#: includes/class-admin-cache.php
+msgid "佔用空間"
+msgstr "Disk Usage"
+
+#: includes/class-admin-cache.php
+msgid "Transient 數量"
+msgstr "Transient Count"
+
+#: includes/class-admin-cache.php
+msgid "🗑️ 清除所有快取"
+msgstr "🗑️ Clear All Cache"
+
+#: includes/class-admin-cache.php
+msgid "清除所有靜態 HTML 快取與 Transient 快取"
+msgstr "Clear all static HTML cache and Transient cache"
+
+#: includes/class-admin-cache.php
+msgid "清除所有快取"
+msgstr "Clear All Cache"
+
+#: includes/class-admin-cache.php
+msgid "🧹 清理孤兒統計數據"
+msgstr "🧹 Clean Orphan Statistics"
+
+#: includes/class-admin-cache.php
+msgid "清除已刪除文章殘留的快取統計"
+msgstr "Clear cache statistics from deleted posts"
+
+#: includes/class-admin-cache.php
+msgid "清理孤兒統計"
+msgstr "Clean Orphan Stats"
+
+#: includes/class-admin-cache.php
+msgid "🔍 刪除單一問題的靜態 HTML"
+msgstr "🔍 Delete Single Question Static HTML"
+
+#: includes/class-admin-cache.php
+msgid "輸入文章 ID 或標題關鍵字搜尋:"
+msgstr "Enter post ID or title keyword to search:"
+
+#: includes/class-admin-cache.php
+msgid "搜尋"
+msgstr "Search"
+
+#: includes/class-admin-cache.php
+msgid "輸入文章 ID 或標題"
+msgstr "Enter post ID or title"
+
+#: includes/class-admin-cache.php
+msgid "找到 %d 個快取檔案"
+msgstr "Found %d cache files"
+
+#: includes/class-admin-cache.php
+msgid "刪除所選的快取"
+msgstr "Delete Selected Cache"
+
+#: includes/class-admin-cache.php
+msgid "選擇"
+msgstr "Select"
+
+#: includes/class-admin-cache.php
+msgid "文章 ID"
+msgstr "Post ID"
+
+#: includes/class-admin-cache.php
+msgid "問題"
+msgstr "Question"
+
+#: includes/class-admin-cache.php
+msgid "檔案"
+msgstr "File"
+
+#: includes/class-admin-cache.php
+msgid "大小"
+msgstr "Size"
+
+#: includes/class-admin-cache.php
+msgid "未找到任何快取"
+msgstr "No cache found"
+
+#: templates/answer-page.php
+msgid "AI 解答"
+msgstr "AI Answer"
+
+#: templates/answer-page.php
+msgid "%1$s - %2$s | %3$s"
+msgstr "%1$s - %2$s | %3$s"
+
+#: templates/answer-page.php
+msgid "發生了非預期的錯誤。"
+msgstr "An unexpected error occurred."
+
+#: templates/answer-page.php
+msgid "您已經投過票了!"
+msgstr "You have already voted!"
+
+#: templates/answer-page.php
+msgid "送出中..."
+msgstr "Submitting..."
+
+#: templates/answer-page.php
+msgid "感謝您的回饋！"
+msgstr "Thank you for your feedback!"
+
+#: templates/answer-page.php
+msgid "送出失敗,請稍後再試。"
+msgstr "Submission failed, please try again later."
+
+#: templates/answer-page.php
+msgid "請輸入更詳細的內容..."
+msgstr "Please enter more details..."
+
+#: templates/answer-page.php
+msgid "感謝回報！我們會儘快處理。"
+msgstr "Thanks for reporting! We'll handle it soon."
+
+#: templates/answer-page.php
+msgid "感謝您！我們已收到您的回報。"
+msgstr "Thank you! We've received your report."
+
+#: templates/answer-page.php
+msgid "抱歉,目前無法取得 AI 回答,請稍後再試。"
+msgstr "Sorry, unable to get AI answer at this time. Please try again later."
+
+#: templates/answer-page.php
+msgid "原文連結"
+msgstr "Original Article"
+
+#: templates/answer-page.php
+msgid "注意：本頁內容由 AI 生成，僅供參考，請自行判斷並查證。"
+msgstr "Note: This content is AI-generated for reference only. Please verify independently."
+
+#: templates/answer-page.php
+msgid "這篇回答對您有幫助嗎？"
+msgstr "Was this answer helpful?"
+
+#: templates/answer-page.php
+msgid "回饋選項"
+msgstr "Feedback Options"
+
+#: templates/answer-page.php
+msgid "正確"
+msgstr "Correct"
+
+#: templates/answer-page.php
+msgid "錯誤"
+msgstr "Wrong"
+
+#: templates/answer-page.php
+msgid "回報問題"
+msgstr "Report Issue"
+
+#: templates/answer-page.php
+msgid "請描述您遇到的問題..."
+msgstr "Please describe the issue you encountered..."
+
+#: templates/answer-page.php
+msgid "取消"
+msgstr "Cancel"
+
+#: templates/answer-page.php
+msgid "送出回報"
+msgstr "Submit Report"
+
+#: templates/answer-page.php
+msgid "瀏覽次數"
+msgstr "Views"
+
+#: templates/answer-page.php
+msgid "好評"
+msgstr "Likes"
+
+#: templates/answer-page.php
+msgid "差評"
+msgstr "Dislikes"
+
+#: templates/answer-page.php
+msgid "← 關閉此頁"
+msgstr "← Close Page"
+
+#: templates/answer-page.php
+msgid "← 回到原文"
+msgstr "← Back to Article"
+
+#: includes/class-feedback-controller.php
+msgid "無效的操作"
+msgstr "Invalid operation"
+
+#: includes/class-feedback-controller.php
+msgid "已送出,感謝您的回饋!"
+msgstr "Submitted, thank you for your feedback!"
+
+#: includes/class-feedback-controller.php
+msgid "回報次數過多,請稍後再試"
+msgstr "Too many reports, please try again later"
+
+#: includes/class-feedback-controller.php
+msgid "訊息過長,請限制在 %d 字以內"
+msgstr "Message too long, please limit to %d characters"
+
+#: includes/class-feedback-controller.php
+msgid "請輸入回饋內容"
+msgstr "Please enter feedback content"
+
+#: includes/class-feedback-controller.php
+msgid "請輸入更詳細的回饋內容"
+msgstr "Please enter more detailed feedback"
+
+#: includes/class-feedback-controller.php
+msgid "找不到對應的內容"
+msgstr "Content not found"
+
+#: includes/class-feedback-controller.php
+msgid "目前無法送出回饋"
+msgstr "Unable to submit feedback at this time"
+
+#: includes/class-feedback-controller.php
+msgid "AI 回答頁回饋 - 文章 #%d"
+msgstr "AI Answer Page Feedback - Post #%d"
+
+#: includes/class-feedback-controller.php
+msgid "收到新的回報內容："
+msgstr "New report received:"
+
+#: includes/class-feedback-controller.php
+msgid "文章標題："
+msgstr "Post Title:"
+
+#: includes/class-feedback-controller.php
+msgid "文章連結："
+msgstr "Post Link:"
+
+#: includes/class-feedback-controller.php
+msgid "題目："
+msgstr "Question:"
+
+#: includes/class-feedback-controller.php
+msgid "使用者回饋："
+msgstr "User Feedback:"
+
+#: includes/class-feedback-controller.php
+msgid "--- 系統通知 ---"
+msgstr "--- System Notification ---"
+
+#: includes/class-feedback-controller.php
+msgid "時間：%s"
+msgstr "Time: %s"
+
+#: includes/class-feedback-controller.php
+msgid "來源 IP："
+msgstr "Source IP:"
+
+#: includes/class-feedback-controller.php
+msgid "郵件傳送失敗,請稍後再試"
+msgstr "Email sending failed, please try again later"
+
+#: includes/class-feedback-controller.php
+msgid "缺少文章資訊"
+msgstr "Missing post information"
+
+#: includes/class-feedback-controller.php
+msgid "驗證失敗"
+msgstr "Verification failed"
+
+#: includes/class-feedback-controller.php
+msgid "權限不足"
+msgstr "Insufficient permissions"
+
+#: includes/class-feedback-controller.php
+msgid "已清除所有回饋統計（共 %d 筆記錄）"
+msgstr "Cleared all feedback statistics (%d records)"
+
+#: includes/class-metabox.php
+msgid "AI Q&A 問題"
+msgstr "AI Q&A Questions"
+
+#: includes/class-metabox.php
+msgid "可拖曳排序問題"
+msgstr "Drag to reorder questions"
+
+#: includes/class-metabox.php
+msgid "問題文字"
+msgstr "Question text"
+
+#: includes/class-metabox.php
+msgid "刪除問題"
+msgstr "Delete question"
+
+#: includes/class-metabox.php
+msgid "新增問題"
+msgstr "Add Question"
+
+#: includes/class-metabox.php
+msgid "預先生成"
+msgstr "Pre-generate"
+
+#: includes/class-metabox.php
+msgid "此文章已有 %d 個 AI 問答的靜態快取。"
+msgstr "This post has %d AI Q&A static cache files."
+
+#: includes/class-metabox.php
+msgid "目前尚無已生成的快取。"
+msgstr "No cache has been generated yet."
+
+#: includes/class-metabox.php
+msgid "清除這篇的快取"
+msgstr "Clear cache for this post"
+
+#: includes/class-metabox.php
+msgid "查看 AI 問答頁"
+msgstr "View AI Q&A Page"
+
+#: includes/class-pregenerate.php
+msgid "預生成完成"
+msgstr "Pre-generation complete"
+
+#: includes/class-pregenerate.php
+msgid "預生成失敗"
+msgstr "Pre-generation failed"
+
+#: includes/class-renderer.php
+msgid "請稍後再試"
+msgstr "Please try again later"
+
+#: includes/class-renderer.php
+msgid "存取過於頻繁,請稍後再試"
+msgstr "Access too frequent, please try again later"
+
+#: includes/helpers-encryption.php
+msgid "⚠️ 安全警告：目前 API Key 使用較弱的加密方式"
+msgstr "⚠️ Security Warning: API Key is using weaker encryption"
+
+#: includes/helpers-encryption.php
+msgid "您的伺服器未安裝 OpenSSL 擴充功能，API Key 僅使用基礎混淆保護。"
+msgstr "Your server doesn't have OpenSSL extension. API Key is using basic obfuscation only."
+
+#: includes/helpers-encryption.php
+msgid "建議聯繫您的主機商啟用 OpenSSL，或在 wp-config.php 中定義常數來直接設定 API Key。"
+msgstr "Consider contacting your host to enable OpenSSL, or define constants in wp-config.php to set API Key directly."
+
+#: moelog-ai-qna.php
+msgid "設定"
+msgstr "Settings"
+
+#: moelog-ai-qna.php
+msgid "需要 PHP JSON 擴充。"
+msgstr "PHP JSON extension required."
+
+#: moelog-ai-qna.php
+msgid "需要 PHP hash 擴充。"
+msgstr "PHP hash extension required."
+
+#: moelog-ai-qna.php
+msgid "需要 PHP 7.4 或以上版本。"
+msgstr "PHP 7.4 or higher required."
+
+#: moelog-ai-qna.php
+msgid "WordPress 上傳目錄不可寫入。"
+msgstr "WordPress upload directory is not writable."
+
+#: moelog-ai-qna.php
+msgid "插件啟用失敗"
+msgstr "Plugin activation failed"
+
+#: moelog-ai-geo.php
+msgid "啟用 STM 模式"
+msgstr "Enable STM Mode"
+
+#: moelog-ai-geo.php
+msgid "啟用 Structured Data Mode，為 AI 回答頁生成結構化資料 (JSON-LD)。"
+msgstr "Enable Structured Data Mode to generate structured data (JSON-LD) for AI answer pages."
+
+#: includes/class-admin-settings.php
+msgid "快取有效期限"
+msgstr "Cache Expiration"
+
