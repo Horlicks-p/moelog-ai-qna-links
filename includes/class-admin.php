@@ -134,7 +134,6 @@ class Moelog_AIQnA_Admin
                     <?php else: ?>
                       <?php
                         $this->render_usage_guide();
-                        $this->render_cache_stats();
                         $this->render_release_notes();
                         $this->render_system_info();
                       ?>
@@ -266,56 +265,6 @@ class Moelog_AIQnA_Admin
             </li>
         </ol>
 
-        <?php
-  }
-
-  /**
-   * 快取統計
-   */
-  private function render_cache_stats()
-  {
-    if (!current_user_can("manage_options")) {
-      return;
-    }
-
-    $stats = Moelog_AIQnA_Cache::get_stats();
-    ?>
-        <h2 style="margin-top:30px;"><?php esc_html_e("📊 快取統計", "moelog-ai-qna"); ?></h2>
-        <table class="widefat" style="max-width:800px;">
-            <thead>
-                <tr>
-                    <th style="width:200px;"><?php esc_html_e("項目", "moelog-ai-qna"); ?></th>
-                    <th><?php esc_html_e("數值", "moelog-ai-qna"); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <th><?php esc_html_e("靜態檔案數量", "moelog-ai-qna"); ?></th>
-                    <td><strong><?php echo number_format($stats["static_count"]); ?></strong></td>
-                </tr>
-                <tr>
-                    <th><?php esc_html_e("靜態檔案總大小", "moelog-ai-qna"); ?></th>
-                    <td><strong><?php echo esc_html(
-                      moelog_aiqna_format_bytes($stats["static_size"])
-                    ); ?></strong></td>
-                </tr>
-                <tr>
-                    <th><?php esc_html_e("Transient 總筆數", "moelog-ai-qna"); ?></th>
-                    <td><strong><?php echo number_format($stats["transient_count"]); ?></strong></td>
-                </tr>
-                <tr>
-                    <th><?php esc_html_e("快取目錄", "moelog-ai-qna"); ?></th>
-                    <td>
-                        <code><?php echo esc_html($stats["directory"]); ?></code>
-                        <?php if ($stats["directory_writable"]): ?>
-                            <span style="color:green;">✓ <?php esc_html_e("可寫", "moelog-ai-qna"); ?></span>
-                        <?php else: ?>
-                            <span style="color:#d63638;">✗ <?php esc_html_e("不可寫", "moelog-ai-qna"); ?></span>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
         <?php
   }
 
