@@ -19,7 +19,8 @@ class Moelog_AIQnA_Admin_Cache
    */
   public function render_cache_management()
   {
-    $stats = Moelog_AIQnA_Cache::get_stats();
+    // ✅ 強制刷新統計，確保顯示最新數據
+    $stats = Moelog_AIQnA_Cache::get_stats(true);
     $ttl_days = moelog_aiqna_get_cache_ttl_days();
     ?>
         <h2><?php esc_html_e("🗑️ 快取管理", "moelog-ai-qna"); ?></h2>

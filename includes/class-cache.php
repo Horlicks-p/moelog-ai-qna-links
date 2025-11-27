@@ -236,6 +236,11 @@ class Moelog_AIQnA_Cache
       $cache_key = "static_exists_" . md5($post_id . "|" . $question);
       wp_cache_delete($cache_key, "moelog_aiqna");
       
+      // ✅ 清除統計快取，確保下次顯示最新數據
+      if ($result) {
+        self::clear_stats_cache();
+      }
+      
       return $result;
     } else {
       // 刪除該文章的所有檔案
@@ -253,6 +258,11 @@ class Moelog_AIQnA_Cache
         if ($deleted) {
           $count++;
         }
+      }
+
+      // ✅ 清除統計快取，確保下次顯示最新數據
+      if ($count > 0) {
+        self::clear_stats_cache();
       }
 
       Moelog_AIQnA_Debug::logf(
@@ -313,6 +323,9 @@ class Moelog_AIQnA_Cache
 
     // ✅ 優化: 清除所有相關快取標記
     wp_cache_flush_group("moelog_aiqna");
+    
+    // ✅ 清除統計快取，確保下次顯示最新數據
+    self::clear_stats_cache();
 
     Moelog_AIQnA_Debug::logf(
       "Cleared all static files: %d deleted",
@@ -454,6 +467,9 @@ class Moelog_AIQnA_Cache
              WHERE option_name LIKE '_transient_moe_aiqna_%' 
                 OR option_name LIKE '_transient_timeout_moe_aiqna_%'",
     );
+
+    // ✅ 清除統計快取
+    self::clear_stats_cache();
 
     Moelog_AIQnA_Debug::logf("Cleared %d transients", $count);
 
