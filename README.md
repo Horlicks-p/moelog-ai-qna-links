@@ -153,7 +153,7 @@ STM 模式可協助搜尋引擎和 AI 爬蟲「解析」你的 AI 答案頁，**
 - 🔒 **安全性:** 增強主插件實例的單例模式實作。
 - ⚡ **效能:** 為沒有持久物件快取的環境添加 transient 頻率限制備援。
 
-= 1.10.0 (2025-11-26) – Interactive Answer Page & Model Registry =
+= 1.10.0 (2025-11-25) – Interactive Answer Page & Model Registry =
 - ✨ **Answer page overhaul:** 新增逐字打字動畫、互動式回饋卡、LocalStorage 防重複投票，並把 typing/feedback JS 與樣式抽離為獨立資產以利快取。  
 - 🎨 **CSS / JS 重構:** 調整回答頁 DOM 結構與樣式切分，讓主題覆寫與 CSP 管理更輕鬆。  
 - 🤖 **AI 模型管理:** 導入 Model Registry，後台提供建議清單 + 自訂輸入，OpenAI/Gemini/Claude 預設模型可由常數或遠端 filter 控制。  
