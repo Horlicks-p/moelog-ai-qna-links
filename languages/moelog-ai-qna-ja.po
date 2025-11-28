@@ -1,0 +1,1625 @@
+# Copyright (C) 2025 Horlicks (moelog.com)
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr "Project-Id-Version: Moelog AI Q&A Links 1.10.2\nReport-Msgid-Bugs-To: https://wordpress.org/support/plugin/moelog-ai-qna-links\nLast-Translator: Horlicks <contact@moelog.com>\nLanguage-Team: Japanese <ja@li.org>\nLanguage: ja\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPOT-Creation-Date: 2025-11-27T20:00:00+08:00\nPO-Revision-Date: 2025-11-27T20:00:00+08:00\nX-Generator: Cursor IDE\nX-Domain: moelog-ai-qna\nPlural-Forms: nplurals=1; plural=0;\n"
+"Project-Id-Version: Moelog AI Q&A Links 1.10.2\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/moelog-ai-qna-links\n"
+"Last-Translator: Horlicks <contact@moelog.com>\n"
+"Language-Team: Japanese <ja@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-11-27T20:00:00+08:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: Cursor IDE\n"
+"X-Domain: moelog-ai-qna\n"
+
+#. Plugin Name
+msgid "Moelog AI Q&A Links"
+msgstr "Moelog AI Q&A リンク"
+
+#. Plugin Description
+msgid "在每篇文章底部顯示作者預設的問題清單,點擊後開新分頁,由 AI 生成答案的靜態HTML。支持 OpenAI/Gemini,可自訂模型與提示。"
+msgstr "各記事の下部にプリセット質問リストを表示。クリックすると新しいタブでAI生成の回答を静的HTMLとして表示。OpenAI/Gemini対応、モデルとプロンプトのカスタマイズ可能。"
+
+#. Author
+msgid "Horlicks (moelog.com)"
+msgstr "Horlicks (moelog.com)"
+
+#: includes/class-admin-settings.php
+msgid "⚙️ 一般設定 (AI/內容)"
+msgstr "⚙️ 一般設定 (AI/コンテンツ)"
+
+#: includes/class-admin-settings.php
+msgid "🎨 顯示設定 (顯示/介面)"
+msgstr "🎨 表示設定 (表示/UI)"
+
+#: includes/class-admin-settings.php
+msgid "💾 快取設定"
+msgstr "💾 キャッシュ設定"
+
+#: includes/class-admin-settings.php
+msgid "🗑️ 快取管理"
+msgstr "🗑️ キャッシュ管理"
+
+#: includes/class-admin-settings.php
+msgid "ℹ️ 系統資訊 / 說明"
+msgstr "ℹ️ システム情報 / ヘルプ"
+
+#: includes/class-admin-settings.php
+msgid "⚙️ 一般設定"
+msgstr "⚙️ 一般設定"
+
+#: includes/class-admin-settings.php
+msgid "AI 供應商"
+msgstr "AIプロバイダー"
+
+#: includes/class-admin-settings.php
+msgid "API Key"
+msgstr "APIキー"
+
+#: includes/class-admin-settings.php
+msgid "模型"
+msgstr "モデル"
+
+#: includes/class-admin-settings.php
+msgid "Temperature"
+msgstr "Temperature"
+
+#: includes/class-admin-settings.php
+msgid "📝 內容設定"
+msgstr "📝 コンテンツ設定"
+
+#: includes/class-admin-settings.php
+msgid "附上文章內容"
+msgstr "記事内容を含める"
+
+#: includes/class-admin-settings.php
+msgid "內容截斷長度"
+msgstr "コンテンツ切り詰め長"
+
+#: includes/class-admin-settings.php
+msgid "System Prompt"
+msgstr "システムプロンプト"
+
+#: includes/class-admin-settings.php
+msgid "🎨 顯示設定"
+msgstr "🎨 表示設定"
+
+#: includes/class-admin-settings.php
+msgid "問題清單抬頭"
+msgstr "質問リストの見出し"
+
+#: includes/class-admin-settings.php
+msgid "免責聲明"
+msgstr "免責事項"
+
+#: includes/class-admin-settings.php
+msgid "回饋功能"
+msgstr "フィードバック機能"
+
+#: includes/class-admin-settings.php
+msgid "🔧 進階設定"
+msgstr "🔧 詳細設定"
+
+#: includes/class-admin-settings.php
+msgid "URL 路徑前綴"
+msgstr "URLパスプレフィックス"
+
+#: includes/class-admin-settings.php
+msgid "快取目錄名稱"
+msgstr "キャッシュディレクトリ名"
+
+#: includes/class-admin-settings.php
+msgid "設定 AI 供應商與 API 連線資訊。"
+msgstr "AIプロバイダーとAPI接続情報を設定します。"
+
+#: includes/class-admin-settings.php
+msgid "調整 AI 如何處理文章內容與生成答案。"
+msgstr "AIが記事内容をどのように処理し回答を生成するか調整します。"
+
+#: includes/class-admin-settings.php
+msgid "自訂前台顯示的文字內容。"
+msgstr "フロントエンドに表示されるテキストをカスタマイズします。"
+
+#: includes/class-admin-settings.php
+msgid "設定靜態 HTML 快取檔案的保存時間。"
+msgstr "静的HTMLキャッシュファイルの保存期間を設定します。"
+
+#: includes/class-admin-settings.php
+msgid "調整 URL 路徑及檔案儲存位置（一般情況不需修改）。"
+msgstr "URLパスとファイル保存場所を調整します（通常は変更不要）。"
+
+#: includes/class-admin-settings.php
+msgid "OpenAI"
+msgstr "OpenAI"
+
+#: includes/class-admin-settings.php
+msgid "Google Gemini"
+msgstr "Google Gemini"
+
+#: includes/class-admin-settings.php
+msgid "Anthropic (Claude)"
+msgstr "Anthropic (Claude)"
+
+#: includes/class-admin-settings.php
+msgid "選擇要使用的 AI 供應商。不同供應商需要各自的 API Key。"
+msgstr "使用するAIプロバイダーを選択。プロバイダーごとに個別のAPIキーが必要です。"
+
+#: includes/class-admin-settings.php
+msgid "測試連線"
+msgstr "接続テスト"
+
+#: includes/class-admin-settings.php
+msgid "使用預設 (%s)"
+msgstr "デフォルト使用 (%s)"
+
+#: includes/class-admin-settings.php
+msgid "自訂模型…"
+msgstr "カスタムモデル…"
+
+#: includes/class-admin-settings.php
+msgid "可直接選擇建議模型，或選擇「自訂模型」輸入完整 ID。"
+msgstr "推奨モデルを選択するか、「カスタムモデル」を選んで完全なIDを入力。"
+
+#: includes/class-admin-settings.php
+msgid "自訂模型 ID"
+msgstr "カスタムモデルID"
+
+#: includes/class-admin-settings.php
+msgid "輸入供應商提供的完整模型 ID"
+msgstr "プロバイダーが提供する完全なモデルIDを入力"
+
+#: includes/class-admin-settings.php
+msgid "使用預設"
+msgstr "デフォルト使用"
+
+#: includes/class-admin-settings.php
+msgid "可輸入供應商提供的模型 ID。"
+msgstr "プロバイダーが提供するモデルIDを入力できます。"
+
+#: includes/class-admin-settings.php
+msgid "數值越高,回答越多元。建議範圍 0.1 ~ 1.0。"
+msgstr "値が高いほど回答が多様に。推奨範囲: 0.1 〜 1.0。"
+
+#: includes/class-admin-settings.php
+msgid "將文章內容附加到 AI 請求中"
+msgstr "AI リクエストに記事内容を添付"
+
+#: includes/class-admin-settings.php
+msgid "建議開啟,讓 AI 可參考文章內容回答問題。"
+msgstr "AIが記事内容を参照して回答できるよう、有効化を推奨。"
+
+#: includes/class-admin-settings.php
+msgid "字元"
+msgstr "文字"
+
+#: includes/class-admin-settings.php
+msgid "當文章字數超過此值時自動截斷,設 0 表示不限制。"
+msgstr "記事がこの長さを超えると自動切り詰め。0は無制限。"
+
+#: includes/class-admin-settings.php
+msgid "你是嚴謹的專業編輯，提供簡潔準確的答案。"
+msgstr "あなたは厳密なプロの編集者です。簡潔で正確な回答を提供してください。"
+
+#: includes/class-admin-settings.php
+msgid "設定 AI 的行為與風格。此段文字會在每次請求時傳給 AI。"
+msgstr "AIの動作とスタイルを定義。このテキストは毎回のリクエスト時にAIに送信されます。"
+
+#: includes/class-admin-settings.php
+msgid "Have more questions? Ask the AI below."
+msgstr "他に質問がありますか？以下でAIに質問してください。"
+
+#: includes/class-admin-settings.php
+msgid "顯示在文章底部問題清單上方的提示文字。"
+msgstr "記事下部の質問リスト上に表示されるテキスト。"
+
+#: includes/class-admin-settings.php
+msgid "如為空白,會在回答頁底部顯示預設免責聲明。"
+msgstr "空白の場合、回答ページ下部にデフォルトの免責事項が表示されます。"
+
+#: includes/class-admin-settings.php
+msgid "啟用互動回饋功能"
+msgstr "インタラクティブフィードバックを有効化"
+
+#: includes/class-admin-settings.php
+msgid "開啟後,回答頁將顯示「正確/錯誤/回報問題」等互動按鈕及統計資訊。"
+msgstr "有効時、回答ページに「正しい/間違い/問題報告」などのボタンと統計が表示されます。"
+
+#: includes/class-admin-settings.php
+msgid "停用後,回答頁將不顯示互動區塊,但現有統計資料會保留。"
+msgstr "無効時、インタラクティブ要素は非表示になりますが、既存の統計データは保持されます。"
+
+#: includes/class-admin-settings.php
+msgid "🗑️ 清除回饋統計"
+msgstr "🗑️ フィードバック統計をクリア"
+
+#: includes/class-admin-settings.php
+msgid "清除所有文章的瀏覽次數、好評/差評及回報統計資料。"
+msgstr "すべての記事の閲覧数、いいね/よくない、報告統計をクリアします。"
+
+#: includes/class-admin-settings.php
+msgid "清除所有回饋統計"
+msgstr "すべてのフィードバック統計をクリア"
+
+#: includes/class-admin-settings.php
+msgid "確定要清除所有回饋統計嗎？此操作無法復原。"
+msgstr "すべてのフィードバック統計をクリアしますか？この操作は元に戻せません。"
+
+#: includes/class-admin-settings.php
+msgid "處理中..."
+msgstr "処理中..."
+
+#: includes/class-admin-settings.php
+msgid "發生錯誤"
+msgstr "エラーが発生しました"
+
+#: includes/class-admin-settings.php
+msgid "請求失敗"
+msgstr "リクエスト失敗"
+
+#: includes/class-admin-settings.php
+msgid "天"
+msgstr "日"
+
+#: includes/class-admin-settings.php
+msgid "快取會在此時間後自動刪除並重新生成。"
+msgstr "キャッシュはこの期間後に自動的に削除され再生成されます。"
+
+#: includes/class-admin-settings.php
+msgid "相當於 %s 秒"
+msgstr "%s 秒に相当"
+
+#: includes/class-admin-settings.php
+msgid "回答頁面的 URL 路徑前綴,例如: "
+msgstr "回答ページのURLパスプレフィックス、例: "
+
+#: includes/class-admin-settings.php
+msgid "修改後需重新整理固定網址,並手動刪除舊快取。"
+msgstr "変更後はパーマリンクを更新し、古いキャッシュを手動で削除してください。"
+
+#: includes/class-admin-settings.php
+msgid "常見格式: ask、answer 等英文字詞。"
+msgstr "一般的な形式: ask、answerなど。"
+
+#: includes/class-admin-settings.php
+msgid "快取檔案儲存的目錄名稱,位於: "
+msgstr "キャッシュファイル保存ディレクトリ名、場所: "
+
+#: includes/class-admin-settings.php
+msgid "如需自訂,建議使用純英文與數字組合。"
+msgstr "カスタマイズする場合は、英数字のみを使用してください。"
+
+#: includes/class-admin-settings.php
+msgid "✓ API Key 已加密儲存"
+msgstr "✓ APIキーは暗号化されています"
+
+#: includes/class-admin-settings.php
+msgid "⚠ 請輸入有效的 API Key 以使用 AI 功能。"
+msgstr "⚠ AI機能を使用するには有効なAPIキーを入力してください。"
+
+#: includes/class-admin-settings.php
+msgid "✅ 設定已成功儲存!"
+msgstr "✅ 設定が正常に保存されました！"
+
+#: includes/class-admin.php
+msgid "Moelog AI Q&A 設定"
+msgstr "Moelog AI Q&A 設定"
+
+#: includes/class-admin.php
+msgid "Moelog AI Q&A"
+msgstr "Moelog AI Q&A"
+
+#: includes/class-admin.php
+msgid "🔗 快速連結"
+msgstr "🔗 クイックリンク"
+
+#: includes/class-admin.php
+msgid "Moelog AI Q&A Links"
+msgstr "Moelog AI Q&A リンク"
+
+#: includes/class-admin.php
+msgid "📖 文件"
+msgstr "📖 ドキュメント"
+
+#: includes/class-admin.php
+msgid "查看 GitHub"
+msgstr "GitHubで見る"
+
+#: includes/class-admin.php
+msgid "💬 支援"
+msgstr "💬 サポート"
+
+#: includes/class-admin.php
+msgid "遇到問題?"
+msgstr "問題がありますか？"
+
+#: includes/class-admin.php
+msgid "訪問網站"
+msgstr "サイトを訪問"
+
+#: includes/class-admin.php
+msgid "ℹ️ 使用說明"
+msgstr "ℹ️ 使用方法"
+
+#: includes/class-admin.php
+msgid "在編輯文章時,可於側邊欄找到「AI Q&A 問題」區塊設定預設問題。"
+msgstr "記事編集時、サイドバーの「AI Q&A 質問」パネルでプリセット質問を設定できます。"
+
+#: includes/class-admin.php
+msgid "讀者點擊問題後,將開啟新分頁顯示由 AI 生成的回答。"
+msgstr "読者が質問をクリックすると、新しいタブでAI生成の回答が表示されます。"
+
+#: includes/class-admin.php
+msgid "可使用區塊編輯器的「AI問答清單」區塊自由插入問題清單。"
+msgstr "ブロックエディターの「AI Q&Aリスト」ブロックを使って質問リストを自由に挿入できます。"
+
+#: includes/class-admin.php
+msgid "或使用短碼"
+msgstr "またはショートコード"
+
+#: includes/class-admin.php
+msgid "顯示問題清單。"
+msgstr "で質問リストを表示。"
+
+#: includes/class-admin.php
+msgid "🧾 v%s 更新內容"
+msgstr "🧾 v%s 更新内容"
+
+#: includes/class-admin.php
+msgid "互動回饋功能：可啟用好評/差評/問題回報按鈕"
+msgstr "インタラクティブフィードバック：いいね/よくない/問題報告ボタンを有効化"
+
+#: includes/class-admin.php
+msgid "UI 整合：統一後台界面風格與圖示"
+msgstr "UI統合：管理画面のスタイルとアイコンを統一"
+
+#: includes/class-admin.php
+msgid "支援 OpenAI / Gemini / Anthropic Claude"
+msgstr "OpenAI / Gemini / Anthropic Claude 対応"
+
+#: includes/class-admin.php
+msgid "支援 Structured Data (STM) 模式"
+msgstr "構造化データ (STM) モード対応"
+
+#: includes/class-admin.php
+msgid "支援 Sitemap 整合"
+msgstr "サイトマップ統合対応"
+
+#: includes/class-admin.php
+msgid "雙層快取：Transient + 靜態 HTML"
+msgstr "二層キャッシュ：Transient + 静的HTML"
+
+#: includes/class-admin.php
+msgid "預生成與批次更新"
+msgstr "事前生成とバッチ更新"
+
+#: includes/class-admin.php
+msgid "🛠️ 系統資訊"
+msgstr "🛠️ システム情報"
+
+#: includes/class-admin.php
+msgid "PHP 版本"
+msgstr "PHPバージョン"
+
+#: includes/class-admin.php
+msgid "WordPress 版本"
+msgstr "WordPressバージョン"
+
+#: includes/class-admin.php
+msgid "快取目錄"
+msgstr "キャッシュディレクトリ"
+
+#: includes/class-admin.php
+msgid "URL 前綴"
+msgstr "URLプレフィックス"
+
+#: includes/class-admin-cache.php
+msgid "🗑️ 快取管理"
+msgstr "🗑️ キャッシュ管理"
+
+#: includes/class-admin-cache.php
+msgid "說明:"
+msgstr "説明："
+
+#: includes/class-admin-cache.php
+msgid "回答頁使用雙層快取:Transient + 靜態 HTML。清除快取後,下次訪問時會自動重新生成。"
+msgstr "回答ページは二層キャッシュ（Transient + 静的HTML）を使用。クリア後は次回アクセス時に自動再生成されます。"
+
+#: includes/class-admin-cache.php
+msgid "📊 快取統計"
+msgstr "📊 キャッシュ統計"
+
+#: includes/class-admin-cache.php
+msgid "靜態檔案數量"
+msgstr "静的ファイル数"
+
+#: includes/class-admin-cache.php
+msgid "佔用空間"
+msgstr "使用容量"
+
+#: includes/class-admin-cache.php
+msgid "Transient 數量"
+msgstr "Transient数"
+
+#: includes/class-admin-cache.php
+msgid "🗑️ 清除所有快取"
+msgstr "🗑️ すべてのキャッシュをクリア"
+
+#: includes/class-admin-cache.php
+msgid "清除所有靜態 HTML 快取與 Transient 快取"
+msgstr "すべての静的HTMLキャッシュとTransientキャッシュをクリア"
+
+#: includes/class-admin-cache.php
+msgid "清除所有快取"
+msgstr "すべてのキャッシュをクリア"
+
+#: includes/class-admin-cache.php
+msgid "🧹 清理孤兒統計數據"
+msgstr "🧹 孤児統計データをクリーンアップ"
+
+#: includes/class-admin-cache.php
+msgid "清除已刪除文章殘留的快取統計"
+msgstr "削除された記事の残存キャッシュ統計をクリア"
+
+#: includes/class-admin-cache.php
+msgid "清理孤兒統計"
+msgstr "孤児統計をクリーンアップ"
+
+#: includes/class-admin-cache.php
+msgid "🔍 刪除單一問題的靜態 HTML"
+msgstr "🔍 個別質問の静的HTMLを削除"
+
+#: includes/class-admin-cache.php
+msgid "輸入文章 ID 或標題關鍵字搜尋:"
+msgstr "記事IDまたはタイトルキーワードで検索："
+
+#: includes/class-admin-cache.php
+msgid "搜尋"
+msgstr "検索"
+
+#: includes/class-admin-cache.php
+msgid "輸入文章 ID 或標題"
+msgstr "記事IDまたはタイトルを入力"
+
+#: includes/class-admin-cache.php
+msgid "找到 %d 個快取檔案"
+msgstr "%d 個のキャッシュファイルが見つかりました"
+
+#: includes/class-admin-cache.php
+msgid "刪除所選的快取"
+msgstr "選択したキャッシュを削除"
+
+#: includes/class-admin-cache.php
+msgid "選擇"
+msgstr "選択"
+
+#: includes/class-admin-cache.php
+msgid "文章 ID"
+msgstr "記事ID"
+
+#: includes/class-admin-cache.php
+msgid "問題"
+msgstr "質問"
+
+#: includes/class-admin-cache.php
+msgid "檔案"
+msgstr "ファイル"
+
+#: includes/class-admin-cache.php
+msgid "大小"
+msgstr "サイズ"
+
+#: includes/class-admin-cache.php
+msgid "未找到任何快取"
+msgstr "キャッシュが見つかりません"
+
+#: templates/answer-page.php
+msgid "AI 解答"
+msgstr "AI回答"
+
+#: templates/answer-page.php
+msgid "%1$s - %2$s | %3$s"
+msgstr "%1$s - %2$s | %3$s"
+
+#: templates/answer-page.php
+msgid "發生了非預期的錯誤。"
+msgstr "予期しないエラーが発生しました。"
+
+#: templates/answer-page.php
+msgid "您已經投過票了!"
+msgstr "すでに投票済みです！"
+
+#: templates/answer-page.php
+msgid "送出中..."
+msgstr "送信中..."
+
+#: templates/answer-page.php
+msgid "感謝您的回饋！"
+msgstr "フィードバックありがとうございます！"
+
+#: templates/answer-page.php
+msgid "送出失敗,請稍後再試。"
+msgstr "送信失敗、後でもう一度お試しください。"
+
+#: templates/answer-page.php
+msgid "請輸入更詳細的內容..."
+msgstr "もっと詳しく入力してください..."
+
+#: templates/answer-page.php
+msgid "感謝回報！我們會儘快處理。"
+msgstr "報告ありがとうございます！早急に対応します。"
+
+#: templates/answer-page.php
+msgid "感謝您！我們已收到您的回報。"
+msgstr "ありがとうございます！報告を受け取りました。"
+
+#: templates/answer-page.php
+msgid "抱歉,目前無法取得 AI 回答,請稍後再試。"
+msgstr "申し訳ありません、現在AI回答を取得できません。後でお試しください。"
+
+#: templates/answer-page.php
+msgid "原文連結"
+msgstr "元記事へ"
+
+#: templates/answer-page.php
+msgid "注意：本頁內容由 AI 生成，僅供參考，請自行判斷並查證。"
+msgstr "注意：このコンテンツはAI生成であり、参考用です。ご自身で判断・確認してください。"
+
+#: templates/answer-page.php
+msgid "這篇回答對您有幫助嗎？"
+msgstr "この回答は役に立ちましたか？"
+
+#: templates/answer-page.php
+msgid "回饋選項"
+msgstr "フィードバックオプション"
+
+#: templates/answer-page.php
+msgid "正確"
+msgstr "正しい"
+
+#: templates/answer-page.php
+msgid "錯誤"
+msgstr "間違い"
+
+#: templates/answer-page.php
+msgid "回報問題"
+msgstr "問題を報告"
+
+#: templates/answer-page.php
+msgid "請描述您遇到的問題..."
+msgstr "遭遇した問題を説明してください..."
+
+#: templates/answer-page.php
+msgid "取消"
+msgstr "キャンセル"
+
+#: templates/answer-page.php
+msgid "送出回報"
+msgstr "報告を送信"
+
+#: templates/answer-page.php
+msgid "瀏覽次數"
+msgstr "閲覧数"
+
+#: templates/answer-page.php
+msgid "好評"
+msgstr "いいね"
+
+#: templates/answer-page.php
+msgid "差評"
+msgstr "よくない"
+
+#: templates/answer-page.php
+msgid "← 關閉此頁"
+msgstr "← ページを閉じる"
+
+#: templates/answer-page.php
+msgid "← 回到原文"
+msgstr "← 記事に戻る"
+
+#: includes/class-feedback-controller.php
+msgid "無效的操作"
+msgstr "無効な操作"
+
+#: includes/class-feedback-controller.php
+msgid "已送出,感謝您的回饋!"
+msgstr "送信完了、フィードバックありがとうございます！"
+
+#: includes/class-feedback-controller.php
+msgid "回報次數過多,請稍後再試"
+msgstr "報告回数が多すぎます、後でお試しください"
+
+#: includes/class-feedback-controller.php
+msgid "訊息過長,請限制在 %d 字以內"
+msgstr "メッセージが長すぎます、%d 文字以内にしてください"
+
+#: includes/class-feedback-controller.php
+msgid "請輸入回饋內容"
+msgstr "フィードバック内容を入力してください"
+
+#: includes/class-feedback-controller.php
+msgid "請輸入更詳細的回饋內容"
+msgstr "より詳細なフィードバックを入力してください"
+
+#: includes/class-feedback-controller.php
+msgid "找不到對應的內容"
+msgstr "対応するコンテンツが見つかりません"
+
+#: includes/class-feedback-controller.php
+msgid "目前無法送出回饋"
+msgstr "現在フィードバックを送信できません"
+
+#: includes/class-feedback-controller.php
+msgid "AI 回答頁回饋 - 文章 #%d"
+msgstr "AI回答ページフィードバック - 記事 #%d"
+
+#: includes/class-feedback-controller.php
+msgid "收到新的回報內容："
+msgstr "新しい報告を受信："
+
+#: includes/class-feedback-controller.php
+msgid "文章標題："
+msgstr "記事タイトル："
+
+#: includes/class-feedback-controller.php
+msgid "文章連結："
+msgstr "記事リンク："
+
+#: includes/class-feedback-controller.php
+msgid "題目："
+msgstr "質問："
+
+#: includes/class-feedback-controller.php
+msgid "使用者回饋："
+msgstr "ユーザーフィードバック："
+
+#: includes/class-feedback-controller.php
+msgid "--- 系統通知 ---"
+msgstr "--- システム通知 ---"
+
+#: includes/class-feedback-controller.php
+msgid "時間：%s"
+msgstr "時刻：%s"
+
+#: includes/class-feedback-controller.php
+msgid "來源 IP："
+msgstr "送信元IP："
+
+#: includes/class-feedback-controller.php
+msgid "郵件傳送失敗,請稍後再試"
+msgstr "メール送信失敗、後でお試しください"
+
+#: includes/class-feedback-controller.php
+msgid "缺少文章資訊"
+msgstr "記事情報がありません"
+
+#: includes/class-feedback-controller.php
+msgid "驗證失敗"
+msgstr "認証失敗"
+
+#: includes/class-feedback-controller.php
+msgid "權限不足"
+msgstr "権限が不足しています"
+
+#: includes/class-feedback-controller.php
+msgid "已清除所有回饋統計（共 %d 筆記錄）"
+msgstr "すべてのフィードバック統計をクリアしました（%d 件）"
+
+#: includes/class-metabox.php
+msgid "AI Q&A 問題"
+msgstr "AI Q&A 質問"
+
+#: includes/class-metabox.php
+msgid "可拖曳排序問題"
+msgstr "ドラッグで質問を並び替え"
+
+#: includes/class-metabox.php
+msgid "問題文字"
+msgstr "質問テキスト"
+
+#: includes/class-metabox.php
+msgid "刪除問題"
+msgstr "質問を削除"
+
+#: includes/class-metabox.php
+msgid "新增問題"
+msgstr "質問を追加"
+
+#: includes/class-metabox.php
+msgid "預先生成"
+msgstr "事前生成"
+
+#: includes/class-metabox.php
+msgid "此文章已有 %d 個 AI 問答的靜態快取。"
+msgstr "この記事には %d 個のAI Q&A静的キャッシュがあります。"
+
+#: includes/class-metabox.php
+msgid "目前尚無已生成的快取。"
+msgstr "まだキャッシュは生成されていません。"
+
+#: includes/class-metabox.php
+msgid "清除這篇的快取"
+msgstr "この記事のキャッシュをクリア"
+
+#: includes/class-metabox.php
+msgid "查看 AI 問答頁"
+msgstr "AI Q&Aページを表示"
+
+#: includes/class-pregenerate.php
+msgid "預生成完成"
+msgstr "事前生成完了"
+
+#: includes/class-pregenerate.php
+msgid "預生成失敗"
+msgstr "事前生成失敗"
+
+#: includes/class-renderer.php
+msgid "請稍後再試"
+msgstr "後でお試しください"
+
+#: includes/class-renderer.php
+msgid "存取過於頻繁,請稍後再試"
+msgstr "アクセス頻度が高すぎます、後でお試しください"
+
+#: includes/helpers-encryption.php
+msgid "⚠️ 安全警告：目前 API Key 使用較弱的加密方式"
+msgstr "⚠️ セキュリティ警告：APIキーは弱い暗号化を使用しています"
+
+#: includes/helpers-encryption.php
+msgid "您的伺服器未安裝 OpenSSL 擴充功能，API Key 僅使用基礎混淆保護。"
+msgstr "サーバーにOpenSSL拡張がインストールされていません。APIキーは基本的な難読化のみ使用しています。"
+
+#: includes/helpers-encryption.php
+msgid "建議聯繫您的主機商啟用 OpenSSL，或在 wp-config.php 中定義常數來直接設定 API Key。"
+msgstr "ホスティング会社にOpenSSLの有効化を依頼するか、wp-config.phpで定数を定義してAPIキーを直接設定することを推奨します。"
+
+#: moelog-ai-qna.php
+msgid "設定"
+msgstr "設定"
+
+#: moelog-ai-qna.php
+msgid "需要 PHP JSON 擴充。"
+msgstr "PHP JSON拡張が必要です。"
+
+#: moelog-ai-qna.php
+msgid "需要 PHP hash 擴充。"
+msgstr "PHP hash拡張が必要です。"
+
+#: moelog-ai-qna.php
+msgid "需要 PHP 7.4 或以上版本。"
+msgstr "PHP 7.4以上が必要です。"
+
+#: moelog-ai-qna.php
+msgid "WordPress 上傳目錄不可寫入。"
+msgstr "WordPressアップロードディレクトリに書き込めません。"
+
+#: moelog-ai-qna.php
+msgid "插件啟用失敗"
+msgstr "プラグインの有効化に失敗しました"
+
+#: moelog-ai-geo.php
+msgid "啟用 STM 模式"
+msgstr "STMモードを有効化"
+
+#: moelog-ai-geo.php
+msgid "啟用 Structured Data Mode，為 AI 回答頁生成結構化資料 (JSON-LD)。"
+msgstr "Structured Data Modeを有効にして、AI回答ページの構造化データ (JSON-LD) を生成します。"
+
+
+#: Missing
+msgid "常數 MOELOG_AIQNA_API_KEY 未定義"
+msgstr "定数 MOELOG_AIQNA_API_KEY が未定義です"
+
+#: Missing
+msgid "請提供 API Key"
+msgstr "APIキーを提供してください"
+
+#: Missing
+msgid "請提供有效的文章 ID"
+msgstr "有効な記事IDを提供してください"
+
+#: Missing
+msgid "找不到指定的文章"
+msgstr "指定された記事が見つかりません"
+
+#: Missing
+msgid "此文章尚未設定任何問題"
+msgstr "この記事には質問が設定されていません"
+
+#: Missing
+msgid "AI 回答會快取 %d 天並生成靜態 HTML 檔案。如果發現回答有誤或需要重新生成，可以清除快取。"
+msgstr "AI回答は%d日間キャッシュされ、静的HTMLファイルが生成されます。回答に誤りがある場合や再生成が必要な場合は、キャッシュをクリアできます。"
+
+#: Missing
+msgid "可寫"
+msgstr "書き込み可能"
+
+#: Missing
+msgid "不可寫"
+msgstr "書き込み不可"
+
+#: Missing
+msgid "這會清除所有文章所有問題的 AI 回答快取與靜態檔案。"
+msgstr "すべての記事のすべての質問に対するAI回答キャッシュと静的ファイルをクリアします。"
+
+#: Missing
+msgid "確定要清除所有 AI 回答快取與靜態檔案嗎？此操作無法復原。"
+msgstr "すべてのAI回答キャッシュと静的ファイルをクリアしてもよろしいですか？この操作は元に戻せません。"
+
+#: Missing
+msgid "如果手動刪除了靜態 HTML 檔案（例如透過 FTP），對應的統計數據可能會殘留在資料庫中。此功能會掃描所有統計數據，並刪除對應檔案已不存在的孤兒數據。"
+msgstr "静的HTMLファイルを手動で（FTPなどで）削除した場合、対応する統計データがデータベースに残る可能性があります。この機能はすべての統計データをスキャンし、対応するファイルが存在しない孤立データを削除します。"
+
+#: Missing
+msgid "確定要清理孤兒統計數據嗎？此操作會掃描資料庫並刪除對應檔案已不存在的統計數據。"
+msgstr "孤立した統計データをクリーンアップしてもよろしいですか？この操作はデータベースをスキャンし、対応するファイルが存在しない統計データを削除します。"
+
+#: Missing
+msgid "清理孤兒數據"
+msgstr "孤立データをクリーンアップ"
+
+#: Missing
+msgid "載入問題列表"
+msgstr "質問リストを読み込む"
+
+#: Missing
+msgid "輸入文章 ID 後點擊「載入問題列表」，系統會自動載入該文章的所有問題"
+msgstr "記事IDを入力して「質問リストを読み込む」をクリックすると、その記事のすべての質問が自動的に読み込まれます"
+
+#: Missing
+msgid "問題選擇"
+msgstr "質問の選択"
+
+#: Missing
+msgid "請先載入問題列表"
+msgstr "先に質問リストを読み込んでください"
+
+#: Missing
+msgid "或手動輸入完整問題文字"
+msgstr "または完全な質問文を手動で入力"
+
+#: Missing
+msgid "從下拉選單選擇問題，或手動輸入完整的問題文字"
+msgstr "ドロップダウンメニューから質問を選択するか、完全な質問文を手動で入力してください"
+
+#: Missing
+msgid "載入中..."
+msgstr "読み込み中..."
+
+#: Missing
+msgid "刪除此問題的靜態 HTML"
+msgstr "この質問の静的HTMLを削除"
+
+#: Missing
+msgid "請輸入有效的文章 ID"
+msgstr "有効な記事IDを入力してください"
+
+#: Missing
+msgid "請選擇問題"
+msgstr "質問を選択してください"
+
+#: Missing
+msgid "載入失敗"
+msgstr "読み込みに失敗しました"
+
+#: Missing
+msgid "AJAX 請求失敗，請稍後再試"
+msgstr "AJAXリクエストに失敗しました。後でお試しください"
+
+#: Missing
+msgid "安全驗證失敗，請重新整理頁面後再試"
+msgstr "セキュリティ検証に失敗しました。ページを更新してもう一度お試しください"
+
+#: Missing
+msgid "請選擇或輸入問題"
+msgstr "質問を選択または入力してください"
+
+#: Missing
+msgid "安全驗證欄位缺失，請重新整理頁面"
+msgstr "セキュリティ検証フィールドが不足しています。ページを更新してください"
+
+#: Missing
+msgid "✅ 清理完成！掃描了 %d 筆統計數據，刪除了 %d 筆孤兒數據。"
+msgstr "✅ クリーンアップ完了！%d 件の統計データをスキャンし、%d 件の孤立データを削除しました。"
+
+#: Missing
+msgid "ℹ️ 掃描了 %d 筆統計數據，未發現孤兒數據。"
+msgstr "ℹ️ %d 件の統計データをスキャンしましたが、孤立データは見つかりませんでした。"
+
+#: Missing
+msgid "✅ 成功清除 %d 筆快取記錄與 %d 個靜態檔案!"
+msgstr "✅ %d 件のキャッシュレコードと %d 個の静的ファイルを正常にクリアしました！"
+
+#: Missing
+msgid "❌ 安全驗證失敗，請重新整理頁面後再試。"
+msgstr "❌ セキュリティ検証に失敗しました。ページを更新してもう一度お試しください。"
+
+#: Missing
+msgid "✅ 成功刪除靜態 HTML 檔案!（文章 ID: %d）"
+msgstr "✅ 静的HTMLファイルを正常に削除しました！（記事ID: %d）"
+
+#: Missing
+msgid "問題: %s"
+msgstr "質問: %s"
+
+#: Missing
+msgid "⚠️ 未找到相關靜態 HTML 檔案。可能原因：檔案不存在、問題文字不符、或該問題從未被訪問過。"
+msgstr "⚠️ 関連する静的HTMLファイルが見つかりません。原因：ファイルが存在しない、質問文が一致しない、またはその質問が一度もアクセスされていない可能性があります。"
+
+#: Missing
+msgid "❌ 請填寫完整的文章 ID 和問題文字。"
+msgstr "❌ 完全な記事IDと質問文を入力してください。"
+
+#: Missing
+msgid "快取有效期限"
+msgstr "キャッシュ有効期限"
+
+#: Missing
+msgid "進階設定選項,修改後需要重新儲存固定網址設定。"
+msgstr "詳細設定オプション。変更後はパーマリンク設定を再保存する必要があります。"
+
+#: Missing
+msgid "選擇要使用的 AI 服務供應商。"
+msgstr "使用するAIサービスプロバイダーを選択してください。"
+
+#: Missing
+msgid "控制回答的隨機性。0 = 確定性，2 = 創意性。建議: 0.3"
+msgstr "回答のランダム性を制御します。0 = 確定的、2 = 創造的。推奨: 0.3"
+
+#: Missing
+msgid "啟用後 AI 可根據文章內容提供更準確的答案，但會消耗更多 Token。"
+msgstr "有効にすると、AIは記事内容に基づいてより正確な回答を提供できますが、より多くのトークンを消費します。"
+
+#: Missing
+msgid "文章內容超過此長度將被截斷。建議: 6000 字元（約 1500–2000 Token）"
+msgstr "記事内容がこの長さを超えると切り詰められます。推奨: 6000文字（約1500–2000トークン）"
+
+#: Missing
+msgid "定義 AI 的角色與行為準則。留空使用預設值。"
+msgstr "AIの役割と行動指針を定義します。空欄の場合はデフォルト値を使用します。"
+
+#: Missing
+msgid "顯示在文章底部問題清單上方的標題。支援任意語言。"
+msgstr "記事下部の質問リストの上に表示されるタイトル。任意の言語をサポート。"
+
+#: Missing
+msgid "顯示在 AI 答案頁底部。支援 {site} 代表網站名稱，亦相容舊式 %s。可多行。"
+msgstr "AI回答ページの下部に表示されます。{site} はサイト名を表し、旧式の %s とも互換性があります。複数行可。"
+
+#: Missing
+msgid "在 AI 回答頁底部顯示「正確/錯誤」投票按鈕、問題回報功能和瀏覽統計。"
+msgstr "AI回答ページの下部に「正しい/間違い」投票ボタン、問題報告機能、閲覧統計を表示します。"
+
+#: Missing
+msgid "停用後，回答頁將不顯示任何互動元素，僅顯示 AI 回答內容。"
+msgstr "無効にすると、回答ページにはインタラクティブ要素が表示されず、AI回答内容のみが表示されます。"
+
+#: Missing
+msgid "刪除所有文章的瀏覽次數、好評、差評統計。此操作無法復原。"
+msgstr "すべての記事の閲覧数、いいね、よくない統計を削除します。この操作は元に戻せません。"
+
+#: Missing
+msgid "靜態 HTML 檔案的保存天數（1–365 天）。預設 30 天。"
+msgstr "静的HTMLファイルの保存日数（1–365日）。デフォルトは30日。"
+
+#: Missing
+msgid "只能使用小寫英文、數字和連字號 (-)。"
+msgstr "小文字の英数字とハイフン（-）のみ使用可能です。"
+
+#: Missing
+msgid "⚠️ 修改後必須到「設定 → 固定網址」重新儲存!"
+msgstr "⚠️ 変更後は必ず「設定 → パーマリンク」で再保存してください！"
+
+#: Missing
+msgid "⚠️ 修改後會建立新目錄,舊目錄的快取需手動刪除!"
+msgstr "⚠️ 変更後は新しいディレクトリが作成されます。古いディレクトリのキャッシュは手動で削除する必要があります！"
+
+#: Missing
+msgid "還有其他問題嗎?以下是 AI 可以回答的問題"
+msgstr "他に質問はありますか？以下はAIが回答できる質問です"
+
+#: Missing
+msgid "⚠ API Key 加密失敗,已使用明文儲存。建議使用 wp-config.php 常數定義。"
+msgstr "⚠ APIキーの暗号化に失敗し、平文で保存されました。wp-config.phpでの定数定義を推奨します。"
+
+#: Missing
+msgid "✅ URL 路徑前綴已變更! 請立即到「設定 → 固定網址」重新儲存,否則舊連結會失效!"
+msgstr "✅ URLパスプレフィックスが変更されました！すぐに「設定 → パーマリンク」で再保存してください。そうしないと古いリンクが無効になります！"
+
+#: Missing
+msgid "✅ 快取目錄已變更為: %s。舊目錄 (%s) 的快取不會自動刪除,如需清理請手動刪除。"
+msgstr "✅ キャッシュディレクトリが %s に変更されました。古いディレクトリ (%s) のキャッシュは自動削除されません。クリーンアップが必要な場合は手動で削除してください。"
+
+#: Missing
+msgid "🔄 重新整理連結規則"
+msgstr "🔄 リンクルールの更新"
+
+#: Missing
+msgid "使用 Shortcode:"
+msgstr "ショートコードを使用:"
+
+#: Missing
+msgid "顯示第 1 題（index 範圍：1-8）"
+msgstr "第1問を表示（インデックス範囲：1-8）"
+
+#: Missing
+msgid "在「設定 → Moelog AI Q&A」填入 API Key / 模型等。"
+msgstr "「設定 → Moelog AI Q&A」でAPIキー/モデルなどを入力します。"
+
+#: Missing
+msgid "編輯文章時，於右側/下方的「AI 問題清單」每行輸入一題並選擇語言（可選自動）。"
+msgstr "記事編集時、右側/下方の「AI質問リスト」に1行につき1問を入力し、言語を選択します（自動も可）。"
+
+#: Missing
+msgid "前台文章底部會顯示問題列表（抬頭可自訂）。點擊後開新分頁顯示 AI 答案與免責聲明（可自訂）。"
+msgstr "フロントエンドの記事下部に質問リストが表示されます（見出しはカスタマイズ可）。クリックすると新しいタブでAI回答と免責事項（カスタマイズ可）が表示されます。"
+
+#: Missing
+msgid "將指定問題單獨放在任意段落（index 範圍 1–8）。"
+msgstr "指定した質問を任意の段落に個別に配置します（インデックス範囲 1–8）。"
+
+#: Missing
+msgid "回答頁互動功能：新增逐字打字動畫、互動式回饋卡、LocalStorage 防重複投票"
+msgstr "回答ページのインタラクティブ機能：タイプライターアニメーション、インタラクティブなフィードバックカード、LocalStorageによる重複投票防止を追加"
+
+#: Missing
+msgid "CSS / JS 重構：調整回答頁 DOM 結構與樣式切分，讓主題覆寫與 CSP 管理更輕鬆"
+msgstr "CSS / JS リファクタリング：回答ページのDOM構造とスタイル分割を調整し、テーマの上書きとCSP管理を容易にしました"
+
+#: Missing
+msgid "AI 模型管理：導入 Model Registry，後台提供建議清單 + 自訂輸入"
+msgstr "AIモデル管理：Model Registryを導入し、バックエンドで推奨リスト + カスタム入力を提供"
+
+#: Missing
+msgid "設定頁分頁化：將設定畫面拆成「一般 / 顯示 / 快取設定 / 快取管理 / 系統資訊」"
+msgstr "設定ページのタブ化：設定画面を「一般 / 表示 / キャッシュ設定 / キャッシュ管理 / システム情報」に分割"
+
+#: Missing
+msgid "Sitemap 優化：改用 chunk 讀取與計數，動態分頁不再一次載入所有文章"
+msgstr "サイトマップ最適化：チャンク読み込みとカウントに切り替え、動的ページネーションですべての記事を一度に読み込まないようにしました"
+
+#: Missing
+msgid "快取工具/資訊整合：快取管理搬到專屬分頁，新增快取統計摘要與系統資訊區塊"
+msgstr "キャッシュツール/情報統合：キャッシュ管理を専用タブに移動し、キャッシュ統計サマリーとシステム情報ブロックを追加"
+
+#: Missing
+msgid "API timeout 調整：預設逾時提升至 45 秒，避免 GPT-4 / Claude 長回答提早失敗"
+msgstr "APIタイムアウト調整：デフォルトのタイムアウトを45秒に延長し、GPT-4 / Claudeの長い回答が早期に失敗するのを防ぎました"
+
+#: Missing
+msgid "插件版本"
+msgstr "プラグインバージョン"
+
+#: Missing
+msgid "多位元組支援"
+msgstr "マルチバイトサポート"
+
+#: Missing
+msgid "已啟用"
+msgstr "有効"
+
+#: Missing
+msgid "未啟用"
+msgstr "無効"
+
+#: Missing
+msgid "結構化資料模式"
+msgstr "構造化データモード"
+
+#: Missing
+msgid "API 供應商"
+msgstr "APIプロバイダー"
+
+#: Missing
+msgid "API Key 狀態"
+msgstr "APIキーの状態"
+
+#: Missing
+msgid "已設定"
+msgstr "設定済み"
+
+#: Missing
+msgid "來自常數"
+msgstr "定数から"
+
+#: Missing
+msgid "未設定"
+msgstr "未設定"
+
+#: Missing
+msgid "快取目錄權限"
+msgstr "キャッシュディレクトリ権限"
+
+#: Missing
+msgid "Rewrite Rules"
+msgstr "リライトルール"
+
+#: Missing
+msgid "正常"
+msgstr "正常"
+
+#: Missing
+msgid "需要刷新"
+msgstr "更新が必要"
+
+#: Missing
+msgid "前往刷新"
+msgstr "更新へ移動"
+
+#: Missing
+msgid "記憶體限制"
+msgstr "メモリ制限"
+
+#: Missing
+msgid "最大上傳大小"
+msgstr "最大アップロードサイズ"
+
+#: Missing
+msgid "隱藏"
+msgstr "非表示"
+
+#: Missing
+msgid "顯示"
+msgstr "表示"
+
+#: Missing
+msgid "Moelog AI Q&A:"
+msgstr "Moelog AI Q&A:"
+
+#: Missing
+msgid "URL 路徑前綴已變更,請立即到"
+msgstr "URLパスプレフィックスが変更されました。すぐに"
+
+#: Missing
+msgid "設定 → 固定網址"
+msgstr "設定 → パーマリンク"
+
+#: Missing
+msgid "重新儲存,否則回答頁面連結會失效!"
+msgstr "へ移動して再保存してください。そうしないと回答ページのリンクが無効になります！"
+
+#: Missing
+msgid "尚未設定 API Key，請完成設定後才能使用 AI 功能。"
+msgstr "APIキーが設定されていません。AI機能を使用するには設定を完了してください。"
+
+#: Missing
+msgid "偵測到路由規則可能未正確設定。請至"
+msgstr "ルーティングルールが正しく設定されていない可能性があります。"
+
+#: Missing
+msgid "設定 → 永久連結"
+msgstr "設定 → パーマリンク"
+
+#: Missing
+msgid "點擊「儲存變更」以重新整理規則。"
+msgstr "へ移動し、「変更を保存」をクリックしてルールを更新してください。"
+
+#: Missing
+msgid "快取目錄不可寫: %s。請檢查目錄權限。"
+msgstr "キャッシュディレクトリに書き込めません: %s。ディレクトリの権限を確認してください。"
+
+#: Missing
+msgid "尚未設定 API Key。"
+msgstr "APIキーが設定されていません。"
+
+#: Missing
+msgid "呼叫 OpenAI 失敗,請稍後再試。"
+msgstr "OpenAIの呼び出しに失敗しました。後でお試しください。"
+
+#: Missing
+msgid "服務暫時無法使用,請檢查 API Key 或模型名稱。"
+msgstr "サービスは一時的に利用できません。APIキーまたはモデル名を確認してください。"
+
+#: Missing
+msgid "服務暫時無法使用,請檢查 API 額度。"
+msgstr "サービスは一時的に利用できません。APIの利用枠を確認してください。"
+
+#: Missing
+msgid "請求過於頻繁,請稍候再試。"
+msgstr "リクエストが多すぎます。しばらくしてからお試しください。"
+
+#: Missing
+msgid "內容過長,請減少文章內容截斷長度。"
+msgstr "コンテンツが長すぎます。記事内容の切り詰め長さを減らしてください。"
+
+#: Missing
+msgid "請求參數錯誤。"
+msgstr "リクエストパラメータエラー。"
+
+#: Missing
+msgid "AI 服務暫時不可用,請稍後再試。"
+msgstr "AIサービスは一時的に利用できません。後でお試しください。"
+
+#: Missing
+msgid "AI 服務回傳異常,請稍後再試。"
+msgstr "AIサービスからの応答が異常です。後でお試しください。"
+
+#: Missing
+msgid "呼叫 Google Gemini 失敗,請稍後再試。"
+msgstr "Google Geminiの呼び出しに失敗しました。後でお試しください。"
+
+#: Missing
+msgid "問題或答案被安全過濾機制阻擋。"
+msgstr "質問または回答がセキュリティフィルターによってブロックされました。"
+
+#: Missing
+msgid "Google Gemini 服務暫時不可用,請稍後再試。"
+msgstr "Google Geminiサービスは一時的に利用できません。後でお試しください。"
+
+#: Missing
+msgid "Google Gemini 回傳異常,請稍後再試。"
+msgstr "Google Geminiからの応答が異常です。後でお試しください。"
+
+#: Missing
+msgid "尚未設定 Anthropic API Key。"
+msgstr "Anthropic APIキーが設定されていません。"
+
+#: Missing
+msgid "問題為空。"
+msgstr "質問が空です。"
+
+#: Missing
+msgid "無法連線到 Anthropic 服務。"
+msgstr "Anthropicサービスに接続できません。"
+
+#: Missing
+msgid "API Key 無效或未授權。"
+msgstr "APIキーが無効または未承認です。"
+
+#: Missing
+msgid "Anthropic 服務暫時不可用,請稍後再試。"
+msgstr "Anthropicサービスは一時的に利用できません。後でお試しください。"
+
+#: Missing
+msgid "Anthropic 服務回傳異常,請稍後再試。"
+msgstr "Anthropicサービスからの応答が異常です。後でお試しください。"
+
+#: Missing
+msgid "連線測試成功!"
+msgstr "接続テスト成功！"
+
+#: Missing
+msgid "確定要清空所有問題嗎?"
+msgstr "すべての質問を空にしてもよろしいですか？"
+
+#: Missing
+msgid "確定要刪除此問題嗎?"
+msgstr "この質問を削除してもよろしいですか？"
+
+#: Missing
+msgid "最多只能設定 %d 個問題"
+msgstr "最大 %d 個まで質問を設定できます"
+
+#: Missing
+msgid "請直接拖曳問題列來調整順序"
+msgstr "質問行をドラッグして順序を調整してください"
+
+#: Missing
+msgid "已設定 %s 題 / 最多 %d 題"
+msgstr "%s 問設定済み / 最大 %d 問"
+
+#: Missing
+msgid "例如: 為何科技新創偏好使用「.io」?"
+msgstr "例：なぜテック系スタートアップは「.io」を好むのか？"
+
+#: Missing
+msgid "拖曳排序"
+msgstr "ドラッグして並び替え"
+
+#: Missing
+msgid "刪除此問題"
+msgstr "この質問を削除"
+
+#: Missing
+msgid "確定要清除快取並重新生成所有答案嗎?"
+msgstr "キャッシュをクリアしてすべての回答を再生成してもよろしいですか？"
+
+#: Missing
+msgid "重新生成全部"
+msgstr "すべて再生成"
+
+#: Missing
+msgid "已排程重新生成任務,請等待 2-5 分鐘後重新整理頁面查看進度。"
+msgstr "再生成タスクがスケジュールされました。2〜5分待ってからページを更新して進捗を確認してください。"
+
+#: Missing
+msgid "操作失敗"
+msgstr "操作失敗"
+
+#: Missing
+msgid "請求失敗,請稍後再試。"
+msgstr "リクエスト失敗、後でお試しください。"
+
+#: Missing
+msgid "AI 問題清單"
+msgstr "AI質問リスト"
+
+#: Missing
+msgid "使用說明:"
+msgstr "使用方法："
+
+#: Missing
+msgid "每行輸入一個問題,建議 3-8 題"
+msgstr "1行に1つの質問を入力、3〜8問を推奨"
+
+#: Missing
+msgid "每題最多 200 字元"
+msgstr "各質問最大200文字"
+
+#: Missing
+msgid "選擇語言或使用「自動偵測」"
+msgstr "言語を選択するか「自動検出」を使用"
+
+#: Missing
+msgid "發布後會在文章底部顯示問題清單"
+msgstr "公開後、記事下部に質問リストが表示されます"
+
+#: Missing
+msgid "使用 [moelog_aiqna index=\"1\"] 可單獨插入第 1 題"
+msgstr ""
+
+#: Missing
+msgid "背景預生成進度:"
+msgstr "バックグラウンド事前生成の進捗："
+
+#: Missing
+msgid "正在處理 %d 個問題 (已完成 %d/%d)"
+msgstr "%d 個の質問を処理中（完了 %d/%d）"
+
+#: Missing
+msgid "所有問題已預生成完成!"
+msgstr "すべての質問の事前生成が完了しました！"
+
+#: Missing
+msgid "共 %d 個答案已快取"
+msgstr "計 %d 個の回答がキャッシュ済み"
+
+#: Missing
+msgid "已快取 %d/%d 個答案"
+msgstr "%d/%d 個の回答をキャッシュ済み"
+
+#: Missing
+msgid "已設定 %d 題 / 最多 %d 題"
+msgstr "%d 問設定済み / 最大 %d 問"
+
+#: Missing
+msgid "清空所有問題"
+msgstr "すべての質問を空にする"
+
+#: Missing
+msgid "重新排序"
+msgstr "並び替え"
+
+#: Missing
+msgid "提示: 可以拖曳調整順序"
+msgstr "ヒント：ドラッグして順序を調整できます"
+
+#: Missing
+msgid "前台預覽"
+msgstr "フロントエンドプレビュー"
+
+#: Missing
+msgid "查看文章"
+msgstr "記事を表示"
+
+#: Missing
+msgid "問題清單會顯示在文章底部"
+msgstr "質問リストは記事下部に表示されます"
+
+#: Missing
+msgid "🌐 自動偵測"
+msgstr "🌐 自動検出"
+
+#: Missing
+msgid "🇹🇼 繁體中文"
+msgstr "🇹🇼 繁体字中国語"
+
+#: Missing
+msgid "🇯🇵 日文"
+msgstr "🇯🇵 日本語"
+
+#: Missing
+msgid "🇺🇸 英文"
+msgstr "🇺🇸 英語"
+
+#: Missing
+msgid "預設模型：gpt-4o-mini。如需其他 OpenAI 模型請輸入完整 ID。"
+msgstr "デフォルトモデル：gpt-4o-mini。他のOpenAIモデルが必要な場合は完全なIDを入力してください。"
+
+#: Missing
+msgid "預設模型：gemini-2.5-flash。如需其他 Gemini 模型請輸入完整 ID。"
+msgstr "デフォルトモデル：gemini-2.5-flash。他のGeminiモデルが必要な場合は完全なIDを入力してください。"
+
+#: Missing
+msgid "預設模型：claude-opus-4-5-20251101。如需其他 Claude 模型請輸入完整 ID。"
+msgstr "デフォルトモデル：claude-opus-4-5-20251101。他のClaudeモデルが必要な場合は完全なIDを入力してください。"
+
+#: Missing
+msgid "請輸入供應商提供的模型 ID。"
+msgstr "プロバイダーが提供するモデルIDを入力してください。"
+
+#: Missing
+msgid "文章沒有設定問題"
+msgstr "記事に質問が設定されていません"
+
+#: Missing
+msgid "已排程 %d 個預生成任務 (跳過 %d 個已快取)"
+msgstr "%d 個の事前生成タスクをスケジュールしました（キャッシュ済みの %d 個をスキップ）"
+
+#: Missing
+msgid "已排程 %d 個預生成任務 (跳過 %d 個, 失敗 %d 篇)"
+msgstr "%d 個の事前生成タスクをスケジュールしました（%d 個をスキップ、%d 件失敗）"
+
+#: Missing
+msgid "若瀏覽器不允許自動關閉視窗,請點此回到文章:"
+msgstr "ブラウザがウィンドウの自動クローズを許可しない場合は、ここをクリックして記事に戻ってください："
+
+#: Missing
+msgid "參數錯誤或連結已失效。"
+msgstr "パラメータエラーまたはリンクが無効です。"
+
+#: Missing
+msgid "找不到文章。"
+msgstr "記事が見つかりません。"
+
+#: Missing
+msgid "請求過於頻繁,請稍後再試。"
+msgstr "リクエストが多すぎます、後でお試しください。"
+
+#: Missing
+msgid "返回首頁"
+msgstr "ホームに戻る"
+
+#: Missing
+msgid "請求錯誤"
+msgstr "リクエストエラー"
+
+#: Missing
+msgid "禁止存取"
+msgstr "アクセス禁止"
+
+#: Missing
+msgid "頁面不存在"
+msgstr "ページが存在しません"
+
+#: Missing
+msgid "連結已失效"
+msgstr "リンクが無効です"
+
+#: Missing
+msgid "請求過於頻繁"
+msgstr "リクエスト過多"
+
+#: Missing
+msgid "伺服器錯誤"
+msgstr "サーバーエラー"
+
+#: Missing
+msgid "Moelog AI Q&A - 安全提醒:"
+msgstr "Moelog AI Q&A - セキュリティ通知："
+
+#: Missing
+msgid "您的伺服器未安裝 OpenSSL 擴充，API Key 目前使用較弱的混淆方式儲存。"
+msgstr "サーバーにOpenSSL拡張がインストールされていません。APIキーは現在、弱い難読化方式で保存されています。"
+
+#: Missing
+msgid "建議聯繫您的主機商啟用 PHP OpenSSL 擴充以獲得更強的加密保護。"
+msgstr "より強力な暗号化保護を得るために、ホスティング会社に連絡してPHP OpenSSL拡張を有効にすることを推奨します。"
+
+#: Missing
+msgid "或者，您可以在 wp-config.php 中使用常數定義 API Key:"
+msgstr "または、wp-config.phpで定数を使用してAPIキーを定義できます："
+
+#: Missing
+msgid "剛剛"
+msgstr "たった今"
+
+#: Missing
+msgid "%d 分鐘前"
+msgstr "%d 分前"
+
+#: Missing
+msgid "%d 小時前"
+msgstr "%d 時間前"
+
+#: Missing
+msgid "%d 天前"
+msgstr "%d 日前"
+
+#: Missing
+msgid "Moelog AI Q&A 需 WordPress 5.0 或以上版本。"
+msgstr "Moelog AI Q&A には WordPress 5.0 以上が必要です。"
+
+#: Missing
+msgid "Moelog AI Q&A 需要 PHP 7.4 或更高版本。"
+msgstr "Moelog AI Q&A には PHP 7.4 以上が必要です。"
+
+#: Missing
+msgid "建議啟用 PHP mbstring 擴充以獲得更好的多語言支援。"
+msgstr "より良い多言語サポートのためにPHP mbstring拡張の有効化を推奨します。"
+
+#: Missing
+msgid "發生未預期錯誤,請稍後再試。"
+msgstr "予期しないエラーが発生しました。後でお試しください。"
+
+#: Missing
+msgid "您已經回覆過囉！"
+msgstr "すでに回答済みです！"
+
+#: Missing
+msgid "送出中…"
+msgstr "送信中…"
+
+#: Missing
+msgid "請提供至少 3 個字的描述。"
+msgstr "少なくとも3文字の説明を提供してください。"
+
+#: Missing
+msgid "已送出,感謝您的回饋！"
+msgstr "送信完了、フィードバックありがとうございます！"
+
+#: Missing
+msgid "已收到您稍早的回饋，感謝！"
+msgstr "以前のフィードバックを受け取りました、ありがとうございます！"
+
+#: Missing
+msgid "你覺得AI回答的內容正確嗎？"
+msgstr "AI回答の内容は正しいと思いますか？"
+
+#: Missing
+msgid "文章回饋操作"
+msgstr "記事フィードバック操作"
+
+#: Missing
+msgid "請簡述您遇到的問題或建議 (最多 300 字)"
+msgstr "遭遇した問題や提案を簡潔に説明してください（最大300文字）"
+
+#: Missing
+msgid "送出"
+msgstr "送信"
+
+#: moelog-ai-geo.php - STM Mode Settings
+msgid "提供結構化資料（QAPage、Breadcrumb）、Canonical/Robots 與快取策略，幫助搜尋與 AI 爬蟲「正確解析」AI 答案頁。"
+msgstr "構造化データ（QAPage、Breadcrumb）、Canonical/Robots およびキャッシュ戦略を提供し、検索エンジンと AI クローラーが AI 回答ページを正しく解析できるようにします。"
+
+#: moelog-ai-geo.php
+msgid "此功能不保證索引或排名，預設為 noindex；僅在啟用 STM 模式時採用 index,follow 並輸出對應中繼資料與 Sitemap。"
+msgstr "この機能はインデックスやランキングを保証するものではありません。デフォルトは noindex です。STM モードを有効にした場合のみ、index,follow を使用し、対応するメタデータと Sitemap を出力します。"
+
+#: moelog-ai-geo.php
+msgid "啟用結構化資料、SEO 優化與 AI Sitemap"
+msgstr "構造化データ、SEO 最適化、AI Sitemap を有効化"
+
+#: moelog-ai-geo.php
+msgid "啟用後, 本(STM)模組將會:"
+msgstr "有効にすると、本 (STM) モジュールは以下を実行します:"
+
+#: moelog-ai-geo.php
+msgid "✓ 注入 `index, follow` (取代預設的 `noindex`)"
+msgstr "✓ `index, follow` を注入（デフォルトの `noindex` を置換）"
+
+#: moelog-ai-geo.php
+msgid "✓ 注入 QAPage / Breadcrumb / OG / Twitter Card 等 Meta 標籤"
+msgstr "✓ QAPage / Breadcrumb / OG / Twitter Card などの Meta タグを注入"
+
+#: moelog-ai-geo.php
+msgid "✓ 注入 Canonical 標籤 (指向原始文章)"
+msgstr "✓ Canonical タグを注入（元記事を参照）"
+
+#: moelog-ai-geo.php
+msgid "✓ 輸出友善 CDN 的 HTTP 快取標頭 (ETag, 304, Last-Modified)"
+msgstr "✓ CDN フレンドリーな HTTP キャッシュヘッダーを出力（ETag, 304, Last-Modified）"
+
+#: moelog-ai-geo.php
+msgid "✓ 產生 AI 問答專用 Sitemap(index+分頁)"
+msgstr "✓ AI Q&A 専用 Sitemap を生成（index + ページネーション）"
+
+#: moelog-ai-geo.php
+msgid "✓ 自動 ping Google/Bing"
+msgstr "✓ Google/Bing に自動 ping"
+
+#: moelog-ai-geo.php
+msgid "⚠️ 啟用/停用後,請到 設定 → 永久連結 點「儲存變更」刷新規則。"
+msgstr "⚠️ 有効/無効を切り替えた後は、設定 → パーマリンク で「変更を保存」をクリックしてルールを更新してください。"
+

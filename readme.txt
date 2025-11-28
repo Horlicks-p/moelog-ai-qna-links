@@ -42,6 +42,8 @@ The answer page features a clean HTML layout, a typing animation effect, a built
   * **API key encryption:** Stores API keys with `AES-256-CBC` (random IV), key material derived from WordPress salts.  
   * **Strict CSP:** Full **Content Security Policy** support; all inline scripts/styles use a `nonce`.  
 * **Modular architecture:** Clean and maintainable code (Core / Router / Renderer / Cache / Metabox / AI_Client / Pregenerate).
+* **Multi-language support:** Built-in translations for Traditional Chinese (`zh_TW`), English (`en_US`), and Japanese (`ja`).
+* **Developer documentation:** Comprehensive technical docs (`docs/`) covering architecture, API reference, Hooks/Filters, STM mode, and i18n guide.
 
 ---
 
@@ -137,7 +139,7 @@ The plugin only sends the following to AI providers (OpenAI / Gemini / Claude):
 
 == 🧩 Changelog ==
 
-= 1.10.2 (2025-11-27) – Bug Fixes & Improvements =
+= 1.10.2 (2025-11-28) – Bug Fixes & Improvements =
 - 🐛 **Fixed:** Cache statistics now update immediately after deleting cache files.
 - 🐛 **Fixed:** STM (Structured Data Mode) settings no longer reset when saving other tabs.
 - 🔒 **Security:** Added anti-abuse measures to issue reporting (IP rate limit, honeypot, message length limit).
@@ -145,6 +147,8 @@ The plugin only sends the following to AI providers (OpenAI / Gemini / Claude):
 - ✨ **New:** Added "Clear All Feedback Stats" button to delete all views/likes/dislikes data.
 - 🎨 **UI:** Removed duplicate cache statistics from System Info page.
 - ⚡ **Performance:** Cache management page now always shows real-time statistics.
+- 🌍 **i18n:** Added full language pack support (Traditional Chinese `zh_TW`, English `en_US`, Japanese `ja`).
+- 📚 **Docs:** Added technical documentation in `docs/` directory with 8 comprehensive technical documents.
 
 = 1.10.1 (2025-11-26) – PHP 8.x Compatibility & Code Quality =
 - 🐘 **PHP 8.x Compatibility:** Full compatibility with PHP 8.0, 8.1, 8.2, and 8.3.
