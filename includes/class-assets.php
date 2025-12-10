@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Moelog AI Q&A Assets Class
  *
@@ -30,19 +31,19 @@ class Moelog_AIQnA_Assets
     // 前台資源
     // =========================================
 
-public function enqueue_frontend_assets()
-{
-    // ✅ 修正:使用更精準的判斷,避免在所有文章頁載入資源
-    if (!is_singular() && !$this->is_answer_page()) {
-      return;
+    public function enqueue_frontend_assets()
+    {
+        // ✅ 修正:使用更精準的判斷,避免在所有文章頁載入資源
+        if (!is_singular() && !$this->is_answer_page()) {
+            return;
+        }
+
+        // 載入主要樣式表
+        $this->enqueue_main_styles();
+
+        // 載入前台腳本
+        $this->enqueue_frontend_scripts();
     }
-
-    // 載入主要樣式表
-    $this->enqueue_main_styles();
-
-    // 載入前台腳本
-    $this->enqueue_frontend_scripts();
-}
 
     /**
      * 判斷是否需要載入前台資源
@@ -137,11 +138,11 @@ public function enqueue_frontend_assets()
         // 檢查 URL 路徑 - 動態讀取設定值
         $pretty_base = Moelog_AIQnA_Settings::get_pretty_base();
         $request_uri = $_SERVER["REQUEST_URI"] ?? "";
-        
+
         if (strpos($request_uri, "/" . $pretty_base . "/") !== false) {
             return true;
         }
-        
+
         // 保留舊路徑檢查以向下相容
         if (strpos($request_uri, "/ai-answer/") !== false) {
             return true;
@@ -164,12 +165,12 @@ public function enqueue_frontend_assets()
     private function post_has_questions($post_id)
     {
         $questions = get_post_meta($post_id, MOELOG_AIQNA_META_KEY, true);
-        
+
         if (function_exists("moelog_aiqna_parse_questions")) {
             $parsed = moelog_aiqna_parse_questions($questions);
             return !empty($parsed);
         }
-        
+
         return !empty($questions);
     }
 
@@ -232,11 +233,17 @@ public function enqueue_frontend_assets()
     {
         // 設定頁面樣式
         if ($hook === "settings_page_moelog_aiqna") {
+            $admin_css_url = MOELOG_AIQNA_URL . "includes/assets/css/admin.css";
+            $admin_css_path = MOELOG_AIQNA_DIR . "includes/assets/css/admin.css";
+            $admin_css_ver = file_exists($admin_css_path)
+                ? (string) filemtime($admin_css_path)
+                : MOELOG_AIQNA_VERSION;
+
             wp_enqueue_style(
                 "moelog-aiqna-admin",
-                MOELOG_AIQNA_URL . "includes/assets/css/style.css",
+                $admin_css_url,
                 [],
-                MOELOG_AIQNA_VERSION,
+                $admin_css_ver,
                 "all"
             );
         }

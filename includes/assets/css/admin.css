@@ -1,0 +1,531 @@
+/**
+ * Moelog AI Q&A Admin Styles
+ * Claude風格後台介面設計
+ * 配色參考: sample_style.css
+ */
+
+/* ========== 基本變數 ========== */
+:root {
+    --moelog-primary: #1d8ac3;
+    --moelog-secondary: #94B800;
+    --moelog-accent: #69644e;
+    --moelog-bg-light: #f5f5f0;
+    --moelog-bg-main: #F0EEE0;
+    --moelog-bg-card: #EEECDE;
+    --moelog-text: #666;
+    --moelog-text-dark: #555;
+    --moelog-text-light: #999;
+    --moelog-border: #E0DECE;
+    --moelog-border-light: #d0d0d0;
+    --moelog-success: #94B800;
+    --moelog-warning: #ffaa00;
+    --moelog-error: #d63638;
+    --moelog-shadow: rgba(0, 0, 0, 0.08);
+    --moelog-shadow-hover: rgba(0, 0, 0, 0.12);
+}
+
+/* ========== 整體容器 ========== */
+.settings_page_moelog_aiqna .wrap {
+    max-width: 1400px;
+    margin: 0;
+    padding: 20px;
+}
+
+.settings_page_moelog_aiqna .wrap h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--moelog-text-dark);
+    margin-bottom: 8px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--moelog-border);
+}
+
+.settings_page_moelog_aiqna .wrap h1 span {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--moelog-text-light);
+    margin-left: 8px;
+}
+
+/* ========== 分頁標籤 (Nav Tabs) ========== */
+.settings_page_moelog_aiqna .nav-tab-wrapper {
+    border-bottom: 2px solid var(--moelog-border);
+    margin: 20px 0 0;
+    padding: 0 0 0 0;
+    background: transparent;
+}
+
+.settings_page_moelog_aiqna .nav-tab {
+    display: inline-block;
+    padding: 12px 20px;
+    margin: 0 4px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--moelog-text);
+    text-decoration: none;
+    background: var(--moelog-bg-light);
+    border: 1px solid var(--moelog-border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    transition: all 0.2s ease;
+    position: relative;
+    top: 2px;
+}
+
+.settings_page_moelog_aiqna .nav-tab:hover {
+    background: var(--moelog-bg-card);
+    color: var(--moelog-primary);
+    border-color: var(--moelog-border);
+}
+
+.settings_page_moelog_aiqna .nav-tab.nav-tab-active {
+    background: #fff;
+    color: var(--moelog-primary);
+    border-color: var(--moelog-border);
+    border-bottom-color: #fff;
+    font-weight: 600;
+    box-shadow: 0 -2px 8px var(--moelog-shadow);
+}
+
+/* ========== 主要內容區 ========== */
+.moelog-aiqna-admin-wrapper {
+    display: flex;
+    gap: 24px;
+    margin-top: 0;
+    align-items: flex-start;
+}
+
+.moelog-aiqna-admin-wrapper > div:first-child {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ========== 表單樣式 ========== */
+.settings_page_moelog_aiqna form {
+    background: #fff;
+    padding: 24px;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 2px 8px var(--moelog-shadow);
+    border: 1px solid var(--moelog-border);
+}
+
+.settings_page_moelog_aiqna .form-table {
+    width: 100%;
+    margin: 0;
+}
+
+.settings_page_moelog_aiqna .form-table th {
+    width: 200px;
+    padding: 16px 20px 16px 0;
+    font-weight: 500;
+    color: var(--moelog-text-dark);
+    vertical-align: top;
+}
+
+.settings_page_moelog_aiqna .form-table td {
+    padding: 16px 0;
+}
+
+.settings_page_moelog_aiqna .form-table tr {
+    border-bottom: 1px solid var(--moelog-border-light);
+}
+
+.settings_page_moelog_aiqna .form-table tr:last-child {
+    border-bottom: none;
+}
+
+/* ========== 輸入欄位 ========== */
+.settings_page_moelog_aiqna input[type="text"],
+.settings_page_moelog_aiqna input[type="number"],
+.settings_page_moelog_aiqna input[type="password"],
+.settings_page_moelog_aiqna textarea,
+.settings_page_moelog_aiqna select {
+    width: 80%;
+    max-width: 500px;
+    padding: 10px 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--moelog-text-dark);
+    background: #fff;
+    border: 1px solid var(--moelog-border);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px var(--moelog-shadow);
+}
+
+.settings_page_moelog_aiqna input[type="text"]:focus,
+.settings_page_moelog_aiqna input[type="number"]:focus,
+.settings_page_moelog_aiqna input[type="password"]:focus,
+.settings_page_moelog_aiqna textarea:focus,
+.settings_page_moelog_aiqna select:focus {
+    outline: none;
+    border-color: var(--moelog-primary);
+    box-shadow: 0 0 0 3px rgba(29, 138, 195, 0.1);
+}
+
+.settings_page_moelog_aiqna textarea {
+    min-height: 100px;
+    resize: vertical;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.settings_page_moelog_aiqna input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    cursor: pointer;
+    accent-color: var(--moelog-primary);
+}
+
+/* ========== 按鈕樣式 ========== */
+.settings_page_moelog_aiqna .button,
+.settings_page_moelog_aiqna .button-primary,
+.settings_page_moelog_aiqna .button-secondary {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 4px var(--moelog-shadow);
+}
+
+.settings_page_moelog_aiqna .button-primary {
+    background: var(--moelog-primary);
+    color: #fff;
+    border-color: var(--moelog-primary);
+}
+
+.settings_page_moelog_aiqna .button-primary:hover {
+    background: #1a7aad;
+    border-color: #1a7aad;
+    box-shadow: 0 4px 8px var(--moelog-shadow-hover);
+    transform: translateY(-1px);
+}
+
+.settings_page_moelog_aiqna .button-secondary {
+    background: #fff;
+    color: var(--moelog-text);
+    border-color: var(--moelog-border);
+}
+
+.settings_page_moelog_aiqna .button-secondary:hover {
+    background: var(--moelog-bg-light);
+    border-color: var(--moelog-primary);
+    color: var(--moelog-primary);
+}
+
+.settings_page_moelog_aiqna .button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ========== 描述文字 ========== */
+.settings_page_moelog_aiqna .description {
+    font-size: 13px;
+    color: var(--moelog-text-light);
+    margin-top: 8px;
+    line-height: 1.6;
+}
+
+.settings_page_moelog_aiqna .description code {
+    background: var(--moelog-bg-light);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--moelog-accent);
+    border: 1px solid var(--moelog-border);
+}
+
+/* ========== 區段標題 ========== */
+.settings_page_moelog_aiqna h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--moelog-text-dark);
+    margin: 32px 0 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--moelog-border);
+}
+
+.settings_page_moelog_aiqna h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--moelog-text-dark);
+    margin: 24px 0 12px;
+}
+
+/* ========== 側邊欄 (Postbox) ========== */
+.settings_page_moelog_aiqna .postbox {
+    background: #fff;
+    border: 1px solid var(--moelog-border);
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 2px 8px var(--moelog-shadow);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.settings_page_moelog_aiqna .postbox .hndle {
+    padding: 16px 20px;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--moelog-text-dark);
+    background: var(--moelog-bg-light);
+    border-bottom: 1px solid var(--moelog-border);
+    cursor: default;
+}
+
+.settings_page_moelog_aiqna .postbox .inside {
+    padding: 20px;
+    margin: 0;
+}
+
+.settings_page_moelog_aiqna .postbox .inside ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.settings_page_moelog_aiqna .postbox .inside li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+.settings_page_moelog_aiqna .postbox .inside a {
+    color: var(--moelog-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.settings_page_moelog_aiqna .postbox .inside a:hover {
+    color: var(--moelog-accent);
+    text-decoration: underline;
+}
+
+.settings_page_moelog_aiqna .postbox .inside code {
+    background: var(--moelog-bg-light);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--moelog-accent);
+    border: 1px solid var(--moelog-border);
+}
+
+/* ========== 系統資訊表格 ========== */
+.settings_page_moelog_aiqna .widefat {
+    background: #fff;
+    border: 1px solid var(--moelog-border);
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px var(--moelog-shadow);
+}
+
+.settings_page_moelog_aiqna .widefat th {
+    background: var(--moelog-bg-light);
+    padding: 14px 20px;
+    font-weight: 500;
+    color: var(--moelog-text-dark);
+    border-bottom: 1px solid var(--moelog-border);
+    text-align: left;
+}
+
+.settings_page_moelog_aiqna .widefat td {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--moelog-border-light);
+}
+
+.settings_page_moelog_aiqna .widefat tr:last-child td {
+    border-bottom: none;
+}
+
+.settings_page_moelog_aiqna .widefat code {
+    background: var(--moelog-bg-light);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--moelog-accent);
+    border: 1px solid var(--moelog-border);
+}
+
+/* ========== 狀態標籤 ========== */
+.settings_page_moelog_aiqna .widefat span[style*="color:green"],
+.settings_page_moelog_aiqna .widefat span[style*="color: green"] {
+    color: var(--moelog-success) !important;
+    font-weight: 500;
+}
+
+.settings_page_moelog_aiqna .widefat span[style*="color:red"],
+.settings_page_moelog_aiqna .widefat span[style*="color: red"] {
+    color: var(--moelog-error) !important;
+    font-weight: 500;
+}
+
+.settings_page_moelog_aiqna .widefat span[style*="color:orange"],
+.settings_page_moelog_aiqna .widefat span[style*="color: orange"] {
+    color: var(--moelog-warning) !important;
+    font-weight: 500;
+}
+
+/* ========== 通知訊息 ========== */
+.settings_page_moelog_aiqna .notice {
+    border-left-width: 4px;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    box-shadow: 0 2px 4px var(--moelog-shadow);
+}
+
+.settings_page_moelog_aiqna .notice.notice-success {
+    border-left-color: var(--moelog-success);
+    background: #f0f9f0;
+}
+
+.settings_page_moelog_aiqna .notice.notice-warning {
+    border-left-color: var(--moelog-warning);
+    background: #fff9e6;
+}
+
+.settings_page_moelog_aiqna .notice.notice-error {
+    border-left-color: var(--moelog-error);
+    background: #fff0f0;
+}
+
+.settings_page_moelog_aiqna .notice.notice-info {
+    border-left-color: var(--moelog-primary);
+    background: #f0f7fc;
+}
+
+/* ========== 列表樣式 ========== */
+.settings_page_moelog_aiqna ol,
+.settings_page_moelog_aiqna ul {
+    margin: 16px 0;
+    padding-left: 24px;
+}
+
+.settings_page_moelog_aiqna ol li,
+.settings_page_moelog_aiqna ul li {
+    margin-bottom: 8px;
+    line-height: 1.8;
+    color: var(--moelog-text);
+}
+
+/* ========== 分隔線 ========== */
+.settings_page_moelog_aiqna hr {
+    border: none;
+    border-top: 1px solid var(--moelog-border);
+    margin: 20px 0;
+}
+
+/* ========== 響應式設計 ========== */
+@media screen and (max-width: 1200px) {
+    .moelog-aiqna-admin-wrapper {
+        flex-direction: column;
+    }
+    
+    .moelog-aiqna-admin-wrapper > div:last-child {
+        width: 100% !important;
+        max-width: 100%;
+    }
+}
+
+@media screen and (max-width: 782px) {
+    .settings_page_moelog_aiqna .wrap,
+    body.settings_page_moelog_aiqna .wrap {
+        padding: 10px;
+        margin: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    .settings_page_moelog_aiqna .form-table th,
+    .settings_page_moelog_aiqna .form-table td {
+        display: block;
+        width: 100%;
+        padding: 12px 0;
+    }
+    
+    .settings_page_moelog_aiqna .form-table th {
+        border-bottom: none;
+        padding-bottom: 4px;
+    }
+    
+    .settings_page_moelog_aiqna .nav-tab {
+        display: block;
+        margin: 4px 0;
+        border-radius: 6px;
+        top: 0;
+    }
+    
+    .settings_page_moelog_aiqna .nav-tab.nav-tab-active {
+        border-bottom-color: var(--moelog-border);
+    }
+}
+
+/* ========== 動畫效果 ========== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.settings_page_moelog_aiqna .postbox,
+.settings_page_moelog_aiqna form {
+    animation: fadeIn 0.3s ease;
+}
+
+/* ========== 自訂元素 ========== */
+#test-result {
+    display: inline-block;
+    margin-left: 12px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+#model-custom-wrap {
+    margin-top: 12px;
+    padding: 16px;
+    background: var(--moelog-bg-light);
+    border-radius: 6px;
+    border: 1px solid var(--moelog-border);
+}
+
+#model-custom-wrap label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--moelog-text-dark);
+}
+
+#moelog-clear-feedback-result {
+    display: inline-block;
+    margin-left: 12px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* ========== 工具提示與輔助文字 ========== */
+.settings_page_moelog_aiqna .button-small {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* ========== 選取文字樣式 ========== */
+.settings_page_moelog_aiqna ::selection {
+    background: rgba(29, 138, 195, 0.2);
+    color: var(--moelog-text-dark);
+}
+
+.settings_page_moelog_aiqna ::-moz-selection {
+    background: rgba(29, 138, 195, 0.2);
+    color: var(--moelog-text-dark);
+}

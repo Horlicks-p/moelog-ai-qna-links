@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Moelog AI Q&A Admin Class
  *
@@ -37,7 +38,7 @@ class Moelog_AIQnA_Admin
   {
     $this->settings = new Moelog_AIQnA_Admin_Settings();
     $this->cache_manager = new Moelog_AIQnA_Admin_Cache();
-    
+
     add_action("admin_notices", [$this, "show_flush_rewrite_notice"]);
   }
 
@@ -96,61 +97,61 @@ class Moelog_AIQnA_Admin
       ],
       admin_url("options-general.php"),
     );
-    ?>
-        <div class="wrap">
-            <h1>
-                <?php echo esc_html(get_admin_page_title()); ?>
-                <span style="font-size:0.6em;color:#999;">
-                    v<?php echo esc_html(MOELOG_AIQNA_VERSION); ?>
-                </span>
-            </h1>
+?>
+    <div class="wrap">
+      <h1>
+        <?php echo esc_html(get_admin_page_title()); ?>
+        <span style="font-size:0.6em;color:#999;">
+          v<?php echo esc_html(MOELOG_AIQNA_VERSION); ?>
+        </span>
+      </h1>
 
-            <?php settings_errors("moelog_aiqna_messages", false, true); ?>
+      <?php settings_errors("moelog_aiqna_messages", false, true); ?>
 
-            <h2 class="nav-tab-wrapper">
-              <?php foreach ($tabs as $slug => $tab): 
-                  $url = esc_url(add_query_arg("tab", $slug, $base_url));
-                  $active = $slug === $current_tab ? " nav-tab-active" : "";
+      <h2 class="nav-tab-wrapper">
+        <?php foreach ($tabs as $slug => $tab):
+          $url = esc_url(add_query_arg("tab", $slug, $base_url));
+          $active = $slug === $current_tab ? " nav-tab-active" : "";
+        ?>
+          <a href="<?php echo $url; ?>" class="nav-tab<?php echo esc_attr($active); ?>">
+            <?php echo esc_html($tab["label"]); ?>
+          </a>
+        <?php endforeach; ?>
+      </h2>
+
+      <div class="moelog-aiqna-admin-wrapper" style="display:flex;gap:20px;">
+        <!-- 左側: 主要設定 -->
+        <div style="flex:1;max-width:800px;">
+          <?php if ($is_form_tab): ?>
+            <form method="post" action="options.php">
+              <?php
+              settings_fields(MOELOG_AIQNA_OPT_KEY);
+              do_settings_sections($current_page_slug);
+              submit_button();
               ?>
-                <a href="<?php echo $url; ?>" class="nav-tab<?php echo esc_attr($active); ?>">
-                  <?php echo esc_html($tab["label"]); ?>
-                </a>
-              <?php endforeach; ?>
-            </h2>
-
-            <div class="moelog-aiqna-admin-wrapper" style="display:flex;gap:20px;margin-top:20px;">
-                <!-- 左側: 主要設定 -->
-                <div style="flex:1;max-width:800px;">
-                    <?php if ($is_form_tab): ?>
-                      <form method="post" action="options.php">
-                          <?php
-                          settings_fields(MOELOG_AIQNA_OPT_KEY);
-                          do_settings_sections($current_page_slug);
-                          submit_button();
-                          ?>
-                      </form>
-                    <?php elseif ($current_tab === "cache_tools"): ?>
-                      <?php $this->cache_manager->render_cache_management(); ?>
-                    <?php else: ?>
-                      <?php
-                        $this->render_usage_guide();
-                        $this->render_release_notes();
-                        $this->render_system_info();
-                      ?>
-                    <?php endif; ?>
-                </div>
-
-                <!-- 右側: 側邊欄 -->
-                <div style="width:300px;">
-                    <?php $this->render_sidebar(); ?>
-                </div>
-            </div>
-
+            </form>
+          <?php elseif ($current_tab === "cache_tools"): ?>
+            <?php $this->cache_manager->render_cache_management(); ?>
+          <?php else: ?>
+            <?php
+            $this->render_usage_guide();
+            $this->render_release_notes();
+            $this->render_system_info();
+            ?>
+          <?php endif; ?>
         </div>
 
-        <!-- JavaScript -->
-        <?php $this->render_admin_scripts(); ?>
-        <?php
+        <!-- 右側: 側邊欄 -->
+        <div style="width:300px;">
+          <?php $this->render_sidebar(); ?>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- JavaScript -->
+    <?php $this->render_admin_scripts(); ?>
+  <?php
   }
 
   /**
@@ -158,81 +159,81 @@ class Moelog_AIQnA_Admin
    */
   private function render_sidebar()
   {
-    ?>
-        <!-- 快速連結 -->
-       <div class="postbox">
-        <h2 class="hndle"><?php esc_html_e(
-          "🔗 快速連結",
-          "moelog-ai-qna",
-        ); ?></h2>
-        <div class="inside">
-            <ul style="margin:0;padding-left:20px;line-height:1.8;">
-                <li>
-                    <strong>OpenAI：</strong>
-                    <a href="https://platform.openai.com/api-keys" target="_blank">API Keys</a> ／
-                    <a href="https://platform.openai.com/docs" target="_blank">Docs</a>
-                </li>
-                <li>
-                    <strong>Google Gemini：</strong>
-                    <a href="https://aistudio.google.com/app/apikey" target="_blank">AI Studio</a> ／
-                    <a href="https://ai.google.dev/docs" target="_blank">Docs</a>
-                </li>
-                <li>
-                    <strong>Anthropic (Claude)：</strong>
-                    <a href="https://console.anthropic.com/account/keys" target="_blank">API Keys</a> ／
-                    <a href="https://docs.anthropic.com/en/api/messages" target="_blank">Docs</a>
-                </li>
-                <li>
-                    <a href="<?php echo esc_url(
-                      admin_url("options-permalink.php"),
-                    ); ?>">
-                        <?php esc_html_e(
-                          "🔄 重新整理連結規則",
+  ?>
+    <!-- 快速連結 -->
+    <div class="postbox">
+      <h2 class="hndle"><?php esc_html_e(
+                          "🔗 快速連結",
                           "moelog-ai-qna",
-                        ); ?>
-                    </a>
-                </li>
-            </ul>
-        </div>
+                        ); ?></h2>
+      <div class="inside">
+        <ul style="margin:0;padding-left:20px;line-height:1.8;">
+          <li>
+            <strong>OpenAI：</strong>
+            <a href="https://platform.openai.com/api-keys" target="_blank">API Keys</a> ／
+            <a href="https://platform.openai.com/docs" target="_blank">Docs</a>
+          </li>
+          <li>
+            <strong>Google Gemini：</strong>
+            <a href="https://aistudio.google.com/app/apikey" target="_blank">AI Studio</a> ／
+            <a href="https://ai.google.dev/docs" target="_blank">Docs</a>
+          </li>
+          <li>
+            <strong>Anthropic (Claude)：</strong>
+            <a href="https://console.anthropic.com/account/keys" target="_blank">API Keys</a> ／
+            <a href="https://docs.anthropic.com/en/api/messages" target="_blank">Docs</a>
+          </li>
+          <li>
+            <a href="<?php echo esc_url(
+                        admin_url("options-permalink.php"),
+                      ); ?>">
+              <?php esc_html_e(
+                "🔄 重新整理連結規則",
+                "moelog-ai-qna",
+              ); ?>
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
 
-        <!-- 文件 -->
-        <div class="postbox">
-            <h2 class="hndle"><?php esc_html_e(
-              "📖 文件",
-              "moelog-ai-qna",
-            ); ?></h2>
-            <div class="inside">
-                <p style="margin:10px 0;"><?php esc_html_e(
-                  "使用 Shortcode:",
-                  "moelog-ai-qna",
-                ); ?></p>
-                <code>[moelog_aiqna index="1"]</code>
-                <p style="margin:10px 0 5px;font-size:0.9em;color:#666;">
-                    <?php esc_html_e(
-                      "顯示第 1 題（index 範圍：1-8）",
-                      "moelog-ai-qna",
-                    ); ?>
-                </p>
-            </div>
-        </div>
+    <!-- 文件 -->
+    <div class="postbox">
+      <h2 class="hndle"><?php esc_html_e(
+                          "📖 文件",
+                          "moelog-ai-qna",
+                        ); ?></h2>
+      <div class="inside">
+        <p style="margin:10px 0;"><?php esc_html_e(
+                                    "使用 Shortcode:",
+                                    "moelog-ai-qna",
+                                  ); ?></p>
+        <code>[moelog_aiqna index="1"]</code>
+        <p style="margin:10px 0 5px;font-size:0.9em;color:#666;">
+          <?php esc_html_e(
+            "顯示第 1 題（index 範圍：1-8）",
+            "moelog-ai-qna",
+          ); ?>
+        </p>
+      </div>
+    </div>
 
-        <!-- 支援 -->
-        <div class="postbox">
-            <h2 class="hndle"><?php esc_html_e(
-              "💬 支援",
-              "moelog-ai-qna",
-            ); ?></h2>
-            <div class="inside">
-                <p><?php esc_html_e("遇到問題?", "moelog-ai-qna"); ?></p>
-                <p>
-                    <a href="https://moelog.com/" target="_blank" class="button">
-                        <?php esc_html_e("訪問網站", "moelog-ai-qna"); ?>
-                    </a>
-                </p>
-            </div>
-        </div>
-        <?php
+    <!-- 支援 -->
+    <div class="postbox">
+      <h2 class="hndle"><?php esc_html_e(
+                          "💬 支援",
+                          "moelog-ai-qna",
+                        ); ?></h2>
+      <div class="inside">
+        <p><?php esc_html_e("遇到問題?", "moelog-ai-qna"); ?></p>
+        <p>
+          <a href="https://moelog.com/" target="_blank" class="button">
+            <?php esc_html_e("訪問網站", "moelog-ai-qna"); ?>
+          </a>
+        </p>
+      </div>
+    </div>
+  <?php
   }
 
   /**
@@ -240,32 +241,32 @@ class Moelog_AIQnA_Admin
    */
   private function render_usage_guide()
   {
-    ?>
-        <h2><?php esc_html_e("ℹ️ 使用說明", "moelog-ai-qna"); ?></h2>
-        <ol style="line-height:1.8;">
-            <li><?php esc_html_e(
-              "在「設定 → Moelog AI Q&A」填入 API Key / 模型等。",
-              "moelog-ai-qna",
-            ); ?></li>
-            <li><?php esc_html_e(
-              "編輯文章時，於右側/下方的「AI 問題清單」每行輸入一題並選擇語言（可選自動）。",
-              "moelog-ai-qna",
-            ); ?></li>
-            <li><?php esc_html_e(
-              "前台文章底部會顯示問題列表（抬頭可自訂）。點擊後開新分頁顯示 AI 答案與免責聲明（可自訂）。",
-              "moelog-ai-qna",
-            ); ?></li>
-            <li>
-                <?php esc_html_e("或使用短碼", "moelog-ai-qna"); ?>
-                <code>[moelog_aiqna index="1"]</code>
-                <?php esc_html_e(
-                  "將指定問題單獨放在任意段落（index 範圍 1–8）。",
-                  "moelog-ai-qna",
-                ); ?>
-            </li>
-        </ol>
+  ?>
+    <h2><?php esc_html_e("ℹ️ 使用說明", "moelog-ai-qna"); ?></h2>
+    <ol style="line-height:1.8;">
+      <li><?php esc_html_e(
+            "在「設定 → Moelog AI Q&A」填入 API Key / 模型等。",
+            "moelog-ai-qna",
+          ); ?></li>
+      <li><?php esc_html_e(
+            "編輯文章時，於右側/下方的「AI 問題清單」每行輸入一題並選擇語言（可選自動）。",
+            "moelog-ai-qna",
+          ); ?></li>
+      <li><?php esc_html_e(
+            "前台文章底部會顯示問題列表（抬頭可自訂）。點擊後開新分頁顯示 AI 答案與免責聲明（可自訂）。",
+            "moelog-ai-qna",
+          ); ?></li>
+      <li>
+        <?php esc_html_e("或使用短碼", "moelog-ai-qna"); ?>
+        <code>[moelog_aiqna index="1"]</code>
+        <?php esc_html_e(
+          "將指定問題單獨放在任意段落（index 範圍 1–8）。",
+          "moelog-ai-qna",
+        ); ?>
+      </li>
+    </ol>
 
-        <?php
+  <?php
   }
 
   /**
@@ -273,47 +274,47 @@ class Moelog_AIQnA_Admin
    */
   private function render_release_notes()
   {
-    ?>
-        <h3 style="margin-top:30px;">
-            <?php
-            printf(
-              /* translators: %s: plugin version */
-              esc_html__("🧾 v%s 更新內容", "moelog-ai-qna"),
-              esc_html(MOELOG_AIQNA_VERSION),
-            );
-            ?>
-        </h3>
-        <ul style="list-style-type:circle;margin-left:20px;line-height:1.8;">
-            <li>✨ <?php esc_html_e(
+  ?>
+    <h3 style="margin-top:30px;">
+      <?php
+      printf(
+        /* translators: %s: plugin version */
+        esc_html__("🧾 v%s 更新內容", "moelog-ai-qna"),
+        esc_html(MOELOG_AIQNA_VERSION),
+      );
+      ?>
+    </h3>
+    <ul style="list-style-type:circle;margin-left:20px;line-height:1.8;">
+      <li>✨ <?php esc_html_e(
               "回答頁互動功能：新增逐字打字動畫、互動式回饋卡、LocalStorage 防重複投票",
               "moelog-ai-qna",
             ); ?></li>
-            <li>🎨 <?php esc_html_e(
-              "CSS / JS 重構：調整回答頁 DOM 結構與樣式切分，讓主題覆寫與 CSP 管理更輕鬆",
-              "moelog-ai-qna",
-            ); ?></li>
-            <li>🤖 <?php esc_html_e(
-              "AI 模型管理：導入 Model Registry，後台提供建議清單 + 自訂輸入",
-              "moelog-ai-qna",
-            ); ?></li>
-            <li>🧭 <?php esc_html_e(
-              "設定頁分頁化：將設定畫面拆成「一般 / 顯示 / 快取設定 / 快取管理 / 系統資訊」",
-              "moelog-ai-qna",
-            ); ?></li>
-            <li>🗺️ <?php esc_html_e(
-              "Sitemap 優化：改用 chunk 讀取與計數，動態分頁不再一次載入所有文章",
-              "moelog-ai-qna",
-            ); ?></li>
-            <li>⚙️ <?php esc_html_e(
-              "快取工具/資訊整合：快取管理搬到專屬分頁，新增快取統計摘要與系統資訊區塊",
-              "moelog-ai-qna",
-            ); ?></li>
-            <li>⏱️ <?php esc_html_e(
-              "API timeout 調整：預設逾時提升至 45 秒，避免 GPT-4 / Claude 長回答提早失敗",
-              "moelog-ai-qna",
-            ); ?></li>
-        </ul>
-        <?php
+      <li>🎨 <?php esc_html_e(
+                "CSS / JS 重構：調整回答頁 DOM 結構與樣式切分，讓主題覆寫與 CSP 管理更輕鬆",
+                "moelog-ai-qna",
+              ); ?></li>
+      <li>🤖 <?php esc_html_e(
+                "AI 模型管理：導入 Model Registry，後台提供建議清單 + 自訂輸入",
+                "moelog-ai-qna",
+              ); ?></li>
+      <li>🧭 <?php esc_html_e(
+                "設定頁分頁化：將設定畫面拆成「一般 / 顯示 / 快取設定 / 快取管理 / 系統資訊」",
+                "moelog-ai-qna",
+              ); ?></li>
+      <li>🗺️ <?php esc_html_e(
+                "Sitemap 優化：改用 chunk 讀取與計數，動態分頁不再一次載入所有文章",
+                "moelog-ai-qna",
+              ); ?></li>
+      <li>⚙️ <?php esc_html_e(
+                "快取工具/資訊整合：快取管理搬到專屬分頁，新增快取統計摘要與系統資訊區塊",
+                "moelog-ai-qna",
+              ); ?></li>
+      <li>⏱️ <?php esc_html_e(
+                "API timeout 調整：預設逾時提升至 45 秒，避免 GPT-4 / Claude 長回答提早失敗",
+                "moelog-ai-qna",
+              ); ?></li>
+    </ul>
+  <?php
   }
 
   /**
@@ -326,176 +327,176 @@ class Moelog_AIQnA_Admin
     }
 
     $info = $this->get_system_info();
-    ?>
-        <h2 style="margin-top:30px;"><?php esc_html_e("🛠️ 系統資訊", "moelog-ai-qna"); ?></h2>
-        <table class="widefat" style="max-width:800px;margin-top:15px;">
-                    <tr>
-                        <th style="width:30%;"><?php esc_html_e(
-                          "插件版本",
-                          "moelog-ai-qna",
-                        ); ?></th>
-                        <td><code><?php echo esc_html(
-                          $info["plugin_version"],
-                        ); ?></code></td>
-                    </tr>
-                    <tr>
-                        <th><?php esc_html_e(
-                          "WordPress 版本",
-                          "moelog-ai-qna",
-                        ); ?></th>
-                        <td><code><?php echo esc_html(
-                          $info["wp_version"],
-                        ); ?></code></td>
-                    </tr>
-                    <tr>
-                        <th><?php esc_html_e(
-                          "PHP 版本",
-                          "moelog-ai-qna",
-                        ); ?></th>
-                        <td><code><?php echo esc_html(
-                          $info["php_version"],
-                        ); ?></code></td>
-                    </tr>
-                    <tr>
-                        <th><?php esc_html_e(
-                          "多位元組支援",
-                          "moelog-ai-qna",
-                        ); ?></th>
-                        <td>
-                            <?php if ($info["mb_support"]): ?>
-                                <span style="color:green;">✓ <?php esc_html_e(
-                                  "已啟用",
+  ?>
+    <h2 style="margin-top:30px;"><?php esc_html_e("🛠️ 系統資訊", "moelog-ai-qna"); ?></h2>
+    <table class="widefat" style="max-width:800px;margin-top:15px;">
+      <tr>
+        <th style="width:30%;"><?php esc_html_e(
+                                  "插件版本",
                                   "moelog-ai-qna",
-                                ); ?></span>
-                            <?php else: ?>
-                                <span style="color:orange;">✗ <?php esc_html_e(
-                                  "未啟用",
-                                  "moelog-ai-qna",
-                                ); ?></span>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?php esc_html_e(
-                          "結構化資料模式",
-                          "moelog-ai-qna",
-                        ); ?></th>
-                        <td>
-                            <?php if ($info["geo_enabled"]): ?>
-                                <span style="color:green;">✓ <?php esc_html_e(
-                                  "已啟用",
-                                  "moelog-ai-qna",
-                                ); ?></span>
-                            <?php else: ?>
-                                <span style="color:#999;">✗ <?php esc_html_e(
-                                  "未啟用",
-                                  "moelog-ai-qna",
-                                ); ?></span>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?php esc_html_e(
-                          "API 供應商",
-                          "moelog-ai-qna",
-                        ); ?></th>
-                        <td>
-                            <code><?php echo esc_html(
-                              $info["provider"],
-                            ); ?></code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?php esc_html_e(
-                          "API Key 狀態",
-                          "moelog-ai-qna",
-                        ); ?></th>
-                        <td>
-                            <?php if ($info["api_key_set"]): ?>
-                                <span style="color:green;">✓ <?php esc_html_e(
-                                  "已設定",
-                                  "moelog-ai-qna",
-                                ); ?></span>
-                                <?php if ($info["api_key_from_constant"]): ?>
-                                    <span style="color:#2271b1;">(<?php esc_html_e(
-                                      "來自常數",
-                                      "moelog-ai-qna",
-                                    ); ?>)</span>
-                                <?php endif; ?>
-                            <?php else: ?>
-                                <span style="color:red;">✗ <?php esc_html_e(
-                                  "未設定",
-                                  "moelog-ai-qna",
-                                ); ?></span>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?php esc_html_e(
-                          "快取目錄權限",
-                          "moelog-ai-qna",
-                        ); ?></th>
-                        <td>
-                            <?php if ($info["cache_writable"]): ?>
-                                <span style="color:green;">✓ <?php esc_html_e(
-                                  "可寫",
-                                  "moelog-ai-qna",
-                                ); ?></span>
-                            <?php else: ?>
-                                <span style="color:red;">✗ <?php esc_html_e(
-                                  "不可寫",
-                                  "moelog-ai-qna",
-                                ); ?></span>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?php esc_html_e(
-                          "Rewrite Rules",
-                          "moelog-ai-qna",
-                        ); ?></th>
-                        <td>
-                            <?php if ($info["rewrite_rules_ok"]): ?>
-                                <span style="color:green;">✓ <?php esc_html_e(
-                                  "正常",
-                                  "moelog-ai-qna",
-                                ); ?></span>
-                            <?php else: ?>
-                                <span style="color:orange;">⚠ <?php esc_html_e(
-                                  "需要刷新",
-                                  "moelog-ai-qna",
-                                ); ?></span>
-                                <a href="<?php echo esc_url(
-                                  admin_url("options-permalink.php"),
-                                ); ?>" class="button button-small">
-                                    <?php esc_html_e(
-                                      "前往刷新",
-                                      "moelog-ai-qna",
-                                    ); ?>
-                                </a>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?php esc_html_e(
-                          "記憶體限制",
-                          "moelog-ai-qna",
-                        ); ?></th>
-                        <td><code><?php echo esc_html(
-                          $info["memory_limit"],
-                        ); ?></code></td>
-                    </tr>
-                    <tr>
-                        <th><?php esc_html_e(
-                          "最大上傳大小",
-                          "moelog-ai-qna",
-                        ); ?></th>
-                        <td><code><?php echo esc_html(
-                          $info["upload_max_size"],
-                        ); ?></code></td>
-                    </tr>
-                </table>
-        <?php
+                                ); ?></th>
+        <td><code><?php echo esc_html(
+                    $info["plugin_version"],
+                  ); ?></code></td>
+      </tr>
+      <tr>
+        <th><?php esc_html_e(
+              "WordPress 版本",
+              "moelog-ai-qna",
+            ); ?></th>
+        <td><code><?php echo esc_html(
+                    $info["wp_version"],
+                  ); ?></code></td>
+      </tr>
+      <tr>
+        <th><?php esc_html_e(
+              "PHP 版本",
+              "moelog-ai-qna",
+            ); ?></th>
+        <td><code><?php echo esc_html(
+                    $info["php_version"],
+                  ); ?></code></td>
+      </tr>
+      <tr>
+        <th><?php esc_html_e(
+              "多位元組支援",
+              "moelog-ai-qna",
+            ); ?></th>
+        <td>
+          <?php if ($info["mb_support"]): ?>
+            <span style="color:green;">✓ <?php esc_html_e(
+                                            "已啟用",
+                                            "moelog-ai-qna",
+                                          ); ?></span>
+          <?php else: ?>
+            <span style="color:orange;">✗ <?php esc_html_e(
+                                            "未啟用",
+                                            "moelog-ai-qna",
+                                          ); ?></span>
+          <?php endif; ?>
+        </td>
+      </tr>
+      <tr>
+        <th><?php esc_html_e(
+              "結構化資料模式",
+              "moelog-ai-qna",
+            ); ?></th>
+        <td>
+          <?php if ($info["geo_enabled"]): ?>
+            <span style="color:green;">✓ <?php esc_html_e(
+                                            "已啟用",
+                                            "moelog-ai-qna",
+                                          ); ?></span>
+          <?php else: ?>
+            <span style="color:#999;">✗ <?php esc_html_e(
+                                          "未啟用",
+                                          "moelog-ai-qna",
+                                        ); ?></span>
+          <?php endif; ?>
+        </td>
+      </tr>
+      <tr>
+        <th><?php esc_html_e(
+              "API 供應商",
+              "moelog-ai-qna",
+            ); ?></th>
+        <td>
+          <code><?php echo esc_html(
+                  $info["provider"],
+                ); ?></code>
+        </td>
+      </tr>
+      <tr>
+        <th><?php esc_html_e(
+              "API Key 狀態",
+              "moelog-ai-qna",
+            ); ?></th>
+        <td>
+          <?php if ($info["api_key_set"]): ?>
+            <span style="color:green;">✓ <?php esc_html_e(
+                                            "已設定",
+                                            "moelog-ai-qna",
+                                          ); ?></span>
+            <?php if ($info["api_key_from_constant"]): ?>
+              <span style="color:#2271b1;">(<?php esc_html_e(
+                                              "來自常數",
+                                              "moelog-ai-qna",
+                                            ); ?>)</span>
+            <?php endif; ?>
+          <?php else: ?>
+            <span style="color:red;">✗ <?php esc_html_e(
+                                          "未設定",
+                                          "moelog-ai-qna",
+                                        ); ?></span>
+          <?php endif; ?>
+        </td>
+      </tr>
+      <tr>
+        <th><?php esc_html_e(
+              "快取目錄權限",
+              "moelog-ai-qna",
+            ); ?></th>
+        <td>
+          <?php if ($info["cache_writable"]): ?>
+            <span style="color:green;">✓ <?php esc_html_e(
+                                            "可寫",
+                                            "moelog-ai-qna",
+                                          ); ?></span>
+          <?php else: ?>
+            <span style="color:red;">✗ <?php esc_html_e(
+                                          "不可寫",
+                                          "moelog-ai-qna",
+                                        ); ?></span>
+          <?php endif; ?>
+        </td>
+      </tr>
+      <tr>
+        <th><?php esc_html_e(
+              "Rewrite Rules",
+              "moelog-ai-qna",
+            ); ?></th>
+        <td>
+          <?php if ($info["rewrite_rules_ok"]): ?>
+            <span style="color:green;">✓ <?php esc_html_e(
+                                            "正常",
+                                            "moelog-ai-qna",
+                                          ); ?></span>
+          <?php else: ?>
+            <span style="color:orange;">⚠ <?php esc_html_e(
+                                            "需要刷新",
+                                            "moelog-ai-qna",
+                                          ); ?></span>
+            <a href="<?php echo esc_url(
+                        admin_url("options-permalink.php"),
+                      ); ?>" class="button button-small">
+              <?php esc_html_e(
+                "前往刷新",
+                "moelog-ai-qna",
+              ); ?>
+            </a>
+          <?php endif; ?>
+        </td>
+      </tr>
+      <tr>
+        <th><?php esc_html_e(
+              "記憶體限制",
+              "moelog-ai-qna",
+            ); ?></th>
+        <td><code><?php echo esc_html(
+                    $info["memory_limit"],
+                  ); ?></code></td>
+      </tr>
+      <tr>
+        <th><?php esc_html_e(
+              "最大上傳大小",
+              "moelog-ai-qna",
+            ); ?></th>
+        <td><code><?php echo esc_html(
+                    $info["upload_max_size"],
+                  ); ?></code></td>
+      </tr>
+    </table>
+  <?php
   }
 
   /**
@@ -505,68 +506,68 @@ class Moelog_AIQnA_Admin
   {
     $nonce = wp_create_nonce("moelog_aiqna_test_api"); ?>
     <script>
-    jQuery(document).ready(function($) {
+      jQuery(document).ready(function($) {
         // 切換 API Key 顯示/隱藏
         $('#toggle-api-key').on('click', function() {
-            var $input = $('#api_key');
-            var $btn = $(this);
+          var $input = $('#api_key');
+          var $btn = $(this);
 
-            if ($input.attr('type') === 'password') {
-                $input.attr('type', 'text');
-                $btn.text('<?php echo esc_js(__("隱藏", "moelog-ai-qna")); ?>');
-            } else {
-                $input.attr('type', 'password');
-                $btn.text('<?php echo esc_js(__("顯示", "moelog-ai-qna")); ?>');
-            }
+          if ($input.attr('type') === 'password') {
+            $input.attr('type', 'text');
+            $btn.text('<?php echo esc_js(__("隱藏", "moelog-ai-qna")); ?>');
+          } else {
+            $input.attr('type', 'password');
+            $btn.text('<?php echo esc_js(__("顯示", "moelog-ai-qna")); ?>');
+          }
         });
 
         // 測試 API 連線
         $('#test-api-key').on('click', function() {
-            var $btn = $(this);
-            var $result = $('#test-result');
-            var provider = $('#provider').val();
-            var apiKey = $('#api_key').val();
-            var model = $('#model').val();
+          var $btn = $(this);
+          var $result = $('#test-result');
+          var provider = $('#provider').val();
+          var apiKey = $('#api_key').val();
+          var model = $('#model').val();
 
-            // ✅ 修改:允許使用常數定義的情況
-            if (!apiKey || (apiKey !== 'from_constant' && (apiKey === '' || apiKey === '********************'))) {
-                $result.html('<span style="color:red;">✗ 請先輸入 API Key</span>');
-                return;
+          // ✅ 修改:允許使用常數定義的情況
+          if (!apiKey || (apiKey !== 'from_constant' && (apiKey === '' || apiKey === '********************'))) {
+            $result.html('<span style="color:red;">✗ 請先輸入 API Key</span>');
+            return;
+          }
+
+          $btn.prop('disabled', true).text('測試中...');
+          $result.html('<span style="color:#999;">⏳ 連線中...</span>');
+
+          $.ajax({
+            url: '<?php echo esc_js(admin_url("admin-ajax.php")); ?>',
+            method: 'POST',
+            data: {
+              action: 'moelog_aiqna_test_api',
+              nonce: '<?php echo esc_js($nonce); ?>',
+              provider: provider,
+              api_key: apiKey, // 如果是 'from_constant',後端會自動讀取常數
+              model: model
+            },
+            timeout: 30000,
+            success: function(response) {
+              if (response.success) {
+                $result.html('<span style="color:green;">✓ ' + response.data.message + '</span>');
+              } else {
+                $result.html('<span style="color:red;">✗ ' + response.data.message + '</span>');
+              }
+            },
+            error: function(xhr, status, error) {
+              $result.html('<span style="color:red;">✗ 請求失敗: ' + error + '</span>');
+            },
+            complete: function() {
+              $btn.prop('disabled', false).text('<?php echo esc_js(__("測試連線", "moelog-ai-qna")); ?>');
             }
-
-            $btn.prop('disabled', true).text('測試中...');
-            $result.html('<span style="color:#999;">⏳ 連線中...</span>');
-
-            $.ajax({
-                url: '<?php echo esc_js(admin_url("admin-ajax.php")); ?>',
-                method: 'POST',
-                data: {
-                    action: 'moelog_aiqna_test_api',
-                    nonce: '<?php echo esc_js($nonce); ?>',
-                    provider: provider,
-                    api_key: apiKey, // 如果是 'from_constant',後端會自動讀取常數
-                    model: model
-                },
-                timeout: 30000,
-                success: function(response) {
-                    if (response.success) {
-                        $result.html('<span style="color:green;">✓ ' + response.data.message + '</span>');
-                    } else {
-                        $result.html('<span style="color:red;">✗ ' + response.data.message + '</span>');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    $result.html('<span style="color:red;">✗ 請求失敗: ' + error + '</span>');
-                },
-                complete: function() {
-                    $btn.prop('disabled', false).text('<?php echo esc_js(__("測試連線", "moelog-ai-qna")); ?>');
-                }
-            });
+          });
         });
 
-    });
+      });
     </script>
-    <?php
+  <?php
   }
 
   // =========================================
@@ -588,26 +589,26 @@ class Moelog_AIQnA_Admin
     if ($screen && $screen->id === "options-permalink") {
       return;
     }
-    ?>
+  ?>
     <div class="notice notice-warning is-dismissible">
-        <p>
-            <strong><?php esc_html_e(
-              "Moelog AI Q&A:",
-              "moelog-ai-qna",
-            ); ?></strong>
-            <?php esc_html_e("URL 路徑前綴已變更,請立即到", "moelog-ai-qna"); ?>
-            <a href="<?php echo esc_url(
-              admin_url("options-permalink.php"),
-            ); ?>">
-                <?php esc_html_e("設定 → 固定網址", "moelog-ai-qna"); ?>
-            </a>
-            <?php esc_html_e(
-              "重新儲存,否則回答頁面連結會失效!",
-              "moelog-ai-qna",
-            ); ?>
-        </p>
+      <p>
+        <strong><?php esc_html_e(
+                  "Moelog AI Q&A:",
+                  "moelog-ai-qna",
+                ); ?></strong>
+        <?php esc_html_e("URL 路徑前綴已變更,請立即到", "moelog-ai-qna"); ?>
+        <a href="<?php echo esc_url(
+                    admin_url("options-permalink.php"),
+                  ); ?>">
+          <?php esc_html_e("設定 → 固定網址", "moelog-ai-qna"); ?>
+        </a>
+        <?php esc_html_e(
+          "重新儲存,否則回答頁面連結會失效!",
+          "moelog-ai-qna",
+        ); ?>
+      </p>
     </div>
-    <?php
+<?php
   }
 
   // =========================================

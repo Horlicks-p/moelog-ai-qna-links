@@ -260,7 +260,7 @@
         setMessage(t('needMore'), 'error');
         return;
       }
-      
+
       // 🔒 檢查訊息長度限制
       if (value.length > 300) {
         setMessage(t('failed'), 'error');

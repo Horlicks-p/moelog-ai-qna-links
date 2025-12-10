@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Moelog AI Q&A Admin Settings Handler
  *
@@ -286,27 +287,27 @@ class Moelog_AIQnA_Admin_Settings
   public function render_provider_field()
   {
     $value = Moelog_AIQnA_Settings::get_provider();
-    ?>
-        <select name="<?php echo esc_attr(
-          MOELOG_AIQNA_OPT_KEY,
-        ); ?>[provider]" id="provider">
-            <option value="openai" <?php selected($value, "openai"); ?>>
-                <?php esc_html_e("OpenAI", "moelog-ai-qna"); ?>
-            </option>
-            <option value="gemini" <?php selected($value, "gemini"); ?>>
-                <?php esc_html_e("Google Gemini", "moelog-ai-qna"); ?>
-            </option>
-            <option value="anthropic" <?php selected($value, "anthropic"); ?>>
-              <?php esc_html_e("Anthropic (Claude)", "moelog-ai-qna"); ?>
-            </option>
-        </select>
-        <p class="description">
-            <?php esc_html_e(
-              "選擇要使用的 AI 服務供應商。",
-              "moelog-ai-qna",
-            ); ?>
-        </p>
-        <?php
+?>
+    <select name="<?php echo esc_attr(
+                    MOELOG_AIQNA_OPT_KEY,
+                  ); ?>[provider]" id="provider">
+      <option value="openai" <?php selected($value, "openai"); ?>>
+        <?php esc_html_e("OpenAI", "moelog-ai-qna"); ?>
+      </option>
+      <option value="gemini" <?php selected($value, "gemini"); ?>>
+        <?php esc_html_e("Google Gemini", "moelog-ai-qna"); ?>
+      </option>
+      <option value="anthropic" <?php selected($value, "anthropic"); ?>>
+        <?php esc_html_e("Anthropic (Claude)", "moelog-ai-qna"); ?>
+      </option>
+    </select>
+    <p class="description">
+      <?php esc_html_e(
+        "選擇要使用的 AI 服務供應商。",
+        "moelog-ai-qna",
+      ); ?>
+    </p>
+    <?php
   }
 
   /**
@@ -317,45 +318,50 @@ class Moelog_AIQnA_Admin_Settings
     $masked = defined("MOELOG_AIQNA_API_KEY") && constant("MOELOG_AIQNA_API_KEY");
 
     if ($masked) {
-        // 使用常數定義 - 但仍然顯示測試按鈕
-        ?>
-        <input type="password" class="regular-text" value="********" disabled>
+      // 使用常數定義 - 但仍然顯示測試按鈕
+    ?>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <input type="password" class="regular-text" value="********" disabled style="flex:1;min-width:300px;">
         <button type="button" class="button" id="test-api-key">
-            <?php esc_html_e('測試連線', 'moelog-ai-qna'); ?>
+          <?php esc_html_e('測試連線', 'moelog-ai-qna'); ?>
         </button>
-        <span id="test-result" style="margin-left:10px;"></span>
-        
-        <p class="description">
-            已使用 wp-config.php 設定 MOELOG_AIQNA_API_KEY。
-        </p>
-        
-        <input type="hidden" id="api_key" value="from_constant">
-        
-        <?php } else {
+      </div>
+      <div id="test-result" style="margin-top:8px;"></div>
+
+      <p class="description">
+        已使用 wp-config.php 設定 MOELOG_AIQNA_API_KEY。
+      </p>
+
+      <input type="hidden" id="api_key" value="from_constant">
+
+    <?php } else {
       // 使用資料庫設定
       $has_saved = !empty(Moelog_AIQnA_Settings::get("api_key"));
       $display = $has_saved ? str_repeat("*", 20) : "";
-      ?>
-        <input type="password"
-               name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[api_key]"
-               id="api_key"
-               class="regular-text"
-               value="<?php echo esc_attr($display); ?>"
-               placeholder="sk-... / AIza...">
+    ?>
+      <input type="password"
+        name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[api_key]"
+        id="api_key"
+        class="regular-text"
+        value="<?php echo esc_attr($display); ?>"
+        placeholder="sk-... / AIza..."
+        style="width:80%;max-width:500px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;width:80%;max-width:500px;">
         <button type="button" class="button" id="toggle-api-key">顯示</button>
         <button type="button" class="button" id="test-api-key">
-            <?php esc_html_e("測試連線", "moelog-ai-qna"); ?>
+          <?php esc_html_e("測試連線", "moelog-ai-qna"); ?>
         </button>
-        <span id="test-result" style="margin-left:10px;"></span>
-        
-        <p class="description">
-            如已設定，出於安全僅顯示遮罩；要更換請直接輸入新 Key。
-        </p>
-        <p class="description">
-            <strong>建議:</strong> 在 wp-config.php 定義 MOELOG_AIQNA_API_KEY 更安全。</br>
-            <strong>代碼:</strong> define('MOELOG_AIQNA_API_KEY', 'sk-xxxx...');
-        </p>
-        <?php }
+      </div>
+      <div id="test-result" style="margin-top:8px;"></div>
+
+      <p class="description">
+        如已設定，出於安全僅顯示遮罩；要更換請直接輸入新 Key。
+      </p>
+      <p class="description">
+        <strong>建議:</strong> 在 wp-config.php 定義 MOELOG_AIQNA_API_KEY 更安全。</br>
+        <strong>代碼:</strong> define('MOELOG_AIQNA_API_KEY', 'sk-xxxx...');
+      </p>
+    <?php }
   }
 
   /**
@@ -379,15 +385,15 @@ class Moelog_AIQnA_Admin_Settings
     $is_custom = $value !== "" && !in_array($value, $model_ids, true);
     ?>
     <input type="hidden"
-           name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[model]"
-           id="model"
-           value="<?php echo esc_attr($value); ?>">
+      name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[model]"
+      id="model"
+      value="<?php echo esc_attr($value); ?>">
 
     <select id="model-picker" class="regular-text">
       <option value=""><?php printf(
-        esc_html__("使用預設 (%s)", "moelog-ai-qna"),
-        esc_html($default)
-      ); ?></option>
+                          esc_html__("使用預設 (%s)", "moelog-ai-qna"),
+                          esc_html($default)
+                        ); ?></option>
       <?php foreach ($models as $option): ?>
         <option value="<?php echo esc_attr($option["id"]); ?>">
           <?php echo esc_html($option["label"] ?? $option["id"]); ?>
@@ -397,23 +403,23 @@ class Moelog_AIQnA_Admin_Settings
     </select>
 
     <p class="description">
-        <?php esc_html_e("可直接選擇建議模型，或選擇「自訂模型」輸入完整 ID。", "moelog-ai-qna"); ?>
+      <?php esc_html_e("可直接選擇建議模型，或選擇「自訂模型」輸入完整 ID。", "moelog-ai-qna"); ?>
     </p>
     <p class="description" id="model-hint">
-        <?php echo esc_html(Moelog_AIQnA_Model_Registry::get_provider_hint($provider)); ?>
+      <?php echo esc_html(Moelog_AIQnA_Model_Registry::get_provider_hint($provider)); ?>
     </p>
 
     <div id="model-custom-wrap" style="display:<?php echo $is_custom ? "block" : "none"; ?>;margin-top:8px;">
-        <label for="model-custom-input"><?php esc_html_e("自訂模型 ID", "moelog-ai-qna"); ?></label>
-        <input type="text"
-               id="model-custom-input"
-               class="regular-text"
-               value="<?php echo esc_attr($is_custom ? $value : ""); ?>"
-               placeholder="<?php esc_attr_e("輸入供應商提供的完整模型 ID", "moelog-ai-qna"); ?>">
+      <label for="model-custom-input"><?php esc_html_e("自訂模型 ID", "moelog-ai-qna"); ?></label>
+      <input type="text"
+        id="model-custom-input"
+        class="regular-text"
+        value="<?php echo esc_attr($is_custom ? $value : ""); ?>"
+        placeholder="<?php esc_attr_e("輸入供應商提供的完整模型 ID", "moelog-ai-qna"); ?>">
     </div>
 
     <script>
-    (function() {
+      (function() {
         const registry = <?php echo wp_json_encode($all_models, JSON_UNESCAPED_UNICODE); ?>;
         const defaults = <?php echo wp_json_encode($defaults, JSON_UNESCAPED_UNICODE); ?>;
         const hints = <?php echo wp_json_encode($hints, JSON_UNESCAPED_UNICODE); ?>;
@@ -425,94 +431,96 @@ class Moelog_AIQnA_Admin_Settings
         const hintEl = document.getElementById('model-hint');
 
         if (!picker || !valueInput || !providerSelect) {
-            return;
+          return;
         }
 
         function buildOptions(provider) {
-            const list = registry[provider] || [];
-            const fragment = document.createDocumentFragment();
-            const defaultLabel = defaults[provider]
-                ? '<?php echo esc_js(__("使用預設", "moelog-ai-qna")); ?>' + ' (' + defaults[provider] + ')'
-                : '<?php echo esc_js(__("使用預設", "moelog-ai-qna")); ?>';
-            fragment.appendChild(new Option(defaultLabel, ''));
-            list.forEach(function(item) {
-                fragment.appendChild(new Option(item.label || item.id, item.id));
-            });
-            fragment.appendChild(new Option('<?php echo esc_js(__("自訂模型…", "moelog-ai-qna")); ?>', '__custom'));
-            picker.innerHTML = '';
-            picker.appendChild(fragment);
+          const list = registry[provider] || [];
+          const fragment = document.createDocumentFragment();
+          const defaultLabel = defaults[provider] ?
+            '<?php echo esc_js(__("使用預設", "moelog-ai-qna")); ?>' + ' (' + defaults[provider] + ')' :
+            '<?php echo esc_js(__("使用預設", "moelog-ai-qna")); ?>';
+          fragment.appendChild(new Option(defaultLabel, ''));
+          list.forEach(function(item) {
+            fragment.appendChild(new Option(item.label || item.id, item.id));
+          });
+          fragment.appendChild(new Option('<?php echo esc_js(__("自訂模型…", "moelog-ai-qna")); ?>', '__custom'));
+          picker.innerHTML = '';
+          picker.appendChild(fragment);
         }
 
         function toggleCustom(show) {
-            if (!customWrap) return;
-            customWrap.style.display = show ? 'block' : 'none';
-            if (!show && customInput) {
-                customInput.value = '';
-            }
+          if (!customWrap) return;
+          customWrap.style.display = show ? 'block' : 'none';
+          if (!show && customInput) {
+            customInput.value = '';
+          }
         }
 
         function updateHint(provider) {
-            if (!hintEl) return;
-            hintEl.textContent = hints[provider] || '<?php echo esc_js(__("可輸入供應商提供的模型 ID。", "moelog-ai-qna")); ?>';
+          if (!hintEl) return;
+          hintEl.textContent = hints[provider] || '<?php echo esc_js(__("可輸入供應商提供的模型 ID。", "moelog-ai-qna")); ?>';
         }
 
         function syncSelection() {
-            const provider = providerSelect.value;
-            const current = (valueInput.value || '').trim();
-            const list = (registry[provider] || []).map(function(item) { return item.id; });
+          const provider = providerSelect.value;
+          const current = (valueInput.value || '').trim();
+          const list = (registry[provider] || []).map(function(item) {
+            return item.id;
+          });
 
-            if (!current) {
-                picker.value = '';
-                toggleCustom(false);
-            } else if (list.indexOf(current) !== -1) {
-                picker.value = current;
-                toggleCustom(false);
-            } else {
-                picker.value = '__custom';
-                toggleCustom(true);
-                if (customInput && customInput.value !== current) {
-                    customInput.value = current;
-                }
+          if (!current) {
+            picker.value = '';
+            toggleCustom(false);
+          } else if (list.indexOf(current) !== -1) {
+            picker.value = current;
+            toggleCustom(false);
+          } else {
+            picker.value = '__custom';
+            toggleCustom(true);
+            if (customInput && customInput.value !== current) {
+              customInput.value = current;
             }
+          }
 
-            updateHint(provider);
+          updateHint(provider);
         }
 
         picker.addEventListener('change', function() {
-            if (this.value === '__custom') {
-                toggleCustom(true);
-                if (customInput) {
-                    customInput.focus();
-                    valueInput.value = customInput.value.trim();
-                }
-            } else {
-                toggleCustom(false);
-                valueInput.value = this.value;
+          if (this.value === '__custom') {
+            toggleCustom(true);
+            if (customInput) {
+              customInput.focus();
+              valueInput.value = customInput.value.trim();
             }
+          } else {
+            toggleCustom(false);
+            valueInput.value = this.value;
+          }
         });
 
         if (customInput) {
-            customInput.addEventListener('input', function() {
-                valueInput.value = this.value.trim();
-            });
+          customInput.addEventListener('input', function() {
+            valueInput.value = this.value.trim();
+          });
         }
 
         providerSelect.addEventListener('change', function() {
-            buildOptions(this.value);
-            valueInput.value = '';
-            if (customInput) {
-                customInput.value = '';
-            }
-            picker.value = '';
-            toggleCustom(false);
-            syncSelection();
+          buildOptions(this.value);
+          valueInput.value = '';
+          if (customInput) {
+            customInput.value = '';
+          }
+          picker.value = '';
+          toggleCustom(false);
+          syncSelection();
         });
 
         buildOptions(providerSelect.value);
         syncSelection();
-    })();
+      })();
     </script>
-    <?php
+  <?php
   }
 
   /**
@@ -521,21 +529,21 @@ class Moelog_AIQnA_Admin_Settings
   public function render_temperature_field()
   {
     $value = Moelog_AIQnA_Settings::get_temperature();
-    ?>
-        <input type="number"
-               name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[temperature]"
-               id="temperature"
-               step="0.1"
-               min="0"
-               max="2"
-               value="<?php echo esc_attr($value); ?>">
-        <p class="description">
-            <?php esc_html_e(
-              "控制回答的隨機性。0 = 確定性，2 = 創意性。建議: 0.3",
-              "moelog-ai-qna",
-            ); ?>
-        </p>
-        <?php
+  ?>
+    <input type="number"
+      name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[temperature]"
+      id="temperature"
+      step="0.1"
+      min="0"
+      max="2"
+      value="<?php echo esc_attr($value); ?>">
+    <p class="description">
+      <?php esc_html_e(
+        "控制回答的隨機性。0 = 確定性，2 = 創意性。建議: 0.3",
+        "moelog-ai-qna",
+      ); ?>
+    </p>
+  <?php
   }
 
   /**
@@ -544,23 +552,23 @@ class Moelog_AIQnA_Admin_Settings
   public function render_include_content_field()
   {
     $checked = Moelog_AIQnA_Settings::include_content();
-    ?>
-        <label>
-            <input type="checkbox"
-                   name="<?php echo esc_attr(
-                     MOELOG_AIQNA_OPT_KEY,
-                   ); ?>[include_content]"
-                   value="1"
-                   <?php checked($checked, true); ?>>
-            <?php esc_html_e("將文章內容附加到 AI 請求中", "moelog-ai-qna"); ?>
-        </label>
-        <p class="description">
-            <?php esc_html_e(
-              "啟用後 AI 可根據文章內容提供更準確的答案，但會消耗更多 Token。",
-              "moelog-ai-qna",
-            ); ?>
-        </p>
-        <?php
+  ?>
+    <label>
+      <input type="checkbox"
+        name="<?php echo esc_attr(
+                MOELOG_AIQNA_OPT_KEY,
+              ); ?>[include_content]"
+        value="1"
+        <?php checked($checked, true); ?>>
+      <?php esc_html_e("將文章內容附加到 AI 請求中", "moelog-ai-qna"); ?>
+    </label>
+    <p class="description">
+      <?php esc_html_e(
+        "啟用後 AI 可根據文章內容提供更準確的答案，但會消耗更多 Token。",
+        "moelog-ai-qna",
+      ); ?>
+    </p>
+  <?php
   }
 
   /**
@@ -569,24 +577,24 @@ class Moelog_AIQnA_Admin_Settings
   public function render_max_chars_field()
   {
     $value = Moelog_AIQnA_Settings::get_max_chars();
-    ?>
-        <input type="number"
-               name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[max_chars]"
-               min="500"
-               max="20000"
-               step="100"
-               value="<?php echo esc_attr($value); ?>">
-        <span class="description"><?php esc_html_e(
-          "字元",
-          "moelog-ai-qna",
-        ); ?></span>
-        <p class="description">
-            <?php esc_html_e(
-              "文章內容超過此長度將被截斷。建議: 6000 字元（約 1500–2000 Token）",
-              "moelog-ai-qna",
-            ); ?>
-        </p>
-        <?php
+  ?>
+    <input type="number"
+      name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[max_chars]"
+      min="500"
+      max="20000"
+      step="100"
+      value="<?php echo esc_attr($value); ?>">
+    <span class="description"><?php esc_html_e(
+                                "字元",
+                                "moelog-ai-qna",
+                              ); ?></span>
+    <p class="description">
+      <?php esc_html_e(
+        "文章內容超過此長度將被截斷。建議: 6000 字元（約 1500–2000 Token）",
+        "moelog-ai-qna",
+      ); ?>
+    </p>
+  <?php
   }
 
   /**
@@ -596,22 +604,22 @@ class Moelog_AIQnA_Admin_Settings
   {
     $default = __("你是嚴謹的專業編輯，提供簡潔準確的答案。", "moelog-ai-qna");
     $value = Moelog_AIQnA_Settings::get("system_prompt", $default);
-    ?>
-        <textarea name="<?php echo esc_attr(
-          MOELOG_AIQNA_OPT_KEY,
-        ); ?>[system_prompt]"
-                  rows="4"
-                  class="large-text"
-                  placeholder="<?php echo esc_attr(
-                    $default,
-                  ); ?>"><?php echo esc_textarea($value); ?></textarea>
-        <p class="description">
-            <?php esc_html_e(
-              "定義 AI 的角色與行為準則。留空使用預設值。",
-              "moelog-ai-qna",
-            ); ?>
-        </p>
-        <?php
+  ?>
+    <textarea name="<?php echo esc_attr(
+                      MOELOG_AIQNA_OPT_KEY,
+                    ); ?>[system_prompt]"
+      rows="4"
+      class="large-text"
+      placeholder="<?php echo esc_attr(
+                      $default,
+                    ); ?>"><?php echo esc_textarea($value); ?></textarea>
+    <p class="description">
+      <?php esc_html_e(
+        "定義 AI 的角色與行為準則。留空使用預設值。",
+        "moelog-ai-qna",
+      ); ?>
+    </p>
+  <?php
   }
 
   /**
@@ -621,21 +629,21 @@ class Moelog_AIQnA_Admin_Settings
   {
     $default = __("Have more questions? Ask the AI below.", "moelog-ai-qna");
     $value = Moelog_AIQnA_Settings::get("list_heading", $default);
-    ?>
-        <input type="text"
-               name="<?php echo esc_attr(
-                 MOELOG_AIQNA_OPT_KEY,
-               ); ?>[list_heading]"
-               class="large-text"
-               value="<?php echo esc_attr($value); ?>"
-               placeholder="<?php echo esc_attr($default); ?>">
-        <p class="description">
-            <?php esc_html_e(
-              "顯示在文章底部問題清單上方的標題。支援任意語言。",
-              "moelog-ai-qna",
-            ); ?>
-        </p>
-        <?php
+  ?>
+    <input type="text"
+      name="<?php echo esc_attr(
+              MOELOG_AIQNA_OPT_KEY,
+            ); ?>[list_heading]"
+      class="large-text"
+      value="<?php echo esc_attr($value); ?>"
+      placeholder="<?php echo esc_attr($default); ?>">
+    <p class="description">
+      <?php esc_html_e(
+        "顯示在文章底部問題清單上方的標題。支援任意語言。",
+        "moelog-ai-qna",
+      ); ?>
+    </p>
+  <?php
   }
 
   /**
@@ -648,22 +656,22 @@ class Moelog_AIQnA_Admin_Settings
       "使用本 AI 生成內容服務即表示您同意此內容僅供個人參考，且您了解輸出內容可能不準確。\n" .
       "所有爭議內容 {site} 保有最終解釋權。";
     $value = Moelog_AIQnA_Settings::get("disclaimer_text", $default);
-    ?>
-        <textarea name="<?php echo esc_attr(
-          MOELOG_AIQNA_OPT_KEY,
-        ); ?>[disclaimer_text]"
-                  rows="5"
-                  class="large-text"
-                  placeholder="<?php echo esc_attr(
-                    $default,
-                  ); ?>"><?php echo esc_textarea($value); ?></textarea>
-        <p class="description">
-            <?php esc_html_e(
-              "顯示在 AI 答案頁底部。支援 {site} 代表網站名稱，亦相容舊式 %s。可多行。",
-              "moelog-ai-qna",
-            ); ?>
-        </p>
-        <?php
+  ?>
+    <textarea name="<?php echo esc_attr(
+                      MOELOG_AIQNA_OPT_KEY,
+                    ); ?>[disclaimer_text]"
+      rows="5"
+      class="large-text"
+      placeholder="<?php echo esc_attr(
+                      $default,
+                    ); ?>"><?php echo esc_textarea($value); ?></textarea>
+    <p class="description">
+      <?php esc_html_e(
+        "顯示在 AI 答案頁底部。支援 {site} 代表網站名稱，亦相容舊式 %s。可多行。",
+        "moelog-ai-qna",
+      ); ?>
+    </p>
+  <?php
   }
 
   /**
@@ -672,84 +680,84 @@ class Moelog_AIQnA_Admin_Settings
   public function render_feedback_enabled_field()
   {
     $enabled = Moelog_AIQnA_Settings::get("feedback_enabled", true);
-    ?>
+  ?>
     <label style="display:block;margin-bottom:8px;">
-        <input type="checkbox"
-               name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[feedback_enabled]"
-               value="1"
-               <?php checked($enabled, true); ?>>
-        <strong><?php esc_html_e("啟用互動回饋功能", "moelog-ai-qna"); ?></strong>
+      <input type="checkbox"
+        name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[feedback_enabled]"
+        value="1"
+        <?php checked($enabled, true); ?>>
+      <strong><?php esc_html_e("啟用互動回饋功能", "moelog-ai-qna"); ?></strong>
     </label>
     <p class="description">
-        <?php esc_html_e(
-          "在 AI 回答頁底部顯示「正確/錯誤」投票按鈕、問題回報功能和瀏覽統計。",
-          "moelog-ai-qna",
-        ); ?>
+      <?php esc_html_e(
+        "在 AI 回答頁底部顯示「正確/錯誤」投票按鈕、問題回報功能和瀏覽統計。",
+        "moelog-ai-qna",
+      ); ?>
     </p>
     <p class="description" style="color:#666;">
-        <?php esc_html_e(
-          "停用後，回答頁將不顯示任何互動元素，僅顯示 AI 回答內容。",
-          "moelog-ai-qna",
-        ); ?>
+      <?php esc_html_e(
+        "停用後，回答頁將不顯示任何互動元素，僅顯示 AI 回答內容。",
+        "moelog-ai-qna",
+      ); ?>
     </p>
-    
+
     <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
-    
+
     <p style="margin-bottom: 8px;">
-        <strong><?php esc_html_e("🗑️ 清除回饋統計", "moelog-ai-qna"); ?></strong>
+      <strong><?php esc_html_e("🗑️ 清除回饋統計", "moelog-ai-qna"); ?></strong>
     </p>
     <p class="description" style="margin-bottom: 10px;">
-        <?php esc_html_e(
-          "刪除所有文章的瀏覽次數、好評、差評統計。此操作無法復原。",
-          "moelog-ai-qna",
-        ); ?>
+      <?php esc_html_e(
+        "刪除所有文章的瀏覽次數、好評、差評統計。此操作無法復原。",
+        "moelog-ai-qna",
+      ); ?>
     </p>
-    <button type="button" 
-            id="moelog-clear-feedback-stats" 
-            class="button button-secondary"
-            style="color: #b32d2e;">
-        <?php esc_html_e("清除所有回饋統計", "moelog-ai-qna"); ?>
+    <button type="button"
+      id="moelog-clear-feedback-stats"
+      class="button button-secondary"
+      style="color: #b32d2e;">
+      <?php esc_html_e("清除所有回饋統計", "moelog-ai-qna"); ?>
     </button>
     <span id="moelog-clear-feedback-result" style="margin-left: 10px;"></span>
-    
+
     <script>
-    jQuery(document).ready(function($) {
+      jQuery(document).ready(function($) {
         $('#moelog-clear-feedback-stats').on('click', function() {
-            var $btn = $(this);
-            var $result = $('#moelog-clear-feedback-result');
-            
-            if (!confirm('<?php echo esc_js(__("確定要清除所有回饋統計嗎？此操作無法復原。", "moelog-ai-qna")); ?>')) {
-                return;
+          var $btn = $(this);
+          var $result = $('#moelog-clear-feedback-result');
+
+          if (!confirm('<?php echo esc_js(__("確定要清除所有回饋統計嗎？此操作無法復原。", "moelog-ai-qna")); ?>')) {
+            return;
+          }
+
+          $btn.prop('disabled', true).text('<?php echo esc_js(__("處理中...", "moelog-ai-qna")); ?>');
+          $result.text('');
+
+          $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+              action: 'moelog_aiqna_clear_feedback_stats',
+              nonce: '<?php echo wp_create_nonce("moelog_aiqna_clear_feedback"); ?>'
+            },
+            success: function(response) {
+              if (response.success) {
+                $result.css('color', 'green').text('✅ ' + response.data.message);
+              } else {
+                $result.css('color', 'red').text('❌ ' + (response.data.message || '<?php echo esc_js(__("發生錯誤", "moelog-ai-qna")); ?>'));
+              }
+            },
+            error: function() {
+              $result.css('color', 'red').text('❌ <?php echo esc_js(__("請求失敗", "moelog-ai-qna")); ?>');
+            },
+            complete: function() {
+              $btn.prop('disabled', false).text('<?php echo esc_js(__("清除所有回饋統計", "moelog-ai-qna")); ?>');
             }
-            
-            $btn.prop('disabled', true).text('<?php echo esc_js(__("處理中...", "moelog-ai-qna")); ?>');
-            $result.text('');
-            
-            $.ajax({
-                url: ajaxurl,
-                type: 'POST',
-                data: {
-                    action: 'moelog_aiqna_clear_feedback_stats',
-                    nonce: '<?php echo wp_create_nonce("moelog_aiqna_clear_feedback"); ?>'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $result.css('color', 'green').text('✅ ' + response.data.message);
-                    } else {
-                        $result.css('color', 'red').text('❌ ' + (response.data.message || '<?php echo esc_js(__("發生錯誤", "moelog-ai-qna")); ?>'));
-                    }
-                },
-                error: function() {
-                    $result.css('color', 'red').text('❌ <?php echo esc_js(__("請求失敗", "moelog-ai-qna")); ?>');
-                },
-                complete: function() {
-                    $btn.prop('disabled', false).text('<?php echo esc_js(__("清除所有回饋統計", "moelog-ai-qna")); ?>');
-                }
-            });
+          });
         });
-    });
+      });
     </script>
-    <?php
+  <?php
   }
 
   /**
@@ -789,30 +797,30 @@ class Moelog_AIQnA_Admin_Settings
   public function render_pretty_base_field()
   {
     $value = Moelog_AIQnA_Settings::get_pretty_base();
-    ?>
-    <input type="text" 
-           name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[pretty_base]" 
-           value="<?php echo esc_attr($value); ?>" 
-           class="regular-text"
-           pattern="[a-z0-9\-]+"
-           placeholder="qna">
+  ?>
+    <input type="text"
+      name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[pretty_base]"
+      value="<?php echo esc_attr($value); ?>"
+      class="regular-text"
+      pattern="[a-z0-9\-]+"
+      placeholder="qna">
     <p class="description">
-        <?php esc_html_e("回答頁面的 URL 路徑前綴,例如: ", "moelog-ai-qna"); ?>
-        <code>https://yoursite.com/<strong><?php echo esc_html(
-          $value,
-        ); ?></strong>/...</code><br>
+      <?php esc_html_e("回答頁面的 URL 路徑前綴,例如: ", "moelog-ai-qna"); ?>
+      <code>https://yoursite.com/<strong><?php echo esc_html(
+                                            $value,
+                                          ); ?></strong>/...</code><br>
+      <?php esc_html_e(
+        "只能使用小寫英文、數字和連字號 (-)。",
+        "moelog-ai-qna",
+      ); ?><br>
+      <strong style="color: #d63638;">
         <?php esc_html_e(
-          "只能使用小寫英文、數字和連字號 (-)。",
+          "⚠️ 修改後必須到「設定 → 固定網址」重新儲存!",
           "moelog-ai-qna",
-        ); ?><br>
-        <strong style="color: #d63638;">
-            <?php esc_html_e(
-              "⚠️ 修改後必須到「設定 → 固定網址」重新儲存!",
-              "moelog-ai-qna",
-            ); ?>
-        </strong>
+        ); ?>
+      </strong>
     </p>
-    <?php
+  <?php
   }
 
   /**
@@ -821,30 +829,30 @@ class Moelog_AIQnA_Admin_Settings
   public function render_static_dir_field()
   {
     $value = Moelog_AIQnA_Settings::get_static_dir();
-    ?>
-    <input type="text" 
-           name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[static_dir]" 
-           value="<?php echo esc_attr($value); ?>" 
-           class="regular-text"
-           pattern="[a-z0-9\-]+"
-           placeholder="ai-answers">
+  ?>
+    <input type="text"
+      name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[static_dir]"
+      value="<?php echo esc_attr($value); ?>"
+      class="regular-text"
+      pattern="[a-z0-9\-]+"
+      placeholder="ai-answers">
     <p class="description">
-        <?php esc_html_e("快取檔案儲存的目錄名稱,位於: ", "moelog-ai-qna"); ?>
-        <code>wp-content/<strong><?php echo esc_html(
-          $value,
-        ); ?></strong>/</code><br>
+      <?php esc_html_e("快取檔案儲存的目錄名稱,位於: ", "moelog-ai-qna"); ?>
+      <code>wp-content/<strong><?php echo esc_html(
+                                  $value,
+                                ); ?></strong>/</code><br>
+      <?php esc_html_e(
+        "只能使用小寫英文、數字和連字號 (-)。",
+        "moelog-ai-qna",
+      ); ?><br>
+      <strong style="color: #d63638;">
         <?php esc_html_e(
-          "只能使用小寫英文、數字和連字號 (-)。",
+          "⚠️ 修改後會建立新目錄,舊目錄的快取需手動刪除!",
           "moelog-ai-qna",
-        ); ?><br>
-        <strong style="color: #d63638;">
-            <?php esc_html_e(
-              "⚠️ 修改後會建立新目錄,舊目錄的快取需手動刪除!",
-              "moelog-ai-qna",
-            ); ?>
-        </strong>
+        ); ?>
+      </strong>
     </p>
-    <?php
+<?php
   }
 
   // =========================================
@@ -1137,9 +1145,9 @@ class Moelog_AIQnA_Admin_Settings
     if ($is_display_tab) {
       $old_geo = (bool) get_option("moelog_aiqna_geo_mode", false);
       $new_geo = !empty($_POST["moelog_aiqna_geo_mode"]);
-      
+
       update_option("moelog_aiqna_geo_mode", $new_geo ? 1 : 0);
-      
+
       // 如果狀態變更，刷新 rewrite rules
       if ($old_geo !== $new_geo) {
         flush_rewrite_rules(false);
@@ -1162,4 +1170,3 @@ class Moelog_AIQnA_Admin_Settings
     return $output;
   }
 }
-
