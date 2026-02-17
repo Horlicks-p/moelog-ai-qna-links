@@ -1,14 +1,14 @@
-=== Moelog AI Q&A Links ===
-Contributors: Horlicks
-Author URI: [https://www.moelog.com/](https://www.moelog.com/)
-Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, Schema, Structured Data, CSP, Generative Engine Optimization
-Requires at least: 5.0
-Tested up to: 6.8.3
-Requires PHP: 7.4
-Tested PHP: 8.3
-Stable tag: 2.0.0
-License: GPLv2 or later
-License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
+=== Moelog AI Q&A Links ===  
+Contributors: Horlicks  
+Author URI: [https://www.moelog.com/](https://www.moelog.com/)  
+Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, Schema, Structured Data, CSP, Generative Engine Optimization  
+Requires at least: 5.0  
+Tested up to: 6.8.3  
+Requires PHP: 7.4  
+Tested PHP: 8.3  
+Stable tag: 2.0.0  
+License: GPLv2 or later  
+License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)  
 
 == 🧠 Description ==
 
