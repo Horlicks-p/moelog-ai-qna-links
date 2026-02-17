@@ -33,8 +33,13 @@ class Moelog_AIQnA_Assets
 
     public function enqueue_frontend_assets()
     {
-        // ✅ 修正:使用更精準的判斷,避免在所有文章頁載入資源
-        if (!is_singular() && !$this->is_answer_page()) {
+        // ✅ 修正：放寬條件，讓所有前台頁面都載入 CSS
+        // 原因：SPA 導航可能從任何頁面（如首頁、分頁）進入包含 Q&A 區塊的文章
+        // 如果初始頁面沒載入 CSS，SPA 導航後的文章將無法正確顯示樣式
+        // CSS 檔案很小（約 5KB），對性能影響極小
+        
+        // 只排除管理介面
+        if (is_admin()) {
             return;
         }
 

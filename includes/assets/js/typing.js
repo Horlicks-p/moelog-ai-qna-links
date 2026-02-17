@@ -24,14 +24,14 @@
   };
 
   // ---- 工具：安全複製節點（僅允許白名單標籤 & 必要屬性）----
-  var ALLOWED = new Set(['P', 'UL', 'OL', 'LI', 'STRONG', 'EM', 'BR', 'SPAN', 'A', 'DIV']);
+  var ALLOWED = new Set(['P', 'UL', 'OL', 'LI', 'STRONG', 'EM', 'BR', 'SPAN', 'A', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'TABLE', 'THEAD', 'TBODY', 'TR', 'TH', 'TD', 'CODE', 'PRE', 'BLOCKQUOTE', 'HR', 'DEL']);
 
   function cloneShallow(node) {
     if (node.nodeType === Node.TEXT_NODE) return document.createTextNode('');
     if (node.nodeType === Node.ELEMENT_NODE) {
       var tag = node.tagName.toUpperCase();
       if (!ALLOWED.has(tag)) return document.createTextNode(node.textContent || '');
-      if (tag === 'BR') return document.createElement('br');
+      if (tag === 'BR' || tag === 'HR') return document.createElement(tag.toLowerCase());
 
       var el = document.createElement(tag.toLowerCase());
 
@@ -51,6 +51,19 @@
         if (tgt === '_blank' && !rel) rel = 'noopener noreferrer';
         if (rel) el.setAttribute('rel', rel);
       }
+
+      // 表格欄位對齊（Parsedown 生成的 style="text-align: ..."）
+      if (tag === 'TH' || tag === 'TD') {
+        var style = node.getAttribute('style');
+        if (style) el.setAttribute('style', style);
+      }
+
+      // 程式碼區塊的語言 class（如 language-php）
+      if (tag === 'CODE') {
+        var cls = node.getAttribute('class');
+        if (cls) el.setAttribute('class', cls);
+      }
+
       return el;
     }
     return document.createTextNode('');

@@ -670,6 +670,53 @@ add_filter('moelog_aiqna_pretty_base', function($base) {
 
 ### 前端顯示相關
 
+#### `moelog_aiqna_disable_auto_append`
+
+控制是否禁用 Q&A 區塊自動附加到 `the_content`。
+
+預設行為是透過 `the_content` filter 自動將問題清單附加在文章內容末尾。但如果主題使用 `wp_link_pages()` 進行內文分頁，Q&A 區塊可能會被插入在分頁連結**之前**，因為 `the_content` 只包含當前分頁的正文。
+
+啟用此 filter 後，主題可透過 `moelog_aiqna_render_block()` 在模板中手動控制插入位置。
+
+**參數**:
+
+- `$disable` (bool) - 是否禁用自動附加，預設 `false`
+
+**示例**:
+
+**Step 1** — 在主題的 `functions.php` 中禁用自動附加：
+
+```php
+add_filter('moelog_aiqna_disable_auto_append', '__return_true');
+```
+
+**Step 2** — 在主題模板（如 `single.php`）的適當位置手動渲染：
+
+```php
+<section class="post-content">
+    <?php the_content(); ?>
+    <?php
+    // 內文分頁
+    wp_link_pages([
+        'before' => '<div class="post-pagination">',
+        'after'  => '</div>',
+    ]);
+
+    // 在分頁導航之後渲染 AI Q&A 區塊
+    if (function_exists('moelog_aiqna_render_block')) {
+        moelog_aiqna_render_block();
+    }
+    ?>
+</section>
+```
+
+> **💡 提示**: `moelog_aiqna_render_block()` 接受兩個參數：
+>
+> - `$post_id` (int|null) - 文章 ID，預設為當前文章
+> - `$echo` (bool) - 是否直接輸出，預設為 `true`；設為 `false` 時返回 HTML 字串
+
+---
+
 #### `moelog_aiqna_question_list_html`
 
 修改文章底部問題清單的 HTML。
@@ -966,4 +1013,4 @@ add_filter('moelog_aiqna_blocked_bots', function($blocked) {
 
 ---
 
-最後更新：2025-11-28
+最後更新：2026-02-17

@@ -215,25 +215,54 @@ class Moelog_AIQnA_Renderer_Template
   /**
    * 處理答案 HTML(安全化與格式化)
    *
-   * @param string $answer 原始答案
+   * ✅ 優化: 使用 Parsedown 解析 Markdown → HTML
+   *    AI 回傳的答案為 Markdown 格式（標題、表格、粗體、列表等），
+   *    需要正確轉換為 HTML 再做安全過濾。
+   *
+   * @param string $answer 原始答案 (Markdown 格式)
    * @return string
    */
   public function process_answer_html($answer)
   {
-    // 允許的 HTML 標籤
+    if (empty($answer)) {
+      return "";
+    }
+
+    // Markdown → HTML
+    $html = $this->convert_markdown($answer);
+
+    // 允許的 HTML 標籤（含 Markdown 可能產生的元素）
     $allowed = [
       "p" => [],
       "ul" => [],
-      "ol" => [],
+      "ol" => ["start" => []],
       "li" => [],
       "strong" => [],
       "em" => [],
       "br" => [],
       "span" => ["class" => [], "title" => []],
+      "h1" => ["id" => []],
+      "h2" => ["id" => []],
+      "h3" => ["id" => []],
+      "h4" => ["id" => []],
+      "h5" => ["id" => []],
+      "h6" => ["id" => []],
+      "table" => [],
+      "thead" => [],
+      "tbody" => [],
+      "tr" => [],
+      "th" => ["style" => []],
+      "td" => ["style" => []],
+      "code" => ["class" => []],
+      "pre" => [],
+      "blockquote" => [],
+      "hr" => [],
+      "del" => [],
+      "a" => ["href" => [], "title" => [], "target" => [], "rel" => []],
     ];
 
-    // 清理 HTML
-    $safe_html = $answer ? wp_kses(wpautop($answer), $allowed) : "";
+    // 清理 HTML（白名單過濾）
+    $safe_html = wp_kses($html, $allowed);
 
     // 移除事件處理器
     // PHP 8.1+: 確保 preg_replace 不返回 null
@@ -243,9 +272,10 @@ class Moelog_AIQnA_Renderer_Template
       $safe_html,
     ) ?? $safe_html;
 
-    // 處理 URL(轉換為帶 title 的 span)
+    // 處理裸露 URL（不在 <a> 標籤內的）轉換為帶 title 的 span
+    // ✅ 修正: 先排除已在 <a> 標籤中的 URL
     $safe_html = preg_replace_callback(
-      '/(https?:\/\/[^\s<>"]+)/i',
+      '/(?<!["\'>])(https?:\/\/[^\s<>"]+)(?![^<]*<\/a>)/i',
       function ($matches) {
         $url = urldecode($matches[1]);
         return '<span class="moe-url" title="' .
@@ -258,6 +288,28 @@ class Moelog_AIQnA_Renderer_Template
     ) ?? $safe_html;
 
     return $safe_html;
+  }
+
+  /**
+   * 將 Markdown 轉換為 HTML
+   *
+   * @param string $text Markdown 文字
+   * @return string HTML
+   */
+  private function convert_markdown($text)
+  {
+    if (!class_exists('Parsedown')) {
+      require_once MOELOG_AIQNA_DIR . 'includes/Parsedown.php';
+    }
+
+    $parsedown = new Parsedown();
+    $parsedown->setSafeMode(true);      // 防止原始 HTML 注入 (XSS 防護)
+    $parsedown->setBreaksEnabled(true);  // 自動換行
+
+    $html = $parsedown->text($text);
+
+    // 提供 filter 讓開發者可自訂 Markdown → HTML 的轉換結果
+    return apply_filters('moelog_aiqna_markdown_to_html', $html, $text);
   }
 
   /**
@@ -483,14 +535,14 @@ document.addEventListener('DOMContentLoaded',function(){
   const srcTpl=document.getElementById('moe-ans-source');
   const target=document.getElementById('moe-ans-target');
   if(!srcTpl||!target)return;
-  const ALLOWED=new Set(['P','UL','OL','LI','STRONG','EM','BR','SPAN','A','DIV']);
+  const ALLOWED=new Set(['P','UL','OL','LI','STRONG','EM','BR','SPAN','A','DIV','H1','H2','H3','H4','H5','H6','TABLE','THEAD','TBODY','TR','TH','TD','CODE','PRE','BLOCKQUOTE','HR','DEL']);
   const SPEED=10;
   function cloneShallow(node){
     if(node.nodeType===Node.TEXT_NODE)return document.createTextNode('');
     if(node.nodeType===Node.ELEMENT_NODE){
       const tag=node.tagName.toUpperCase();
       if(!ALLOWED.has(tag))return document.createTextNode(node.textContent||'');
-      if(tag==='BR')return document.createElement('br');
+      if(tag==='BR'||tag==='HR')return document.createElement(tag.toLowerCase());
       const el=document.createElement(tag.toLowerCase());
       if(node.className)el.className=node.className;
       if(node.title)el.title=node.title;
@@ -499,6 +551,8 @@ document.addEventListener('DOMContentLoaded',function(){
         const tgt=node.getAttribute('target');if(tgt)el.setAttribute('target',tgt);
         const rel=node.getAttribute('rel');if(rel)el.setAttribute('rel',rel);
       }
+      if(tag==='TH'||tag==='TD'){const s=node.getAttribute('style');if(s)el.setAttribute('style',s);}
+      if(tag==='CODE'){const c=node.getAttribute('class');if(c)el.setAttribute('class',c);}
       return el;
     }
     return document.createTextNode('');

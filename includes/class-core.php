@@ -520,6 +520,12 @@ class Moelog_AIQnA_Core
         if (!is_singular() || !in_the_loop() || !is_main_query()) {
             return $content;
         }
+        
+        // 允許主題禁用自動附加（主題可手動呼叫 moelog_aiqna_render_block()）
+        if (apply_filters('moelog_aiqna_disable_auto_append', false)) {
+            return $content;
+        }
+        
         // 移除短碼檢查：現在短碼只顯示單一問題，與完整清單不衝突
         // 完整清單會自動附加在文章底部
         $block = $this->get_questions_block(get_the_ID());
@@ -528,6 +534,30 @@ class Moelog_AIQnA_Core
             $this->prefetch_needed = true;
         }
         return $content . $block;
+    }
+    
+    /**
+     * 公開方法：取得問題區塊 HTML（供主題手動呼叫）
+     *
+     * @param int|null $post_id 文章 ID，預設為當前文章
+     * @return string
+     */
+    public function render_questions_block($post_id = null)
+    {
+        if ($post_id === null) {
+            $post_id = get_the_ID();
+        }
+        
+        if (!$post_id) {
+            return '';
+        }
+        
+        $block = $this->get_questions_block($post_id);
+        if (!empty($block)) {
+            // 標記需要注入預抓取腳本
+            $this->prefetch_needed = true;
+        }
+        return $block;
     }
 
     /**

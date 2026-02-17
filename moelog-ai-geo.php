@@ -95,7 +95,7 @@ class Moelog_AIQnA_GEO
 
         add_settings_field(
             "moelog_aiqna_geo_mode",
-            "啟用 STM 模式",
+            "Enable STM Mode",
             [$this, "geo_mode_field_callback"],
             class_exists("Moelog_AIQnA_Admin_Settings")
                 ? Moelog_AIQnA_Admin_Settings::PAGE_DISPLAY
@@ -107,9 +107,17 @@ class Moelog_AIQnA_GEO
     public function geo_section_callback()
 {
     echo '<p style="color:#666;line-height:1.6">';
-    echo '提供結構化資料（QAPage、Breadcrumb）、Canonical/Robots 與快取策略，幫助搜尋與 AI 爬蟲「正確解析」AI 答案頁。<br>';
-    echo '此功能不保證索引或排名，預設為 noindex；僅在啟用 STM 模式時採用 index,follow 並輸出對應中繼資料與 Sitemap。';
-    echo '</p>';
+    echo '<p style="color:#666;line-height:1.6">';
+    esc_html_e(
+        "Provide structured data (QAPage, Breadcrumb), Canonical/Robots and cache strategies to help search and AI crawlers \"correctly parse\" AI answer pages.",
+        "moelog-ai-qna"
+    );
+    echo "<br>";
+    esc_html_e(
+        "This function does not guarantee indexing or ranking, default is noindex; index,follow is adopted only when STM mode is enabled, and corresponding metadata and Sitemap are output.",
+        "moelog-ai-qna"
+    );
+    echo "</p>";
 }
 
 
@@ -121,29 +129,67 @@ class Moelog_AIQnA_GEO
         ?>
         <label style="display:block;margin-bottom:12px;">
             <input type="checkbox" name="moelog_aiqna_geo_mode" value="1" <?php checked($enabled, true); ?>>
-            <strong>啟用結構化資料、SEO 優化與 AI Sitemap</strong>
+            <strong><?php esc_html_e(
+        "Enable structured data, SEO optimization and AI Sitemap",
+        "moelog-ai-qna"
+    ); ?></strong>
         </label>
         <div style="background:#f9f9f9;border-left:4px solid #2271b1;padding:12px 15px;margin-top:8px;">
-            <p style="margin:0;"><strong>啟用後, 本(STM)模組將會:</strong></p>
+            <p style="margin:0;"><strong><?php esc_html_e(
+        "After enabling, this (STM) module will:",
+        "moelog-ai-qna"
+    ); ?></strong></p>
             <ul style="margin:0;padding-left:20px;line-height:1.8;">
-                <li>✓ 注入 `index, follow` (取代預設的 `noindex`)</li>
-                <li>✓ 注入 QAPage / Breadcrumb / OG / Twitter Card 等 Meta 標籤</li>
-                <li>✓ 注入 Canonical 標籤 (指向**原始文章**)</li>
-                <li>✓ 輸出友善 CDN 的 HTTP 快取標頭 (ETag, 304, Last-Modified)</li>
-                <li>✓ 產生 AI 問答專用 Sitemap(index+分頁)</li>
-                <li>✓ 自動 ping Google/Bing</li>
+                <li>✓ <?php esc_html_e(
+                    "Inject `index, follow` (replace default `noindex`)",
+                    "moelog-ai-qna"
+                ); ?></li>
+                <li>✓ <?php esc_html_e(
+                    "Inject QAPage / Breadcrumb / OG / Twitter Card Meta Tags",
+                    "moelog-ai-qna"
+                ); ?></li>
+                <li>✓ <?php esc_html_e(
+                    "Inject Canonical Tag (point to **original article**)",
+                    "moelog-ai-qna"
+                ); ?></li>
+                <li>✓ <?php esc_html_e(
+                    "Output friendly CDN HTTP cache headers (ETag, 304, Last-Modified)",
+                    "moelog-ai-qna"
+                ); ?></li>
+                <li>✓ <?php esc_html_e(
+                    "Generate AI Q&A dedicated Sitemap (index + pagination)",
+                    "moelog-ai-qna"
+                ); ?></li>
+                <li>✓ <?php esc_html_e(
+                    "Automatically ping Google/Bing",
+                    "moelog-ai-qna"
+                ); ?></li>
             </ul>
             <?php if ($enabled): ?>
                 <p style="margin:10px 0 0;">
-                    <strong>📍 AI 問答 Sitemap:</strong><br>
+                    <strong>📍 <?php esc_html_e(
+        "AI Q&A Sitemap:",
+        "moelog-ai-qna"
+    ); ?></strong><br>
                     <a href="<?php echo esc_url($sitemap_url); ?>" target="_blank" style="word-break:break-all;"><?php echo esc_html($sitemap_url); ?></a>
                 </p>
             <?php endif; ?>
         </div>
         <p class="description" style="margin-top:10px;color:#d63638;">
-            ⚠️ 啟用/停用後,請到
-            <a href="<?php echo admin_url("options-permalink.php"); ?>">設定 → 永久連結</a>
-            點「儲存變更」刷新規則。
+            <?php esc_html_e(
+        "⚠️ After enabling/disabling, please go to",
+        "moelog-ai-qna"
+    ); ?>
+            <a href="<?php echo admin_url(
+                "options-permalink.php"
+            ); ?>"><?php esc_html_e(
+    "Settings → Permalinks",
+    "moelog-ai-qna"
+); ?></a>
+            <?php esc_html_e(
+                "Click \"Save Changes\" to refresh rules.",
+                "moelog-ai-qna"
+            ); ?>
         </p>
         <?php
     }
@@ -196,7 +242,7 @@ class Moelog_AIQnA_GEO
         // ✅ SEO 優化: 使用「回答內容」自動生成描述
         $description = '';
         if (!empty($answer)) {
-            $clean_answer = wp_strip_all_tags($answer);
+            $clean_answer = $this->strip_markdown($answer);
             // PHP 8.1+: 確保 preg_replace 不返回 null
             $clean_answer = preg_replace('/\s+/', ' ', $clean_answer) ?? $clean_answer;
             $clean_answer = trim((string) $clean_answer);
@@ -265,7 +311,7 @@ class Moelog_AIQnA_GEO
     private function schema_qa($answer_url, $post_id, $question, $answer)
     {
         $site_name = get_bloginfo("name");
-        $clean_answer = wp_strip_all_tags($answer);
+        $clean_answer = $this->strip_markdown($answer);
         $description = '';
         if (function_exists('mb_strlen') && mb_strlen($clean_answer, 'UTF-8') > 155) {
             $description = mb_substr($clean_answer, 0, 155, 'UTF-8') . '...';
@@ -357,6 +403,33 @@ class Moelog_AIQnA_GEO
                 JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
             ) .
             "</script>\n";
+    }
+
+    /**
+     * 將 Markdown 轉為純文字（用於 meta description / Schema.org）
+     *
+     * @param string $markdown Markdown 格式的文字
+     * @return string 純文字
+     */
+    private function strip_markdown($markdown)
+    {
+        if (empty($markdown)) {
+            return '';
+        }
+
+        // 先透過 Parsedown 將 Markdown → HTML，再用 wp_strip_all_tags 去除 HTML
+        if (!class_exists('Parsedown')) {
+            require_once MOELOG_AIQNA_DIR . 'includes/Parsedown.php';
+        }
+
+        $parsedown = new Parsedown();
+        $parsedown->setSafeMode(true);
+        $html = $parsedown->text($markdown);
+        $text = wp_strip_all_tags($html);
+
+        // 清理多餘空白
+        $text = preg_replace('/\s+/', ' ', $text) ?? $text;
+        return trim($text);
     }
 
     /** Schema.org BreadcrumbList 結構化資料 (保留) */

@@ -347,7 +347,7 @@ class Moelog_AIQnA_Admin_Settings
         placeholder="sk-... / AIza..."
         style="width:80%;max-width:500px;margin-bottom:8px;">
       <div style="display:flex;justify-content:space-between;align-items:center;width:80%;max-width:500px;">
-        <button type="button" class="button" id="toggle-api-key">顯示</button>
+        <button type="button" class="button" id="toggle-api-key"><?php esc_html_e("Show", "moelog-ai-qna"); ?></button>
         <button type="button" class="button" id="test-api-key">
           <?php esc_html_e("測試連線", "moelog-ai-qna"); ?>
         </button>
@@ -355,11 +355,20 @@ class Moelog_AIQnA_Admin_Settings
       <div id="test-result" style="margin-top:8px;"></div>
 
       <p class="description">
-        如已設定，出於安全僅顯示遮罩；要更換請直接輸入新 Key。
+        <?php esc_html_e(
+          "If set, the mask is displayed for security reasons; to replace it, please enter the new Key directly.",
+          "moelog-ai-qna",
+        ); ?>
       </p>
       <p class="description">
-        <strong>建議:</strong> 在 wp-config.php 定義 MOELOG_AIQNA_API_KEY 更安全。</br>
-        <strong>代碼:</strong> define('MOELOG_AIQNA_API_KEY', 'sk-xxxx...');
+        <strong><?php esc_html_e(
+          "Suggestion:",
+          "moelog-ai-qna",
+        ); ?></strong> <?php esc_html_e(
+   "Defining MOELOG_AIQNA_API_KEY in wp-config.php is more secure.",
+   "moelog-ai-qna",
+ ); ?></br>
+        <strong><?php esc_html_e("Code:", "moelog-ai-qna"); ?></strong> define('MOELOG_AIQNA_API_KEY', 'sk-xxxx...');
       </p>
     <?php }
   }

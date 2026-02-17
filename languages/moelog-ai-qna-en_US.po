@@ -1623,3 +1623,95 @@ msgstr "✓ Auto-ping Google/Bing"
 msgid "⚠️ 啟用/停用後,請到 設定 → 永久連結 點「儲存變更」刷新規則。"
 msgstr "⚠️ After enabling/disabling, please go to Settings → Permalinks and click 'Save Changes' to refresh rules."
 
+#: includes/class-admin-settings.php (v2.0.0 new keys)
+msgid "Show"
+msgstr "Show"
+
+#: includes/class-admin-settings.php
+msgid "If set, the mask is displayed for security reasons; to replace it, please enter the new Key directly."
+msgstr "If set, the mask is displayed for security reasons; to replace it, please enter the new Key directly."
+
+#: includes/class-admin-settings.php
+msgid "Suggestion:"
+msgstr "Suggestion:"
+
+#: includes/class-admin-settings.php
+msgid "Defining MOELOG_AIQNA_API_KEY in wp-config.php is more secure."
+msgstr "Defining MOELOG_AIQNA_API_KEY in wp-config.php is more secure."
+
+#: includes/class-admin-settings.php
+msgid "Code:"
+msgstr "Code:"
+
+#: moelog-ai-geo.php (v2.0.0 new keys)
+msgid "Enable STM Mode"
+msgstr "Enable STM Mode"
+
+#: moelog-ai-geo.php
+msgid "Provide structured data (QAPage, Breadcrumb), Canonical/Robots and cache strategies to help search and AI crawlers \"correctly parse\" AI answer pages."
+msgstr "Provide structured data (QAPage, Breadcrumb), Canonical/Robots and cache strategies to help search and AI crawlers \"correctly parse\" AI answer pages."
+
+#: moelog-ai-geo.php
+msgid "This function does not guarantee indexing or ranking, default is noindex; index,follow is adopted only when STM mode is enabled, and corresponding metadata and Sitemap are output."
+msgstr "This function does not guarantee indexing or ranking, default is noindex; index,follow is adopted only when STM mode is enabled, and corresponding metadata and Sitemap are output."
+
+#: moelog-ai-geo.php
+msgid "Enable structured data, SEO optimization and AI Sitemap"
+msgstr "Enable structured data, SEO optimization and AI Sitemap"
+
+#: moelog-ai-geo.php
+msgid "After enabling, this (STM) module will:"
+msgstr "After enabling, this (STM) module will:"
+
+#: moelog-ai-geo.php
+msgid "Inject `index, follow` (replace default `noindex`)"
+msgstr "Inject `index, follow` (replace default `noindex`)"
+
+#: moelog-ai-geo.php
+msgid "Inject QAPage / Breadcrumb / OG / Twitter Card Meta Tags"
+msgstr "Inject QAPage / Breadcrumb / OG / Twitter Card Meta Tags"
+
+#: moelog-ai-geo.php
+msgid "Inject Canonical Tag (point to **original article**)"
+msgstr "Inject Canonical Tag (point to **original article**)"
+
+#: moelog-ai-geo.php
+msgid "Output friendly CDN HTTP cache headers (ETag, 304, Last-Modified)"
+msgstr "Output friendly CDN HTTP cache headers (ETag, 304, Last-Modified)"
+
+#: moelog-ai-geo.php
+msgid "Generate AI Q&A dedicated Sitemap (index + pagination)"
+msgstr "Generate AI Q&A dedicated Sitemap (index + pagination)"
+
+#: moelog-ai-geo.php
+msgid "Automatically ping Google/Bing"
+msgstr "Automatically ping Google/Bing"
+
+#: moelog-ai-geo.php
+msgid "AI Q&A Sitemap:"
+msgstr "AI Q&A Sitemap:"
+
+#: moelog-ai-geo.php
+msgid "⚠️ After enabling/disabling, please go to"
+msgstr "⚠️ After enabling/disabling, please go to"
+
+#: moelog-ai-geo.php
+msgid "Settings → Permalinks"
+msgstr "Settings → Permalinks"
+
+#: moelog-ai-geo.php
+msgid "Click \"Save Changes\" to refresh rules."
+msgstr "Click \"Save Changes\" to refresh rules."
+
+#: includes/class-admin.php (v2.0.0 release notes)
+msgid "Markdown Support: Introduced Parsedown to correctly convert Markdown before rendering answers."
+msgstr "Markdown Support: Introduced Parsedown to correctly convert Markdown before rendering answers."
+
+#: includes/class-admin.php
+msgid "Style Fixes: Fixed answer page CSS to better support Markdown content."
+msgstr "Style Fixes: Fixed answer page CSS to better support Markdown content."
+
+#: includes/class-admin.php
+msgid "UI Redesign: Admin interface redesigned with a clean, elegant style."
+msgstr "UI Redesign: Admin interface redesigned with a clean, elegant style."
+

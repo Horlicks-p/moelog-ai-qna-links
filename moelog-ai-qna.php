@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Moelog AI Q&A Links
  * Description: 在每篇文章底部顯示作者預設的問題清單,點擊後開新分頁,由 AI 生成答案的靜態HTML。支持 OpenAI/Gemini,可自訂模型與提示。
- * Version: 1.10.2
+ * Version: 2.0.0
  * Author: Horlicks (moelog.com)
  * Text Domain: moelog-ai-qna
  * Domain Path: /languages
@@ -19,7 +19,7 @@ if (!defined("ABSPATH")) {
 // =========================================
 // 定義常數
 // =========================================
-define("MOELOG_AIQNA_VERSION", "1.10.2");
+define("MOELOG_AIQNA_VERSION", "2.0.0");
 define("MOELOG_AIQNA_FILE", __FILE__);
 define("MOELOG_AIQNA_DIR", plugin_dir_path(__FILE__));
 define("MOELOG_AIQNA_URL", plugin_dir_url(__FILE__));
@@ -491,6 +491,36 @@ function moelog_aiqna_clear_cache($post_id, $question = null)
     return Moelog_AIQnA_Cache::delete($post_id, $question);
 }
 
+/**
+ * 手動渲染 AI Q&A 區塊（供主題使用）
+ * 
+ * 使用時請在 functions.php 中加入:
+ * add_filter('moelog_aiqna_disable_auto_append', '__return_true');
+ * 
+ * 然後在主題模板（如 single.php）的適當位置呼叫:
+ * moelog_aiqna_render_block();
+ *
+ * @param int|null $post_id 文章 ID，預設為當前文章
+ * @param bool     $echo    是否直接輸出，預設為 true
+ * @return string|void
+ */
+function moelog_aiqna_render_block($post_id = null, $echo = true)
+{
+    $instance = moelog_aiqna_instance();
+    if (!$instance || !method_exists($instance, 'render_questions_block')) {
+        return '';
+    }
+    
+    $html = $instance->render_questions_block($post_id);
+    
+    if ($echo) {
+        echo $html;
+        return;
+    }
+    
+    return $html;
+}
+
 // =========================================
 // Debug 輔助(僅在 WP_DEBUG 時載入)
 // =========================================
@@ -582,4 +612,4 @@ add_action(
 // =========================================
 // 結束標記
 // =========================================
-// EOF - Moelog AI Q&A v1.9.0
+// EOF - Moelog AI Q&A v2.0.0

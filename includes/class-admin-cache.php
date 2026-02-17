@@ -23,6 +23,7 @@ class Moelog_AIQnA_Admin_Cache
     $stats = Moelog_AIQnA_Cache::get_stats(true);
     $ttl_days = moelog_aiqna_get_cache_ttl_days();
     ?>
+    <div class="moelog-settings-card">
         <h2><?php esc_html_e("🗑️ 快取管理", "moelog-ai-qna"); ?></h2>
 
         <div style="background:#f9f9f9;border-left:4px solid #2271b1;padding:15px;margin-bottom:20px;">
@@ -205,6 +206,7 @@ class Moelog_AIQnA_Admin_Cache
                 </button>
             </p>
         </form>
+    </div>
 
         <script>
         (function($) {
