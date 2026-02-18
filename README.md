@@ -178,9 +178,9 @@ STM 模式可協助搜尋引擎和 AI 爬蟲「解析」你的 AI 答案頁，**
 
 == 🧭 Support ==
 
-Bug reports & feature suggestions:
-🌐 Official site: [https://www.moelog.com/](https://www.moelog.com/)
-💻 GitHub: [https://github.com/Horlicks-p/moelog-ai-qna-links](https://github.com/Horlicks-p/moelog-ai-qna-links)
+Bug reports & feature suggestions:  
+🌐 Official site: [https://www.moelog.com/](https://www.moelog.com/)  
+💻 GitHub: [https://github.com/Horlicks-p/moelog-ai-qna-links](https://github.com/Horlicks-p/moelog-ai-qna-links)  
 
 ---
 
