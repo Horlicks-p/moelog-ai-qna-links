@@ -99,15 +99,42 @@ body.moe-aiqna-answer {
 
 .moe-aiqna-answer .moe-answer-wrap ul,
 .moe-aiqna-answer .moe-answer-wrap ol {
-	margin: 0.5em 0 1em;
-	padding: 0 2.4em 0 3.8em; /* 2.4em + 1.4em for bullets */
+	margin: 0.5em 2.4em 1em 2.4em; /* 左右與 p 的 padding 對齊 */
+	padding: 0 0 0 1.4em;          /* 只留給 bullet/數字的空間 */
 	color: #666;
-	font-size: 110%;
+	font-size: 105%;
 }
 
 .moe-aiqna-answer .moe-answer-wrap li {
 	margin: 0.3em 0;
 	color: #666;
+}
+
+/* Markdown: 巢狀列表縮排 */
+.moe-aiqna-answer .moe-answer-wrap ul ul,
+.moe-aiqna-answer .moe-answer-wrap ol ol,
+.moe-aiqna-answer .moe-answer-wrap ul ol,
+.moe-aiqna-answer .moe-answer-wrap ol ul {
+	margin: 0.2em 0 0.2em 0;
+	padding-left: 1.4em;
+	font-size: 100%; /* 不再繼承縮小 */
+}
+
+/* Markdown: 粗體 / 斜體 */
+.moe-aiqna-answer .moe-answer-wrap strong {
+	font-weight: 700;
+	color: #555;
+}
+.moe-aiqna-answer .moe-answer-wrap em {
+	font-style: italic;
+	color: #666;
+}
+
+/* Markdown: 裸 URL（由 PHP 轉換的 span） */
+.moe-aiqna-answer .moe-answer-wrap .moe-url {
+	word-break: break-all;
+	color: #888;
+	font-size: 0.9em;
 }
 
 .moe-aiqna-answer .moe-answer-wrap pre {
@@ -350,10 +377,13 @@ body.moe-aiqna-answer {
 
 	.moe-aiqna-answer .moe-answer-wrap ul,
 	.moe-aiqna-answer .moe-answer-wrap ol {
-		margin-left: 0;
-		padding-left: 2.2em; /* 10px + 1.5em */
-		padding-right: 15px;
-		font-size: 110%;
+		margin: 0.5em 15px 1em 15px;
+		padding-left: 1.4em;
+		font-size: 105%;
+	}
+
+	.moe-aiqna-answer .moe-answer-wrap li {
+		margin: 0.3em 0;
 	}
 
 	.moe-aiqna-answer .moe-answer-wrap pre {
@@ -415,7 +445,7 @@ body.moe-aiqna-answer {
 	}
 
 	.moe-aiqna-answer .moe-answer-wrap p {
-		padding: 0 10px;
+		padding: 0;
 		font-size: 105%;
 	}
 
