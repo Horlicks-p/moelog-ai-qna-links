@@ -17,6 +17,10 @@
         ? G.typing_jitter_ms
         : 6,
     typing_disabled: !!G.typing_disabled,
+    typing_max_chars:
+      typeof G.typing_max_chars === 'number' && G.typing_max_chars >= 0
+        ? G.typing_max_chars
+        : 1200,
     typing_fallback:
       typeof G.typing_fallback === 'string' && G.typing_fallback.trim().length
         ? G.typing_fallback
@@ -142,6 +146,10 @@
 
     var sourceRoot = document.createElement('div');
     sourceRoot.innerHTML = srcTpl.innerHTML;
+    var textLen = (sourceRoot.textContent || '').length;
+    if (!CFG.typing_disabled && CFG.typing_max_chars > 0 && textLen > CFG.typing_max_chars) {
+      CFG.typing_disabled = true;
+    }
 
     var queue = [];
     prepareTyping(sourceRoot, target, queue);

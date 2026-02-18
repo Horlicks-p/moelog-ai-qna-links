@@ -322,7 +322,10 @@ class Moelog_AIQnA_Cache
     }
 
     // ✅ 優化: 清除所有相關快取標記
-    wp_cache_flush_group("moelog_aiqna");
+    // wp_cache_flush_group() 需要 WP 6.1+ 且有物件快取外掛支援，加防護
+    if (function_exists('wp_cache_flush_group')) {
+      wp_cache_flush_group("moelog_aiqna");
+    }
     
     // ✅ 清除統計快取，確保下次顯示最新數據
     self::clear_stats_cache();

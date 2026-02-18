@@ -604,8 +604,27 @@ class Moelog_AIQnA_AI_Client
   private function request_with_retry($url, $args)
   {
     $retries = 0;
+    $start = microtime(true);
+    $max_exec = (int) ini_get("max_execution_time");
+    $deadline = null;
+
+    // 留 2 秒緩衝，避免逼近 PHP 的 max_execution_time
+    if ($max_exec > 0) {
+      $deadline = $start + max(5, $max_exec - 2);
+    }
 
     while ($retries <= self::MAX_RETRIES) {
+      if ($deadline !== null) {
+        $remaining = $deadline - microtime(true);
+        if ($remaining <= 3) {
+          return new WP_Error(
+            "moelog_aiqna_timeout",
+            __("服務暫時繁忙，請稍後再試。", "moelog-ai-qna")
+          );
+        }
+        $args["timeout"] = min($args["timeout"], (int) max(5, floor($remaining)));
+      }
+
       $response = wp_remote_request($url, $args);
 
       // 成功
@@ -622,6 +641,7 @@ class Moelog_AIQnA_AI_Client
       if ($retries < self::MAX_RETRIES) {
         $retries++;
         $delay = $retries * 2; // 2秒, 4秒
+        $delay_secs = $delay + (mt_rand(0, 500) / 1000); // 加入 0~0.5s jitter
 
       Moelog_AIQnA_Debug::logf(
         "Retry %d/%d after %d seconds",
@@ -630,7 +650,10 @@ class Moelog_AIQnA_AI_Client
         $delay
       );
 
-        sleep($delay);
+        if ($deadline !== null && ($deadline - microtime(true)) <= $delay_secs + 1) {
+          break;
+        }
+        usleep((int) round($delay_secs * 1000000));
       } else {
         break;
       }
@@ -677,7 +700,7 @@ class Moelog_AIQnA_AI_Client
    * @param array $params 使用者參數
    * @return string
    */
-  private function build_user_prompt($params)
+  private function build_user_prompt($params, $settings = [])
   {
     $question = $params["question"];
     $context = $params["context"] ?? "";

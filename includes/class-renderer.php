@@ -126,17 +126,15 @@ class Moelog_AIQnA_Renderer
       return;
     }
 
-    // 檢查靜態快取
-    if (Moelog_AIQnA_Cache::exists($params["post_id"], $params["question"])) {
-      $html = Moelog_AIQnA_Cache::load($params["post_id"], $params["question"]);
-      if ($html) {
-        // ⭐ 關鍵:讀取快取時,替換 placeholder 為新的 nonce
-        $html = $this->template->replace_nonce_in_html($html, $nonce);
+    // 檢查靜態快取 (load 內部已包含 exists 檢查,避免重複檔案系統操作)
+    $html = Moelog_AIQnA_Cache::load($params["post_id"], $params["question"]);
+    if ($html) {
+      // ⭐ 關鍵:讀取快取時,替換 placeholder 為新的 nonce
+      $html = $this->template->replace_nonce_in_html($html, $nonce);
 
-        $this->security->set_cache_headers(true);
-        $this->output_html($html);
-        exit();
-      }
+      $this->security->set_cache_headers(true);
+      $this->output_html($html);
+      exit();
     }
 
     // 執行頻率限制
@@ -150,48 +148,6 @@ class Moelog_AIQnA_Renderer
 
     // 生成新答案
     $this->generate_and_render($params, $post);
-  }
-
-  /**
-   * 從快取提供答案
-   *
-   * @param int    $post_id  文章 ID
-   * @param string $question 問題文字
-   */
-  private function serve_from_cache($post_id, $question)
-  {
-    $html = Moelog_AIQnA_Cache::load($post_id, $question);
-
-    if ($html === false) {
-      // 快取讀取失敗,重新生成
-      $params = [
-        "post_id" => $post_id,
-        "question" => $question,
-        "lang" => "auto",
-      ];
-      $post = Moelog_AIQnA_Post_Cache::get($post_id);
-      if ($post) {
-        $this->generate_and_render($params, $post);
-      }
-      return;
-    }
-
-    // ⭐ 關鍵:讀取快取時,替換 placeholder 為新的 nonce
-    $nonce = $this->security->get_csp_nonce();
-    $html = $this->template->replace_nonce_in_html($html, $nonce);
-
-    // 設定 Headers
-    $this->security->set_cache_headers(true);
-
-    // 記錄靜態檔案路徑(供 GEO 模組使用)
-    $GLOBALS["moe_aiqna_static_file"] = Moelog_AIQnA_Cache::get_static_path(
-      $post_id,
-      $question,
-    );
-
-    // 輸出 HTML
-    $this->output_html($html);
-    exit();
   }
 
   /**
