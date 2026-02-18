@@ -7,14 +7,10 @@
 
 /* --- 1. 文章內「問題清單」區塊 (.moe-aiqna-block) --- */
 
-.single-post .moe-aiqna-block {
-	/* order: 3; */ /* 暫時註解：可能導致短碼顯示位置被固定 */
-}
-
 .moe-aiqna-block {
 	margin: -0.2em 0 1.2em 0;
 	padding: 0.5em;
-	border: 1px solid #E5E5E0;
+	border: 1px solid #F39C12;
 	border-radius: 6px;
 	background: #fff;
 }
@@ -103,12 +99,15 @@ body.moe-aiqna-answer {
 
 .moe-aiqna-answer .moe-answer-wrap ul,
 .moe-aiqna-answer .moe-answer-wrap ol {
-	margin: .5em 0 1em 1.25em;
-	padding-left: 2em;
+	margin: 0.5em 0 1em;
+	padding: 0 2.4em 0 3.8em; /* 2.4em + 1.4em for bullets */
+	color: #666;
+	font-size: 110%;
 }
 
 .moe-aiqna-answer .moe-answer-wrap li {
 	margin: 0.3em 0;
+	color: #666;
 }
 
 .moe-aiqna-answer .moe-answer-wrap pre {
@@ -130,6 +129,86 @@ body.moe-aiqna-answer {
 .moe-aiqna-answer .moe-answer-wrap pre code {
 	background: transparent;
 	padding: 0;
+}
+
+/* Markdown: 標題 */
+.moe-aiqna-answer .moe-answer-wrap h1,
+.moe-aiqna-answer .moe-answer-wrap h2,
+.moe-aiqna-answer .moe-answer-wrap h3,
+.moe-aiqna-answer .moe-answer-wrap h4,
+.moe-aiqna-answer .moe-answer-wrap h5,
+.moe-aiqna-answer .moe-answer-wrap h6 {
+	margin: 1.4em 0 0.6em;
+	padding: 0 2.4em;
+	color: #666;
+	line-height: 1.4;
+	font-family: "Noto Sans TC", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	text-shadow: none;
+}
+.moe-aiqna-answer .moe-answer-wrap h2 { font-size: 1.4em; padding-bottom: 0.3em; }
+.moe-aiqna-answer .moe-answer-wrap h3 { font-size: 1.2em; }
+.moe-aiqna-answer .moe-answer-wrap h4 { font-size: 1.05em; }
+
+/* Markdown: 表格 */
+.moe-aiqna-answer .moe-answer-wrap table {
+	border-collapse: collapse;
+	width: auto;
+	max-width: 100%;
+	margin: 1em 2.4em 1em calc(2.4em + 15px);
+	font-size: 100%;
+	line-height: 1.5;
+	color: #666;
+}
+.moe-aiqna-answer .moe-answer-wrap th,
+.moe-aiqna-answer .moe-answer-wrap td {
+	border: 1px solid #ddd;
+	padding: 0.5em 0.8em;
+	color: #666;
+}
+.moe-aiqna-answer .moe-answer-wrap th {
+	background: #f0eed8;
+	font-weight: 600;
+	color: #666;
+}
+.moe-aiqna-answer .moe-answer-wrap tr:nth-child(even) {
+	background: #fafaf5;
+}
+
+/* Markdown: 引用區塊 */
+.moe-aiqna-answer .moe-answer-wrap blockquote {
+	margin: 1em 2.4em;
+	padding: 0.6em 1.2em;
+	border-left: 4px solid #94B800;
+	background: #fafaf5;
+	color: #555;
+	font-style: italic;
+}
+.moe-aiqna-answer .moe-answer-wrap blockquote p {
+	padding: 0;
+	margin: 0.4em 0;
+}
+
+/* Markdown: 分隔線 */
+.moe-aiqna-answer .moe-answer-wrap hr {
+	border: none;
+	border-top: 1px solid #e0e0e0;
+	margin: 1.5em 2.4em;
+}
+
+/* Markdown: 刪除線 */
+.moe-aiqna-answer .moe-answer-wrap del {
+	color: #999;
+	text-decoration: line-through;
+}
+
+/* Markdown: 連結 */
+.moe-aiqna-answer .moe-answer-wrap a {
+	color: #1d8ac3;
+	text-decoration: none;
+}
+.moe-aiqna-answer .moe-answer-wrap a:hover {
+	color: #94B800;
+	text-decoration: underline;
 }
 
 /* --- 5. 底部關閉區域 --- */
@@ -271,13 +350,38 @@ body.moe-aiqna-answer {
 
 	.moe-aiqna-answer .moe-answer-wrap ul,
 	.moe-aiqna-answer .moe-answer-wrap ol {
-		margin-left: 15px;
-		padding-left: 1.5em;
+		margin-left: 0;
+		padding-left: 2.2em; /* 10px + 1.5em */
 		padding-right: 15px;
+		font-size: 110%;
 	}
 
 	.moe-aiqna-answer .moe-answer-wrap pre {
 		margin: 1em 15px;
+	}
+
+	.moe-aiqna-answer .moe-answer-wrap h1,
+	.moe-aiqna-answer .moe-answer-wrap h2,
+	.moe-aiqna-answer .moe-answer-wrap h3,
+	.moe-aiqna-answer .moe-answer-wrap h4,
+	.moe-aiqna-answer .moe-answer-wrap h5,
+	.moe-aiqna-answer .moe-answer-wrap h6 {
+		padding: 0 15px;
+	}
+
+	.moe-aiqna-answer .moe-answer-wrap table {
+		margin: 1em 15px;
+		display: block;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.moe-aiqna-answer .moe-answer-wrap blockquote {
+		margin: 1em 15px;
+	}
+
+	.moe-aiqna-answer .moe-answer-wrap hr {
+		margin: 1.5em 15px;
 	}
 
 	.moe-original-section {
@@ -313,6 +417,17 @@ body.moe-aiqna-answer {
 	.moe-aiqna-answer .moe-answer-wrap p {
 		padding: 0 10px;
 		font-size: 105%;
+	}
+
+	.moe-aiqna-answer .moe-answer-wrap h1,
+	.moe-aiqna-answer .moe-answer-wrap h2,
+	.moe-aiqna-answer .moe-answer-wrap h3 {
+		padding: 0 10px;
+	}
+
+	.moe-aiqna-answer .moe-answer-wrap table {
+		margin: 1em 10px;
+		font-size: 0.85em;
 	}
 
 	.moe-original-section {
