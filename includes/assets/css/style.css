@@ -48,41 +48,44 @@
 /* --- 2. 答案頁 (body.moe-aiqna-answer) - 全域設定 --- */
 
 body.moe-aiqna-answer {
-	margin: 24px auto;
-	max-width: 880px;
-	color: #222;
+	margin: 0;
+	padding: 24px 16px 0;
+	color: #666;
 	font-family: "Noto Sans TC", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 	line-height: 1.85;
 	background: #f5f5f0 !important;
 }
 
-/* 置中容器 - 修正背景圖路徑 */
+/* 主容器 - 白色外框，padding 20px 製造白邊 */
 .moe-aiqna-answer .moe-container {
 	max-width: 880px;
-	margin: 30px auto 0;
-	padding: 0 16px;
-	background: #F0EEE0 url(../images/moe-containerbg.gif);
+	margin: 0 auto;
+	padding: 20px;
+	background: #fff;
+	border: 1px solid #dcdcdc;
 }
 
-/* Banner - 修正背景圖路徑 */
+/* Banner - 880px 置中，頂部 20px 白邊由 container padding 提供 */
 .moe-aiqna-answer .moe-banner {
-	max-width: 790px;
-	height: 250px;
-	margin: 0 auto;
-	background: #F0EEE0 url(../images/moe-banner.jpg) repeat-y;
+	width: 100%;
+	max-width: 880px;
+	height: 240px;
+	background: #f5f5f0 url(../images/moe-banner.jpg) center top / cover no-repeat;
+}
+
+/* 內文容器 - 底色 #faf9f6，包住所有內文與 feedback */
+.moe-aiqna-answer .moe-inner {
+	background: #faf9f6;
+	border-radius: 0 0 4px 4px;
+	margin-top: 25px;
+	padding-bottom: 4px;
 }
 
 /* --- 3. 答案頁標題與提問重現 --- */
 
-.moe-aiqna-answer .moe-head {
-	border-bottom: none;
-	padding-bottom: 8px;
-	margin-bottom: 16px;
-}
-
 .moe-aiqna-answer .moe-question-echo {
 	margin: 0 0 4px 0;
-	padding: 0 30px 16px 45px;
+	padding: 24px 16px 16px 16px;
 	font: 220%/100% "DotGothic16", sans-serif;
 	text-shadow: 0 2px 0 #d1d1d1;
 	color: #1d8ac3;
@@ -92,21 +95,22 @@ body.moe-aiqna-answer {
 
 .moe-aiqna-answer .moe-answer-wrap p {
 	margin: 0 0 1em;
-	padding: 0 2.4em;
-	font-size: 120%;
+	padding: 0 16px;
+	font-size: 20px;
 	color: #666;
 }
 
 .moe-aiqna-answer .moe-answer-wrap ul,
 .moe-aiqna-answer .moe-answer-wrap ol {
-	margin: 0.5em 2.4em 1em 2.4em; /* 左右與 p 的 padding 對齊 */
+	margin: 0.5em 2.4em 1em 1.5em; /* 左右與 p 的 padding 對齊 */
 	padding: 0 0 0 1.4em;          /* 只留給 bullet/數字的空間 */
 	color: #666;
-	font-size: 105%;
+	font-size: 20px;
 }
 
 .moe-aiqna-answer .moe-answer-wrap li {
 	margin: 0.3em 0;
+	font-size: 20px;
 	color: #666;
 }
 
@@ -117,13 +121,13 @@ body.moe-aiqna-answer {
 .moe-aiqna-answer .moe-answer-wrap ol ul {
 	margin: 0.2em 0 0.2em 0;
 	padding-left: 1.4em;
-	font-size: 100%; /* 不再繼承縮小 */
+	font-size: 20px;
 }
 
 /* Markdown: 粗體 / 斜體 */
 .moe-aiqna-answer .moe-answer-wrap strong {
 	font-weight: 700;
-	color: #555;
+	color: #666;
 }
 .moe-aiqna-answer .moe-answer-wrap em {
 	font-style: italic;
@@ -143,6 +147,11 @@ body.moe-aiqna-answer {
 	border-radius: 6px;
 	overflow: auto;
 	margin: 1em 2.4em;
+	word-wrap: break-word;
+	word-break: break-all;
+	overflow-wrap: anywhere;
+	white-space: pre-wrap;
+	max-width: 100%;
 }
 
 .moe-aiqna-answer .moe-answer-wrap code {
@@ -150,7 +159,10 @@ body.moe-aiqna-answer {
 	background: #f5f5f5;
 	padding: 0.2em 0.4em;
 	border-radius: 3px;
-	font-size: 0.9em;
+	font-size: 20px;
+	word-wrap: break-word;
+	word-break: break-all;
+	overflow-wrap: anywhere;
 }
 
 .moe-aiqna-answer .moe-answer-wrap pre code {
@@ -166,23 +178,23 @@ body.moe-aiqna-answer {
 .moe-aiqna-answer .moe-answer-wrap h5,
 .moe-aiqna-answer .moe-answer-wrap h6 {
 	margin: 1.4em 0 0.6em;
-	padding: 0 2.4em;
+	padding: 0 16px;
 	color: #666;
 	line-height: 1.4;
 	font-family: "Noto Sans TC", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 	text-shadow: none;
 }
-.moe-aiqna-answer .moe-answer-wrap h2 { font-size: 1.4em; padding-bottom: 0.3em; }
-.moe-aiqna-answer .moe-answer-wrap h3 { font-size: 1.2em; }
-.moe-aiqna-answer .moe-answer-wrap h4 { font-size: 1.05em; }
+.moe-aiqna-answer .moe-answer-wrap h2 { font-size: 24px; padding-bottom: 0.3em;font-weight: bold; }
+.moe-aiqna-answer .moe-answer-wrap h3 { font-size: 22px;font-weight: bold; }
+.moe-aiqna-answer .moe-answer-wrap h4 { font-size: 20px;font-weight: bold; }
 
 /* Markdown: 表格 */
 .moe-aiqna-answer .moe-answer-wrap table {
 	border-collapse: collapse;
 	width: auto;
 	max-width: 100%;
-	margin: 1em 2.4em 1em calc(2.4em + 15px);
-	font-size: 100%;
+	margin: 1em 1.0em 1em calc(1.0em + 15px);
+	font-size: 18px;
 	line-height: 1.5;
 	color: #666;
 }
@@ -242,16 +254,12 @@ body.moe-aiqna-answer {
 
 .moe-aiqna-answer .moe-close-area {
 	margin: 20px 0 0;
-	padding: 0 2.4em;
+	padding: 0 2.4em 28px; /* 底部加 padding，讓卡片底部有呼吸空間 */
 	text-align: center;
 }
 
-/* 底部裝飾 - 修正背景圖路徑 */
+/* 底部裝飾 - 純 CSS 取代 moe-bottom.gif */
 .moe-aiqna-answer .moe-bottom {
-	height: 54px;
-	margin: 0 auto;
-	background: #f5f5f0 url(../images/moe-bottom.gif) no-repeat center;
-	color: #666;
 	clear: both;
 }
 
@@ -305,12 +313,10 @@ body.moe-aiqna-answer {
 /* --- 6. 原文連結區域 --- */
 
 .moe-original-section {
-	padding: 20px 2.4em;
-	font-size: 110%;
+	padding: 0 45px 0 45px;
+	font-size: 20px;
+	letter-spacing: 0.5px;
 	color: #666;
-	margin-top: 30px;
-	/* border-top: 1px dashed #ddd; */ /* 移除虛線 */
-	line-height: 1.6;
 }
 
 .moe-original-link {
@@ -327,9 +333,9 @@ body.moe-aiqna-answer {
 /* --- 7. 免責聲明 --- */
 
 .moe-disclaimer {
-	margin: 20px auto 0;
+	margin: 5px auto 0;
 	text-align: center;
-	font-size: 0.9em;
+	font-size: 16px;
 	color: #999;
 	line-height: 1.6;
 	padding: 15px 20px;
@@ -341,132 +347,170 @@ body.moe-aiqna-answer {
    =================================================== */
 
 @media (max-width: 900px) {
-	/* 移除背景圖片 */
-	.moe-aiqna-answer .moe-container {
-		margin: 0;
-		padding: 0 12px;
-		max-width: 100%;
-		background: #FFFFFF !important;
-	}
-
-	.moe-aiqna-answer .moe-banner {
-		display: none;
-	}
-
-	.moe-aiqna-answer .moe-bottom {
-		background: #FFFFFF !important;
-		height: 0px;
-	}
-
 	body.moe-aiqna-answer {
-		margin: 0;
 		padding: 0;
 		background: #FFFFFF !important;
 	}
 
+	.moe-aiqna-answer .moe-container {
+		max-width: 100%;
+		padding: 0;
+		border-radius: 0;
+		border: none;
+	}
+
+	.moe-aiqna-answer .moe-inner {
+		border-radius: 0;
+		margin-top: 16px;
+	}
+
+	.moe-aiqna-answer .moe-banner {
+		height: 160px;
+	}
+
+	.moe-aiqna-answer .moe-bottom {
+		height: auto;
+	}
+
+	/* 標題 */
 	.moe-aiqna-answer .moe-question-echo {
-		padding: 15px 15px 12px 15px;
-		font-size: 160%;
+		padding: 16px 16px 12px 16px;
+		font-size: 22px;
 		line-height: 1.3;
 	}
 
+	/* 段落 */
 	.moe-aiqna-answer .moe-answer-wrap p {
-		padding: 0 15px;
-		font-size: 110%;
+		padding: 0 16px;
+		font-size: 17px;
 	}
 
+	/* 列表 */
 	.moe-aiqna-answer .moe-answer-wrap ul,
 	.moe-aiqna-answer .moe-answer-wrap ol {
-		margin: 0.5em 15px 1em 15px;
+		margin: 0.5em 16px 1em 16px;
 		padding-left: 1.4em;
-		font-size: 105%;
+		font-size: 17px;
 	}
 
 	.moe-aiqna-answer .moe-answer-wrap li {
 		margin: 0.3em 0;
+		font-size: 17px;
 	}
 
+	.moe-aiqna-answer .moe-answer-wrap ul ul,
+	.moe-aiqna-answer .moe-answer-wrap ol ul {
+		font-size: 17px;
+	}
+
+	/* 程式碼區塊 */
 	.moe-aiqna-answer .moe-answer-wrap pre {
-		margin: 1em 15px;
+		margin: 1em 16px;
 	}
 
+	/* 標題 h2~h6 */
 	.moe-aiqna-answer .moe-answer-wrap h1,
 	.moe-aiqna-answer .moe-answer-wrap h2,
 	.moe-aiqna-answer .moe-answer-wrap h3,
 	.moe-aiqna-answer .moe-answer-wrap h4,
 	.moe-aiqna-answer .moe-answer-wrap h5,
 	.moe-aiqna-answer .moe-answer-wrap h6 {
-		padding: 0 15px;
+		padding: 0 16px;
 	}
+	.moe-aiqna-answer .moe-answer-wrap h2 { font-size: 20px; }
+	.moe-aiqna-answer .moe-answer-wrap h3 { font-size: 19px; }
+	.moe-aiqna-answer .moe-answer-wrap h4 { font-size: 17px; }
 
+	/* 表格 */
 	.moe-aiqna-answer .moe-answer-wrap table {
-		margin: 1em 15px;
+		margin: 1em 16px;
+		font-size: 15px;
 		display: block;
 		overflow-x: auto;
 		-webkit-overflow-scrolling: touch;
 	}
 
+	/* 引用區塊 */
 	.moe-aiqna-answer .moe-answer-wrap blockquote {
-		margin: 1em 15px;
+		margin: 1em 16px;
 	}
 
+	/* 分隔線 */
 	.moe-aiqna-answer .moe-answer-wrap hr {
-		margin: 1.5em 15px;
+		margin: 1.5em 16px;
 	}
 
+	/* 元記事連結 */
 	.moe-original-section {
-		padding: 15px !important;
-		margin: 20px 0 15px;
-		font-size: 0.95em;
+		padding: 0 16px;
+		font-size: 17px;
 	}
 
+	/* 關閉按鈕區 */
 	.moe-aiqna-answer .moe-close-area {
-		padding: 0 15px;
+		padding: 0 16px 24px;
 		margin: 15px 0;
 	}
 
 	.moe-aiqna-answer .moe-close-btn {
 		padding: .6em 1.2em;
-		font-size: 0.95em;
+		font-size: 16px;
 	}
 
+	/* 免責聲明 */
 	.moe-disclaimer {
-		padding: 10px 15px !important;
-		font-size: 0.85em !important;
-		line-height: 1.5em !important;
+		padding: 10px 16px !important;
+		font-size: 14px !important;
+		line-height: 1.6 !important;
 	}
 }
 
-/* 極小螢幕 (iPhone SE 等) */
+/* 極小螢幕 (iPhone SE 等, ≤375px) */
 @media (max-width: 375px) {
+	.moe-aiqna-answer .moe-banner {
+		height: 110px;
+	}
+
 	.moe-aiqna-answer .moe-question-echo {
-		padding: 12px 10px;
-		font-size: 140%;
+		padding: 12px 12px 10px 12px;
+		font-size: 19px;
 	}
 
 	.moe-aiqna-answer .moe-answer-wrap p {
-		padding: 0;
-		font-size: 105%;
+		padding: 0 12px;
+		font-size: 16px;
+	}
+
+	.moe-aiqna-answer .moe-answer-wrap ul,
+	.moe-aiqna-answer .moe-answer-wrap ol {
+		margin: 0.5em 12px 1em 12px;
+		font-size: 16px;
+	}
+
+	.moe-aiqna-answer .moe-answer-wrap li {
+		font-size: 16px;
 	}
 
 	.moe-aiqna-answer .moe-answer-wrap h1,
 	.moe-aiqna-answer .moe-answer-wrap h2,
 	.moe-aiqna-answer .moe-answer-wrap h3 {
-		padding: 0 10px;
+		padding: 0 12px;
 	}
+	.moe-aiqna-answer .moe-answer-wrap h2 { font-size: 18px; }
+	.moe-aiqna-answer .moe-answer-wrap h3 { font-size: 17px; }
 
 	.moe-aiqna-answer .moe-answer-wrap table {
-		margin: 1em 10px;
-		font-size: 0.85em;
+		margin: 1em 12px;
+		font-size: 14px;
 	}
 
 	.moe-original-section {
-		padding: 10px !important;
-		font-size: 0.9em;
+		padding: 0 12px;
+		font-size: 16px;
 	}
 
 	.moe-aiqna-answer .moe-close-area {
-		padding: 0 10px;
+		padding: 0 12px 20px;
 	}
 }
 
@@ -475,17 +519,16 @@ body.moe-aiqna-answer {
    =================================================== */
 
 .moe-typing-cursor {
-	display: inline-block;
-	width: 2px;
-	height: 1.2em;
-	background: #666;
+	display: none;
+	width: 1px;
+	background: #999;
 	margin-left: 2px;
 	animation: moe-blink 1s step-end infinite;
 	vertical-align: baseline;
 }
 
 @keyframes moe-blink {
-	50% { opacity: 0; }
+	50% { background: transparent; }
 }
 
 /* ===================================================
@@ -497,28 +540,6 @@ body.moe-aiqna-answer {
 	word-break: break-word;
 	overflow-wrap: anywhere;
 	max-width: 100%;
-}
-
-.moe-answer-noscript {
-	padding: 20px 2.4em;
-}
-
-/* 載入動畫(可選) */
-.moe-loading {
-	text-align: center;
-	padding: 40px;
-	color: #999;
-}
-
-.moe-loading::after {
-	content: '...';
-	animation: moe-loading-dots 1.5s steps(4, end) infinite;
-}
-
-@keyframes moe-loading-dots {
-	0%, 20% { content: '.'; }
-	40% { content: '..'; }
-	60%, 100% { content: '...'; }
 }
 
 /* --- 11. 文章回饋卡片 (.moe-feedback-card) --- */
@@ -649,7 +670,7 @@ p#moe-feedback-message[data-state="success"] {
 	justify-content: center;
 	gap: 24px;
 	margin: 20px 0 10px;
-	font-size: 10px;
+	font-size: 16px;
 	color: #444;
 }
 
@@ -660,14 +681,12 @@ p#moe-feedback-message[data-state="success"] {
 }
 
 .moe-feedback-stat img {
-	width: 18px;
-	height: 18px;
+	width: 24px;
+	height: 24px;
 	display: block;
 }
 
-.moe-feedback-stat strong {
-	font-size: 14px;
-}
+
 
 @media (max-width: 900px) {
 	.moe-feedback-card {

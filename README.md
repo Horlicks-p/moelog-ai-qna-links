@@ -6,9 +6,9 @@ Requires at least: 5.0
 Tested up to: 6.8.3  
 Requires PHP: 7.4  
 Tested PHP: 8.3  
-Stable tag: 2.0.0  
+Stable tag: 2.0.1  
 License: GPLv2 or later  
-License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)  
+License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
 
 == 🧠 Description ==
 
@@ -146,6 +146,14 @@ STM 模式可協助搜尋引擎和 AI 爬蟲「解析」你的 AI 答案頁，**
 ---
 
 == 🧩 Changelog ==
+
+= 2.0.1 (2026-02-19) – Layout Refinement & Custom Banner =
+
+- 🎨 **版面優化:** 以純 CSS 取代背景圖片，實現精確的白邊、間距與圓角控制。
+- 🎨 **字體統一:** 內文、列表、標題全面改用 px 固定字體大小，手機/平板響應式同步更新。
+- 🖼️ **自訂 Banner:** 新增後台上傳功能，可透過 WordPress 媒體庫選擇自訂 Banner（建議 880 × 240 px）。
+- 🐛 **修正:** 補回因重構遺漏的 `answer.js` script 標籤。
+- 🌍 **國際化:** 補充自訂 Banner 相關字串的英文 (`en_US`) 與日文 (`ja`) 翻譯。
 
 = 2.0.0 (2026-02-18) – Major UI Overhaul & CSS Refinement =
 

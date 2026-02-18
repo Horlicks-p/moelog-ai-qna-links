@@ -119,73 +119,6 @@ $GLOBALS["moe_aiqna_is_answer_page"] = true;
   ];
   ?>
 
-  <style nonce="<?php echo esc_attr($csp_nonce); ?>">
-    /* 打字游標 - 如果不想顯示,可以設定 display: none */
-    .moe-typing-cursor {
-      display: none;
-      width: 1px;
-      background: #999;
-      margin-left: 2px;
-      animation: moe-blink 1s step-end infinite;
-      vertical-align: baseline;
-    }
-
-    @keyframes moe-blink {
-      50% {
-        background: transparent;
-      }
-    }
-
-    .moe-answer-wrap {
-      word-wrap: break-word;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-      max-width: 100%;
-    }
-
-    .moe-answer-wrap p,
-    .moe-answer-wrap li {
-      word-wrap: break-word;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-    }
-
-    .moe-answer-wrap code,
-    .moe-answer-wrap pre {
-      word-wrap: break-word;
-      word-break: break-all;
-      overflow-wrap: anywhere;
-      white-space: pre-wrap;
-      max-width: 100%;
-    }
-
-    .moe-original-section {
-      padding: 0 45px 0 45px;
-      font-size: 120%;
-      letter-spacing: 0.5px;
-      color: #666;
-    }
-
-    .moe-original-link {
-      color: #94B800;
-      text-decoration: none;
-    }
-
-    .moe-original-link:hover {
-      color: #69644e;
-      text-decoration: underline;
-    }
-
-    @media (max-width: 768px) {
-      .moe-original-section {
-        padding: 0 20px;
-      }
-
-      .moe-original-url {
-        font-size: 0.85em;
-      }
-    }
-  </style>
   <script nonce="<?php echo esc_attr($csp_nonce); ?>">
     // 可在任何頁面先寫入全域預設;之後也能在後台設定頁動態輸出
     window.MoelogAIQnA = window.MoelogAIQnA || {};
@@ -238,104 +171,19 @@ $GLOBALS["moe_aiqna_is_answer_page"] = true;
     ?>
     <div class="moe-banner" <?php if ($banner_style): ?> style="<?php echo esc_attr($banner_style); ?>" <?php endif; ?> role="img" aria-label="<?php echo esc_attr($banner_alt); ?>"></div>
 
+    <div class="moe-inner">
     <div class="moe-answer-wrap">
       <div class="moe-question-echo"><?php echo esc_html($question); ?></div>
       <?php
-      // Markdown → HTML（使用 Parsedown）
-      if (!class_exists('Parsedown')) {
-        require_once MOELOG_AIQNA_DIR . 'includes/Parsedown.php';
-      }
-      $parsedown = new Parsedown();
-      $parsedown->setSafeMode(true);     // 防止原始 HTML 注入 (XSS 防護)
-      $parsedown->setBreaksEnabled(true); // 自動換行
-
-      $parsed_html = $answer ? $parsedown->text($answer) : "";
-      $parsed_html = apply_filters('moelog_aiqna_markdown_to_html', $parsed_html, $answer);
-
-      // 允許的 HTML 標籤（含 Markdown 可能產生的所有元素）
-      $allowed = [
-        "p"          => [],
-        "ul"         => [],
-        "ol"         => ["start" => []],
-        "li"         => [],
-        "strong"     => [],
-        "em"         => [],
-        "br"         => [],
-        "span"       => ["class" => [], "title" => []],
-        "h1"         => ["id" => []],
-        "h2"         => ["id" => []],
-        "h3"         => ["id" => []],
-        "h4"         => ["id" => []],
-        "h5"         => ["id" => []],
-        "h6"         => ["id" => []],
-        "table"      => [],
-        "thead"      => [],
-        "tbody"      => [],
-        "tr"         => [],
-        "th"         => ["style" => []],
-        "td"         => ["style" => []],
-        "code"       => ["class" => []],
-        "pre"        => [],
-        "blockquote" => [],
-        "hr"         => [],
-        "del"        => [],
-        "a"          => ["href" => [], "title" => [], "target" => [], "rel" => []],
-      ];
-      $safe_html = wp_kses($parsed_html, $allowed);
-
-      // 移除事件處理器
-      // PHP 8.1+: 確保 preg_replace 不返回 null
-      $safe_html = preg_replace(
-        "/<(\w+)\s+[^>]*on\w+\s*=\s*[^>]*>/i",
-        '<$1>',
-        $safe_html
-      ) ?? $safe_html;
-
-      // 處理裸露 URL（不在 <a> 標籤內的）轉換為帶 title 的 span
-      $safe_html = preg_replace_callback(
-        '/(?<!["\'>])(https?:\/\/[^\s<>"]+)(?![^<]*<\/a>)/i',
-        function ($m) {
-          $url = urldecode($m[1]);
-          return '<span class="moe-url" title="' .
-            esc_attr($url) .
-            '">' .
-            esc_html($url) .
-            "</span>";
-        },
-        $safe_html
-      ) ?? $safe_html;
-
-      // 取得乾淨的域名與原文連結
-      $domain = parse_url(home_url(), PHP_URL_HOST) ?? "";
-      $clean_domain = preg_replace("/^www\./", "", $domain) ?? $domain;
-      $post_permalink = get_permalink($post_id);
-      $display_url = urldecode($post_permalink);
-
-      // 將「原文連結」納入打字來源
-      $original_html =
-        '<div class="moe-original-section">
-  ' .
-        esc_html__("原文連結", "moelog-ai-qna") .
-        '<br>
-  [' .
-        esc_html($clean_domain) .
-        ']
-  <a href="' .
-        esc_url($post_permalink) .
-        '"
-     target="_blank"
-     rel="noopener noreferrer"
-     class="moe-original-link">' .
-        esc_html($display_url) .
-        '</a>
-</div>';
+      // 直接使用 Renderer_Template 已處理好的內容，避免重複解析/過濾
+      $answer_html = isset($answer_html) ? $answer_html : "";
+      $original_link_html = isset($original_link_html) ? $original_link_html : "";
       ?>
       <div id="moe-ans-target"></div>
-      <template id="moe-ans-source"><?php echo $safe_html .
-                                      $original_html; ?></template>
+      <template id="moe-ans-source"><?php echo $answer_html . $original_link_html; ?></template>
 
-      <noscript><?php echo $safe_html
-                  ? $safe_html
+      <noscript><?php echo $answer_html
+                  ? $answer_html
                   : "<p>" .
                   esc_html__(
                     "抱歉,目前無法取得 AI 回答,請稍後再試。",
@@ -425,9 +273,9 @@ $GLOBALS["moe_aiqna_is_answer_page"] = true;
           </a>
         </div>
       </div>
-    </div>
-  </div>
-  <div class="moe-bottom"></div>
+    </div><!-- /.moe-answer-wrap -->
+    </div><!-- /.moe-inner -->
+  </div><!-- /.moe-container -->
 
   <?php if ($feedback_enabled): ?>
     <script
@@ -438,6 +286,7 @@ $GLOBALS["moe_aiqna_is_answer_page"] = true;
     </script>
   <?php endif; ?>
 
+  <div class="moe-bottom">
   <?php
   // 免責聲明
   $site_name = get_bloginfo("name", "display");
@@ -460,9 +309,10 @@ $GLOBALS["moe_aiqna_is_answer_page"] = true;
     $site_name
   );
   ?>
-  <p class="moe-disclaimer" style="margin-top:0px;text-align:center;font-size:0.85em; color:#666; line-height:1.5em;">
+  <p class="moe-disclaimer">
     <?php echo nl2br(esc_html($disclaimer)); ?>
   </p>
+  </div><!-- /.moe-bottom -->
 </body>
 
 </html>

@@ -176,6 +176,15 @@ class Moelog_AIQnA_Admin_Settings
       "display",
     );
 
+    // 自訂 Banner
+    add_settings_field(
+      "banner_url",
+      __("自訂 Banner", "moelog-ai-qna"),
+      [$this, "render_banner_field"],
+      self::PAGE_DISPLAY,
+      "display",
+    );
+
     // === 快取設定區段 ===
     add_settings_section(
       "cache",
@@ -770,6 +779,77 @@ class Moelog_AIQnA_Admin_Settings
   }
 
   /**
+   * 渲染「自訂 Banner」欄位
+   */
+  public function render_banner_field()
+  {
+    $value = Moelog_AIQnA_Settings::get("banner_url", "");
+    $default_url = plugins_url("includes/assets/images/moe-banner.jpg", dirname(__FILE__));
+    $preview_url = $value ?: $default_url;
+  ?>
+    <div id="moe-banner-wrap" style="max-width:880px;">
+
+      <div id="moe-banner-preview" style="margin-bottom:12px;">
+        <img src="<?php echo esc_url($preview_url); ?>"
+          id="moe-banner-img"
+          style="width:100%;max-width:880px;height:auto;border:1px solid #ddd;border-radius:4px;display:block;"
+          alt="Banner Preview">
+      </div>
+
+      <input type="hidden"
+        name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[banner_url]"
+        id="moe-banner-url"
+        value="<?php echo esc_attr($value); ?>">
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button type="button" class="button" id="moe-banner-upload">
+          <?php esc_html_e("選擇圖片", "moelog-ai-qna"); ?>
+        </button>
+        <button type="button" class="button button-secondary" id="moe-banner-remove"
+          style="<?php echo $value ? '' : 'display:none;'; ?>">
+          <?php esc_html_e("移除（恢復預設）", "moelog-ai-qna"); ?>
+        </button>
+      </div>
+
+      <p class="description" style="margin-top:8px;">
+        <?php esc_html_e("建議尺寸：880 × 240 px。留空則使用預設 Banner。", "moelog-ai-qna"); ?>
+      </p>
+    </div>
+
+    <script>
+    jQuery(document).ready(function($) {
+      var frame;
+      var defaultUrl = <?php echo wp_json_encode($default_url); ?>;
+
+      $('#moe-banner-upload').on('click', function(e) {
+        e.preventDefault();
+        if (frame) { frame.open(); return; }
+        frame = wp.media({
+          title: <?php echo wp_json_encode(__('選擇 Banner 圖片', 'moelog-ai-qna')); ?>,
+          button: { text: <?php echo wp_json_encode(__('使用此圖片', 'moelog-ai-qna')); ?> },
+          multiple: false,
+          library: { type: 'image' }
+        });
+        frame.on('select', function() {
+          var attachment = frame.state().get('selection').first().toJSON();
+          $('#moe-banner-url').val(attachment.url);
+          $('#moe-banner-img').attr('src', attachment.url);
+          $('#moe-banner-remove').show();
+        });
+        frame.open();
+      });
+
+      $('#moe-banner-remove').on('click', function() {
+        $('#moe-banner-url').val('');
+        $('#moe-banner-img').attr('src', defaultUrl);
+        $(this).hide();
+      });
+    });
+    </script>
+  <?php
+  }
+
+  /**
    * 渲染快取有效期限欄位
    */
   public function render_cache_ttl_field()
@@ -886,7 +966,7 @@ class Moelog_AIQnA_Admin_Settings
     // 判斷目前是哪個分頁提交
     // =========================================
     $is_general_tab = isset($input["provider"]) || isset($input["api_key"]) || isset($input["temperature"]);
-    $is_display_tab = isset($input["list_heading"]) || isset($input["disclaimer_text"]);
+    $is_display_tab = isset($input["list_heading"]) || isset($input["disclaimer_text"]) || isset($input["banner_url"]);
     $is_cache_tab = isset($input["cache_ttl_days"]) || isset($input["pretty_base"]) || isset($input["static_dir"]);
 
     // =========================================
@@ -985,6 +1065,14 @@ class Moelog_AIQnA_Admin_Settings
     // =========================================
     if ($is_display_tab) {
       $output["feedback_enabled"] = !empty($input["feedback_enabled"]) ? 1 : 0;
+    }
+
+    // =========================================
+    // 9.6 Banner URL - 只在顯示設定分頁處理
+    // =========================================
+    if ($is_display_tab) {
+      $banner_url = isset($input["banner_url"]) ? trim($input["banner_url"]) : "";
+      $output["banner_url"] = $banner_url ? esc_url_raw($banner_url) : "";
     }
 
     // =========================================

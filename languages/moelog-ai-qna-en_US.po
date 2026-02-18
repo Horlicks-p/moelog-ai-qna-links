@@ -99,6 +99,30 @@ msgid "回饋功能"
 msgstr "Feedback Feature"
 
 #: includes/class-admin-settings.php
+msgid "自訂 Banner"
+msgstr "Custom Banner"
+
+#: includes/class-admin-settings.php
+msgid "選擇圖片"
+msgstr "Select Image"
+
+#: includes/class-admin-settings.php
+msgid "移除（恢復預設）"
+msgstr "Remove (Restore Default)"
+
+#: includes/class-admin-settings.php
+msgid "建議尺寸：880 × 240 px。留空則使用預設 Banner。"
+msgstr "Recommended size: 880 × 240 px. Leave empty to use the default banner."
+
+#: includes/class-admin-settings.php
+msgid "選擇 Banner 圖片"
+msgstr "Select Banner Image"
+
+#: includes/class-admin-settings.php
+msgid "使用此圖片"
+msgstr "Use This Image"
+
+#: includes/class-admin-settings.php
 msgid "🔧 進階設定"
 msgstr "🔧 Advanced Settings"
 

@@ -99,6 +99,30 @@ msgid "回饋功能"
 msgstr "フィードバック機能"
 
 #: includes/class-admin-settings.php
+msgid "自訂 Banner"
+msgstr "カスタムバナー"
+
+#: includes/class-admin-settings.php
+msgid "選擇圖片"
+msgstr "画像を選択"
+
+#: includes/class-admin-settings.php
+msgid "移除（恢復預設）"
+msgstr "削除（デフォルトに戻す）"
+
+#: includes/class-admin-settings.php
+msgid "建議尺寸：880 × 240 px。留空則使用預設 Banner。"
+msgstr "推奨サイズ：880 × 240 px。空白の場合はデフォルトバナーを使用します。"
+
+#: includes/class-admin-settings.php
+msgid "選擇 Banner 圖片"
+msgstr "バナー画像を選択"
+
+#: includes/class-admin-settings.php
+msgid "使用此圖片"
+msgstr "この画像を使用"
+
+#: includes/class-admin-settings.php
 msgid "🔧 進階設定"
 msgstr "🔧 詳細設定"
 

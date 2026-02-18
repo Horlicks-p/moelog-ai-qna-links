@@ -40,6 +40,23 @@ class Moelog_AIQnA_Admin
     $this->cache_manager = new Moelog_AIQnA_Admin_Cache();
 
     add_action("admin_notices", [$this, "show_flush_rewrite_notice"]);
+
+    // 自訂 Banner：將設定值注入 filter
+    add_filter("moelog_aiqna_banner_url", function ($url) {
+      $saved = Moelog_AIQnA_Settings::get("banner_url", "");
+      return $saved ?: $url;
+    });
+
+    // 在顯示設定分頁載入 WP Media Library
+    add_action("admin_enqueue_scripts", function ($hook) {
+      if ($hook !== "settings_page_moelog_aiqna") {
+        return;
+      }
+      $tab = isset($_GET["tab"]) ? sanitize_key($_GET["tab"]) : "general";
+      if ($tab === "display") {
+        wp_enqueue_media();
+      }
+    });
   }
 
   // =========================================
