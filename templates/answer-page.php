@@ -241,18 +241,47 @@ $GLOBALS["moe_aiqna_is_answer_page"] = true;
     <div class="moe-answer-wrap">
       <div class="moe-question-echo"><?php echo esc_html($question); ?></div>
       <?php
-      // 清理與安全化答案 HTML
+      // Markdown → HTML（使用 Parsedown）
+      if (!class_exists('Parsedown')) {
+        require_once MOELOG_AIQNA_DIR . 'includes/Parsedown.php';
+      }
+      $parsedown = new Parsedown();
+      $parsedown->setSafeMode(true);     // 防止原始 HTML 注入 (XSS 防護)
+      $parsedown->setBreaksEnabled(true); // 自動換行
+
+      $parsed_html = $answer ? $parsedown->text($answer) : "";
+      $parsed_html = apply_filters('moelog_aiqna_markdown_to_html', $parsed_html, $answer);
+
+      // 允許的 HTML 標籤（含 Markdown 可能產生的所有元素）
       $allowed = [
-        "p" => [],
-        "ul" => [],
-        "ol" => [],
-        "li" => [],
-        "strong" => [],
-        "em" => [],
-        "br" => [],
-        "span" => ["class" => [], "title" => []],
+        "p"          => [],
+        "ul"         => [],
+        "ol"         => ["start" => []],
+        "li"         => [],
+        "strong"     => [],
+        "em"         => [],
+        "br"         => [],
+        "span"       => ["class" => [], "title" => []],
+        "h1"         => ["id" => []],
+        "h2"         => ["id" => []],
+        "h3"         => ["id" => []],
+        "h4"         => ["id" => []],
+        "h5"         => ["id" => []],
+        "h6"         => ["id" => []],
+        "table"      => [],
+        "thead"      => [],
+        "tbody"      => [],
+        "tr"         => [],
+        "th"         => ["style" => []],
+        "td"         => ["style" => []],
+        "code"       => ["class" => []],
+        "pre"        => [],
+        "blockquote" => [],
+        "hr"         => [],
+        "del"        => [],
+        "a"          => ["href" => [], "title" => [], "target" => [], "rel" => []],
       ];
-      $safe_html = $answer ? wp_kses(wpautop($answer), $allowed) : "";
+      $safe_html = wp_kses($parsed_html, $allowed);
 
       // 移除事件處理器
       // PHP 8.1+: 確保 preg_replace 不返回 null
@@ -262,9 +291,9 @@ $GLOBALS["moe_aiqna_is_answer_page"] = true;
         $safe_html
       ) ?? $safe_html;
 
-      // 處理 URL - 轉換為帶 title 的 span (重要!)
+      // 處理裸露 URL（不在 <a> 標籤內的）轉換為帶 title 的 span
       $safe_html = preg_replace_callback(
-        '/(https?:\/\/[^\s<>"]+)/i',
+        '/(?<!["\'>])(https?:\/\/[^\s<>"]+)(?![^<]*<\/a>)/i',
         function ($m) {
           $url = urldecode($m[1]);
           return '<span class="moe-url" title="' .
