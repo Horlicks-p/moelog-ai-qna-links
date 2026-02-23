@@ -1,6 +1,15 @@
 import os
 import struct
-import array
+
+def _unescape_po(s):
+    # Minimal PO unescape: \" \\n \\t \\r \\\\
+    return (s
+        .replace('\\\\', '\\')
+        .replace('\\n', '\n')
+        .replace('\\t', '\t')
+        .replace('\\r', '\r')
+        .replace('\\"', '"')
+    )
 
 def generate_mo_file(po_file, mo_file):
     print(f"Processing {po_file} -> {mo_file}")
@@ -8,45 +17,162 @@ def generate_mo_file(po_file, mo_file):
         lines = f.readlines()
 
     messages = {}
-    current_msgid = None
-    current_msgstr = None
-    in_msgid = False
-    in_msgstr = False
 
-    for line in lines:
-        line = line.strip()
+    entry = {
+        "msgctxt": None,
+        "msgid": None,
+        "msgid_plural": None,
+        "msgstr": {},
+        "fuzzy": False,
+        "obsolete": False,
+    }
+    current = None
+
+    def flush_entry():
+        nonlocal entry
+        if entry["obsolete"]:
+            entry = {
+                "msgctxt": None,
+                "msgid": None,
+                "msgid_plural": None,
+                "msgstr": {},
+                "fuzzy": False,
+                "obsolete": False,
+            }
+            return
+
+        if entry["msgid"] is None:
+            entry = {
+                "msgctxt": None,
+                "msgid": None,
+                "msgid_plural": None,
+                "msgstr": {},
+                "fuzzy": False,
+                "obsolete": False,
+            }
+            return
+
+        if entry["fuzzy"]:
+            entry = {
+                "msgctxt": None,
+                "msgid": None,
+                "msgid_plural": None,
+                "msgstr": {},
+                "fuzzy": False,
+                "obsolete": False,
+            }
+            return
+
+        msgid = entry["msgid"]
+        if entry["msgctxt"] is not None:
+            msgid = entry["msgctxt"] + "\x04" + msgid
+
+        if entry["msgid_plural"] is not None:
+            # Plural: key is singular\0plural
+            key = msgid + "\x00" + entry["msgid_plural"]
+            # Values: msgstr[0]\0msgstr[1]...
+            if entry["msgstr"]:
+                max_index = max(entry["msgstr"].keys())
+                parts = []
+                for i in range(max_index + 1):
+                    parts.append(entry["msgstr"].get(i, ""))
+                val = "\x00".join(parts)
+                messages[key] = val
+        else:
+            val = entry["msgstr"].get(0, "")
+            messages[msgid] = val
+
+        entry = {
+            "msgctxt": None,
+            "msgid": None,
+            "msgid_plural": None,
+            "msgstr": {},
+            "fuzzy": False,
+            "obsolete": False,
+        }
+
+    for raw_line in lines:
+        line = raw_line.strip()
         if not line:
-            continue
-        if line.startswith('#'):
+            flush_entry()
+            current = None
             continue
 
-        if line.startswith('msgid '):
-            if current_msgid is not None:
-                messages[current_msgid] = current_msgstr
-            current_msgid = ""
-            current_msgstr = ""
-            in_msgid = True
-            in_msgstr = False
-            # Clean string
-            raw = line[6:]
-            if raw.startswith('"') and raw.endswith('"'):
-                current_msgid = raw[1:-1].replace('\\"', '"').replace('\\n', '\n')
-        elif line.startswith('msgstr '):
-            in_msgid = False
-            in_msgstr = True
-            raw = line[7:]
-            if raw.startswith('"') and raw.endswith('"'):
-                current_msgstr = raw[1:-1].replace('\\"', '"').replace('\\n', '\n')
-        elif line.startswith('"') and line.endswith('"'):
-            content = line[1:-1].replace('\\"', '"').replace('\\n', '\n')
-            if in_msgid:
-                current_msgid += content
-            elif in_msgstr:
-                current_msgstr += content
+        if line.startswith("#~"):
+            entry["obsolete"] = True
+            continue
 
-    # Add last message
-    if current_msgid is not None:
-        messages[current_msgid] = current_msgstr
+        if line.startswith("#,"):
+            if "fuzzy" in line:
+                entry["fuzzy"] = True
+            continue
+
+        if line.startswith("#"):
+            continue
+
+        if line.startswith("msgctxt "):
+            flush_entry()
+            current = "msgctxt"
+            raw = line[8:].strip()
+            if raw.startswith('"') and raw.endswith('"'):
+                entry["msgctxt"] = _unescape_po(raw[1:-1])
+            else:
+                entry["msgctxt"] = ""
+            continue
+
+        if line.startswith("msgid "):
+            flush_entry()
+            current = "msgid"
+            raw = line[6:].strip()
+            if raw.startswith('"') and raw.endswith('"'):
+                entry["msgid"] = _unescape_po(raw[1:-1])
+            else:
+                entry["msgid"] = ""
+            continue
+
+        if line.startswith("msgid_plural "):
+            current = "msgid_plural"
+            raw = line[13:].strip()
+            if raw.startswith('"') and raw.endswith('"'):
+                entry["msgid_plural"] = _unescape_po(raw[1:-1])
+            else:
+                entry["msgid_plural"] = ""
+            continue
+
+        if line.startswith("msgstr["):
+            idx_end = line.find("]")
+            if idx_end != -1:
+                idx = int(line[7:idx_end])
+                current = f"msgstr[{idx}]"
+                raw = line[idx_end + 1 :].strip()
+                if raw.startswith('"') and raw.endswith('"'):
+                    entry["msgstr"][idx] = _unescape_po(raw[1:-1])
+                else:
+                    entry["msgstr"][idx] = ""
+            continue
+
+        if line.startswith("msgstr "):
+            current = "msgstr[0]"
+            raw = line[7:].strip()
+            if raw.startswith('"') and raw.endswith('"'):
+                entry["msgstr"][0] = _unescape_po(raw[1:-1])
+            else:
+                entry["msgstr"][0] = ""
+            continue
+
+        if line.startswith('"') and line.endswith('"'):
+            content = _unescape_po(line[1:-1])
+            if current == "msgctxt":
+                entry["msgctxt"] = (entry["msgctxt"] or "") + content
+            elif current == "msgid":
+                entry["msgid"] = (entry["msgid"] or "") + content
+            elif current == "msgid_plural":
+                entry["msgid_plural"] = (entry["msgid_plural"] or "") + content
+            elif current and current.startswith("msgstr["):
+                idx = int(current[7:-1])
+                entry["msgstr"][idx] = entry["msgstr"].get(idx, "") + content
+
+    flush_entry()
 
     # Filter out empty msgid (header) if handled separately or treat as normal empty str key
     # MO files usually store the header under key "" (empty string).

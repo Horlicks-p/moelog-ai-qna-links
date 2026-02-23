@@ -449,7 +449,7 @@ if (typeof window.MoelogAIQnA.typing_fallback === 'undefined') { window.MoelogAI
 window.MoelogAIQnA.feedback = <?php echo wp_json_encode($feedback_config); ?>;
 <?php endif; ?>
 </script>
-<script src="<?php echo esc_url(plugins_url('includes/assets/js/typing.js', dirname(__FILE__))); ?>?ver=<?php echo esc_attr(MOELOG_AIQNA_VERSION); ?>" defer></script>
+<script src="<?php echo esc_url(MOELOG_AIQNA_URL . 'includes/assets/js/typing.js'); ?>?ver=<?php echo esc_attr(MOELOG_AIQNA_VERSION); ?>" defer></script>
 </head>
 <body class="moe-aiqna-answer">
 <div class="moe-container">
@@ -469,15 +469,15 @@ window.MoelogAIQnA.feedback = <?php echo wp_json_encode($feedback_config); ?>;
     <h3 class="moe-feedback-title"><?php esc_html_e('你覺得AI回答的內容正確嗎？', 'moelog-ai-qna'); ?></h3>
     <div class="moe-feedback-actions" role="group" aria-label="<?php esc_attr_e('文章回饋操作', 'moelog-ai-qna'); ?>">
       <button type="button" class="moe-feedback-btn" data-action="like">
-        <img src="<?php echo esc_url(plugins_url('includes/assets/images/good.png', dirname(__FILE__))); ?>" alt="<?php esc_attr_e('正確', 'moelog-ai-qna'); ?>" width="28" height="28" aria-hidden="true">
+        <img src="<?php echo esc_url(MOELOG_AIQNA_URL . 'includes/assets/images/good.png'); ?>" alt="<?php esc_attr_e('正確', 'moelog-ai-qna'); ?>" width="28" height="28" aria-hidden="true">
         <span><?php esc_html_e('正確', 'moelog-ai-qna'); ?></span>
       </button>
       <button type="button" class="moe-feedback-btn" data-action="dislike">
-        <img src="<?php echo esc_url(plugins_url('includes/assets/images/bad.png', dirname(__FILE__))); ?>" alt="<?php esc_attr_e('錯誤', 'moelog-ai-qna'); ?>" width="28" height="28" aria-hidden="true">
+        <img src="<?php echo esc_url(MOELOG_AIQNA_URL . 'includes/assets/images/bad.png'); ?>" alt="<?php esc_attr_e('錯誤', 'moelog-ai-qna'); ?>" width="28" height="28" aria-hidden="true">
         <span><?php esc_html_e('錯誤', 'moelog-ai-qna'); ?></span>
       </button>
       <button type="button" class="moe-feedback-btn" data-action="report">
-        <img src="<?php echo esc_url(plugins_url('includes/assets/images/report.png', dirname(__FILE__))); ?>" alt="<?php esc_attr_e('回報問題', 'moelog-ai-qna'); ?>" width="28" height="28" aria-hidden="true">
+        <img src="<?php echo esc_url(MOELOG_AIQNA_URL . 'includes/assets/images/report.png'); ?>" alt="<?php esc_attr_e('回報問題', 'moelog-ai-qna'); ?>" width="28" height="28" aria-hidden="true">
         <span><?php esc_html_e('回報問題', 'moelog-ai-qna'); ?></span>
       </button>
     </div>
@@ -494,15 +494,15 @@ window.MoelogAIQnA.feedback = <?php echo wp_json_encode($feedback_config); ?>;
   </section>
   <div class="moe-feedback-stats">
     <div class="moe-feedback-stat">
-      <img src="<?php echo esc_url(plugins_url('includes/assets/images/viewer.png', dirname(__FILE__))); ?>" alt="<?php esc_attr_e('瀏覽次數', 'moelog-ai-qna'); ?>" width="28" height="28" aria-hidden="true">
+      <img src="<?php echo esc_url(MOELOG_AIQNA_URL . 'includes/assets/images/viewer.png'); ?>" alt="<?php esc_attr_e('瀏覽次數', 'moelog-ai-qna'); ?>" width="28" height="28" aria-hidden="true">
       <span data-stat="views"><?php echo esc_html($feedback_stats['views']); ?></span>
     </div>
     <div class="moe-feedback-stat">
-      <img src="<?php echo esc_url(plugins_url('includes/assets/images/good.png', dirname(__FILE__))); ?>" alt="<?php esc_attr_e('好評', 'moelog-ai-qna'); ?>" width="28" height="28" aria-hidden="true">
+      <img src="<?php echo esc_url(MOELOG_AIQNA_URL . 'includes/assets/images/good.png'); ?>" alt="<?php esc_attr_e('好評', 'moelog-ai-qna'); ?>" width="28" height="28" aria-hidden="true">
       <span data-stat="likes"><?php echo esc_html($feedback_stats['likes']); ?></span>
     </div>
     <div class="moe-feedback-stat">
-      <img src="<?php echo esc_url(plugins_url('includes/assets/images/bad.png', dirname(__FILE__))); ?>" alt="<?php esc_attr_e('差評', 'moelog-ai-qna'); ?>" width="28" height="28" aria-hidden="true">
+      <img src="<?php echo esc_url(MOELOG_AIQNA_URL . 'includes/assets/images/bad.png'); ?>" alt="<?php esc_attr_e('差評', 'moelog-ai-qna'); ?>" width="28" height="28" aria-hidden="true">
       <span data-stat="dislikes"><?php echo esc_html($feedback_stats['dislikes']); ?></span>
     </div>
   </div>
@@ -520,7 +520,7 @@ window.MoelogAIQnA.feedback = <?php echo wp_json_encode($feedback_config); ?>;
 <div class="moe-bottom"></div>
 
 <?php if ($feedback_enabled): ?>
-<script src="<?php echo esc_url(plugins_url('includes/assets/js/answer.js', dirname(__FILE__))); ?>?ver=<?php echo esc_attr(MOELOG_AIQNA_VERSION); ?>" defer></script>
+<script src="<?php echo esc_url(MOELOG_AIQNA_URL . 'includes/assets/js/answer.js'); ?>?ver=<?php echo esc_attr(MOELOG_AIQNA_VERSION); ?>" defer></script>
 <?php endif; ?>
 
 <p class="moe-disclaimer" style="margin-top:0px;text-align:center;font-size:0.85em; color:#666; line-height:1.5em;">

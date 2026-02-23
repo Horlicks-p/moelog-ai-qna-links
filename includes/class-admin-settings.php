@@ -784,7 +784,7 @@ class Moelog_AIQnA_Admin_Settings
   public function render_banner_field()
   {
     $value = Moelog_AIQnA_Settings::get("banner_url", "");
-    $default_url = plugins_url("includes/assets/images/moe-banner.jpg", dirname(__FILE__));
+    $default_url = MOELOG_AIQNA_URL . "includes/assets/images/moe-banner.jpg";
     $preview_url = $value ?: $default_url;
   ?>
     <div id="moe-banner-wrap" style="max-width:880px;">

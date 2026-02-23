@@ -187,13 +187,6 @@ class Moelog_AIQnA_Renderer
       return;
     }
 
-    if (!empty($question_hash)) {
-      delete_post_meta(
-        $params["post_id"],
-        "_moelog_aiqna_feedback_stats_" . $question_hash,
-      );
-    }
-
     // 建立 HTML
     $html = $this->template->build_html($params, $post, $answer);
 

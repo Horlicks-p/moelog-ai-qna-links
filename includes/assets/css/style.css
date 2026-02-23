@@ -8,7 +8,7 @@
 /* --- 1. 文章內「問題清單」區塊 (.moe-aiqna-block) --- */
 
 .moe-aiqna-block {
-	margin: -0.2em 0 1.2em 0;
+	margin: 0 0 15px 0;
 	padding: 0.5em;
 	border: 1px solid #F39C12;
 	border-radius: 6px;
@@ -242,12 +242,12 @@ body.moe-aiqna-answer {
 
 /* Markdown: 連結 */
 .moe-aiqna-answer .moe-answer-wrap a {
-	color: #1d8ac3;
+	color: #94B800;
 	text-decoration: none;
 }
 .moe-aiqna-answer .moe-answer-wrap a:hover {
-	color: #94B800;
-	text-decoration: underline;
+	color: #666;
+	text-decoration: none;
 }
 
 /* --- 5. 底部關閉區域 --- */
