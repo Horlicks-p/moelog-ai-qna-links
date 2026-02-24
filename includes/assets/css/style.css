@@ -692,7 +692,14 @@ p#moe-feedback-message[data-state="success"] {
 	.moe-feedback-card {
 		width: 100%;
 		min-width: auto;
+		max-width: 100%;
 		padding: 20px;
+		box-sizing: border-box;
+	}
+
+	.moe-feedback-report textarea {
+		width: 100%;
+		box-sizing: border-box;
 	}
 
 	.moe-feedback-actions {
