@@ -104,7 +104,7 @@ $GLOBALS["moe_aiqna_is_answer_page"] = true;
       "thanks" => __("感謝您的回饋！", "moelog-ai-qna"),
       "failed" => __("送出失敗,請稍後再試。", "moelog-ai-qna"),
       "needMore" => __(
-        "請提供至少 3 個字的描述。",
+        "請提供至少 5 個字的描述。",
         "moelog-ai-qna"
       ),
       "reportThanks" => __(

@@ -192,15 +192,15 @@
       if (!config.postId || !config.nonce) return;
 
       var hasViewed = storage && viewKey && storage.getItem(viewKey);
-      var payload = {
-        post_id: config.postId,
-        increment: !hasViewed,
-      };
+      if (hasViewed) return;
 
-      sendRequest('moelog_aiqna_record_view', payload).then(function (res) {
+      sendRequest('moelog_aiqna_record_view', {
+        post_id: config.postId,
+        increment: true,
+      }).then(function (res) {
         if (res && res.success && res.data && res.data.stats) {
           updateStats(res.data.stats);
-          if (!hasViewed && storage && viewKey) {
+          if (storage && viewKey) {
             storage.setItem(viewKey, '1');
           }
         }
@@ -256,7 +256,7 @@
     function handleReport() {
       if (!config.postId || !textarea || !config.nonce) return;
       var value = textarea.value.trim();
-      if (value.length < 3) {
+      if (value.length < 5) {
         setMessage(t('needMore'), 'error');
         return;
       }

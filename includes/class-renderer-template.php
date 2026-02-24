@@ -416,7 +416,7 @@ class Moelog_AIQnA_Renderer_Template
         'submitting'  => __('送出中…', 'moelog-ai-qna'),
         'thanks'      => __('感謝您的回饋！', 'moelog-ai-qna'),
         'failed'      => __('送出失敗,請稍後再試。', 'moelog-ai-qna'),
-        'needMore'    => __('請提供至少 3 個字的描述。', 'moelog-ai-qna'),
+        'needMore'    => __('請提供至少 5 個字的描述。', 'moelog-ai-qna'),
         'reportThanks'=> __('已送出,感謝您的回饋！', 'moelog-ai-qna'),
         'reportSeen'  => __('已收到您稍早的回饋，感謝！', 'moelog-ai-qna'),
       ],
