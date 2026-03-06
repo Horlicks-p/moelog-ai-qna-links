@@ -190,22 +190,24 @@ class Moelog_AIQnA_Renderer_Template
       return $this->ai_client->is_error_message($answer);
     }
 
-    // 備用檢查邏輯
-    $error_keywords = [
-      "失敗",
-      "錯誤",
-      "無法",
-      "暫時",
-      "異常",
-      "fail",
-      "error",
-      "unable",
-      "unavailable",
-    ];
+    // 備用寬鬆檢查邏輯: 只對較短的字串(<100個字)進行關鍵字比對, 降低對長文 AI 回答的誤判率
+    if (function_exists("mb_strlen") && mb_strlen($answer, "UTF-8") < 100) {
+      $error_keywords = [
+        "失敗",
+        "錯誤",
+        "無法",
+        "暫時",
+        "異常",
+        "fail",
+        "error",
+        "unable",
+        "unavailable",
+      ];
 
-    foreach ($error_keywords as $keyword) {
-      if (stripos($answer, $keyword) !== false) {
-        return true;
+      foreach ($error_keywords as $keyword) {
+        if (stripos($answer, $keyword) !== false) {
+          return true;
+        }
       }
     }
 

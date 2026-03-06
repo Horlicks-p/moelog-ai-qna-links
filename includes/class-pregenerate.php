@@ -267,25 +267,27 @@ class Moelog_AIQnA_Pregenerate
       return $this->ai_client->is_error_message($content);
     }
 
-    // 備用檢查邏輯
-    $error_keywords = [
-      "失敗",
-      "錯誤",
-      "無法",
-      "暫時",
-      "異常",
-      "服務暫時無法使用",
-      "請稍後再試",
-      "fail",
-      "error",
-      "unable",
-      "unavailable",
-      "temporarily",
-    ];
+    // 備用寬鬆檢查邏輯: 只對較短的字串(<100個字)進行關鍵字比對, 降低對長文 AI 回答的誤判率
+    if (function_exists("mb_strlen") && mb_strlen($content, "UTF-8") < 100) {
+      $error_keywords = [
+        "失敗",
+        "錯誤",
+        "無法",
+        "暫時",
+        "異常",
+        "服務暫時無法使用",
+        "請稍後再試",
+        "fail",
+        "error",
+        "unable",
+        "unavailable",
+        "temporarily",
+      ];
 
-    foreach ($error_keywords as $keyword) {
-      if (stripos($content, $keyword) !== false) {
-        return true;
+      foreach ($error_keywords as $keyword) {
+        if (stripos($content, $keyword) !== false) {
+          return true;
+        }
       }
     }
 

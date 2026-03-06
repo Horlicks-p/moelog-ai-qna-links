@@ -868,22 +868,55 @@ class Moelog_AIQnA_AI_Client
    */
   public function is_error_message($text)
   {
-    // ✅ 改為 public
-    $error_keywords = [
-      "失敗",
-      "錯誤",
-      "無法",
-      "暫時",
-      "異常",
-      "fail",
-      "error",
-      "unable",
-      "unavailable",
+    if (empty($text)) {
+      return true;
+    }
+
+    $text = trim((string) $text);
+
+    // ✅ 優化: 若字數過長(>100字),通常是AI正常產生的長篇回答,不是系統簡短錯誤訊息
+    if (function_exists("mb_strlen") && mb_strlen($text, "UTF-8") > 100) {
+      return false;
+    }
+
+    // 列出插件內建的所有確切錯誤訊息 (以備精準比對)
+    $known_errors = [
+      __("尚未設定 API Key。", "moelog-ai-qna"),
+      __("呼叫 OpenAI 失敗,請稍後再試。", "moelog-ai-qna"),
+      __("服務暫時無法使用,請檢查 API Key 或模型名稱。", "moelog-ai-qna"),
+      __("服務暫時無法使用,請檢查 API 額度。", "moelog-ai-qna"),
+      __("請求過於頻繁,請稍候再試。", "moelog-ai-qna"),
+      __("內容過長,請減少文章內容截斷長度。", "moelog-ai-qna"),
+      __("請求參數錯誤。", "moelog-ai-qna"),
+      __("AI 服務暫時不可用,請稍後再試。", "moelog-ai-qna"),
+      __("AI 服務回傳異常,請稍後再試。", "moelog-ai-qna"),
+      __("呼叫 Gemini 失敗,請稍後再試。", "moelog-ai-qna"),
+      __("服務暫時無法使用,請檢查 API Key。", "moelog-ai-qna"),
+      __("呼叫 Anthropic 失敗,請稍後再試。", "moelog-ai-qna")
     ];
 
-    foreach ($error_keywords as $keyword) {
-      if (stripos($text, $keyword) !== false) {
-        return true;
+    if (in_array($text, $known_errors, true)) {
+      return true;
+    }
+
+    // 寬鬆的 fallback 檢查: 只對較短的字串(<50個字)進行關鍵字比對, 降低誤判率
+    if (function_exists("mb_strlen") && mb_strlen($text, "UTF-8") < 50) {
+      $error_keywords = [
+        "失敗",
+        "錯誤",
+        "無法",
+        "暫時不可用",
+        "異常",
+        "fail",
+        "error",
+        "unable",
+        "unavailable",
+      ];
+
+      foreach ($error_keywords as $keyword) {
+        if (stripos($text, $keyword) !== false) {
+          return true;
+        }
       }
     }
 
