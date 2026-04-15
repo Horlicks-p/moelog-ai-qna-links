@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Moelog AI Q&A Links
  * Description: 在每篇文章底部顯示作者預設的問題清單,點擊後開新分頁,由 AI 生成答案的靜態HTML。支持 OpenAI/Gemini,可自訂模型與提示。
- * Version: 2.0.0
+ * Version: 2.0.2
  * Author: Horlicks (moelog.com)
  * Text Domain: moelog-ai-qna
  * Domain Path: /languages
@@ -19,7 +19,7 @@ if (!defined("ABSPATH")) {
 // =========================================
 // 定義常數
 // =========================================
-define("MOELOG_AIQNA_VERSION", "2.0.0");
+define("MOELOG_AIQNA_VERSION", "2.0.2");
 define("MOELOG_AIQNA_FILE", __FILE__);
 define("MOELOG_AIQNA_DIR", plugin_dir_path(__FILE__));
 define("MOELOG_AIQNA_URL", plugin_dir_url(__FILE__));
@@ -37,59 +37,71 @@ define("MOELOG_AIQNA_META_LANG_KEY", "_moelog_aiqna_questions_lang");
 
 /**
  * 取得 URL 路徑前綴
- * 
+ *
  * ✅ 優化: 使用靜態快取避免重複讀取資料庫
  *
+ * @param bool $reset 傳入 true 可重置快取
  * @return string
  */
-function moelog_aiqna_get_pretty_base()
+function moelog_aiqna_get_pretty_base($reset = false)
 {
     static $cached = null;
-    
+
+    if ($reset) {
+        $cached = null;
+        return '';
+    }
+
     if ($cached !== null) {
         return $cached;
     }
-    
+
     // 允許透過常數覆蓋（用於多站點或特殊情況）
     if (defined('MOELOG_AIQNA_CUSTOM_PRETTY_BASE')) {
         $cached = MOELOG_AIQNA_CUSTOM_PRETTY_BASE;
         return $cached;
     }
-    
+
     $settings = get_option(MOELOG_AIQNA_OPT_KEY, []);
     $cached = isset($settings["pretty_base"]) && !empty($settings["pretty_base"])
         ? sanitize_title($settings["pretty_base"])
         : "qna";
-    
+
     return $cached;
 }
 
 /**
  * 取得靜態檔案目錄名稱
- * 
+ *
  * ✅ 優化: 使用靜態快取避免重複讀取資料庫
  *
+ * @param bool $reset 傳入 true 可重置快取
  * @return string
  */
-function moelog_aiqna_get_static_dir()
+function moelog_aiqna_get_static_dir($reset = false)
 {
     static $cached = null;
-    
+
+    if ($reset) {
+        $cached = null;
+        return '';
+    }
+
     if ($cached !== null) {
         return $cached;
     }
-    
+
     // 允許透過常數覆蓋（用於多站點或特殊情況）
     if (defined('MOELOG_AIQNA_CUSTOM_STATIC_DIR')) {
         $cached = MOELOG_AIQNA_CUSTOM_STATIC_DIR;
         return $cached;
     }
-    
+
     $settings = get_option(MOELOG_AIQNA_OPT_KEY, []);
     $cached = isset($settings["static_dir"]) && !empty($settings["static_dir"])
         ? sanitize_file_name($settings["static_dir"])
         : "ai-answers";
-    
+
     return $cached;
 }
 
@@ -100,9 +112,8 @@ function moelog_aiqna_get_static_dir()
  */
 function moelog_aiqna_clear_route_cache()
 {
-    // 重置靜態快取（下次呼叫時會重新讀取）
-    // 注意：PHP 無法直接重置 static 變數，所以這裡使用 filter 機制
-    add_filter('moelog_aiqna_route_cache_cleared', '__return_true');
+    moelog_aiqna_get_pretty_base(true);
+    moelog_aiqna_get_static_dir(true);
 }
 
 // ✅ 優化: 延遲定義常數，在 plugins_loaded 時再定義
@@ -127,7 +138,7 @@ if (!defined("MOELOG_AIQNA_STATIC_DIR")) {
 // AI 預設模型
 define("MOELOG_AIQNA_DEFAULT_MODEL_OPENAI", "gpt-4o-mini");
 define("MOELOG_AIQNA_DEFAULT_MODEL_GEMINI", "gemini-2.5-flash");
-define("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-5-20251101");
+define("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-5-20251001");
 
 // 常數定義（避免魔術數字）
 define("MOELOG_AIQNA_DEFAULT_CACHE_TTL_DAYS", 30);
@@ -225,12 +236,6 @@ function moelog_aiqna_check_upgrade()
 {
     $db_version = get_option("moelog_aiqna_db_version", "0");
 
-    // === 1.8.3: 加密現有 API Key ===
-    if (version_compare($db_version, "1.8.3", "<")) {
-        moelog_aiqna_migrate_api_key_encryption();
-        update_option("moelog_aiqna_db_version", "1.8.3");
-    }
-
     // === 1.8.0: 設定預設 TTL ===
     if (version_compare($db_version, "1.8.0", "<")) {
         $options = get_option(MOELOG_AIQNA_OPT_KEY, []);
@@ -241,6 +246,12 @@ function moelog_aiqna_check_upgrade()
         }
 
         update_option("moelog_aiqna_db_version", "1.8.0");
+    }
+
+    // === 1.8.3: 加密現有 API Key ===
+    if (version_compare($db_version, "1.8.3", "<")) {
+        moelog_aiqna_migrate_api_key_encryption();
+        update_option("moelog_aiqna_db_version", "1.8.3");
     }
 }
 add_action("admin_init", "moelog_aiqna_check_upgrade");
@@ -612,4 +623,4 @@ add_action(
 // =========================================
 // 結束標記
 // =========================================
-// EOF - Moelog AI Q&A v2.0.0
+// EOF - Moelog AI Q&A v2.0.2

@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 6.8.3
 Requires PHP: 7.4
 Tested PHP: 8.3
-Stable tag: 1.10.2
+Stable tag: 2.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -138,6 +138,28 @@ The plugin only sends the following to AI providers (OpenAI / Gemini / Claude):
 ---
 
 == 🧩 Changelog ==
+
+= 2.0.2 (2026-04-15) – Bug Fixes & Maintenance =
+- 🐛 **Fixed:** Anthropic default model ID had wrong date suffix (`claude-opus-4-5-20251101` → `claude-opus-4-5-20251001`), which caused API calls to fail with "model not found".
+- 🐛 **Fixed:** `is_error_message()` known error strings did not match actual Gemini/Anthropic error messages, allowing error responses to be written into the static cache.
+- 🐛 **Fixed:** Static cache files called `touch()` on every read, resetting mtime and preventing TTL expiry. Removed `touch()` so cache expiry now works correctly.
+- 🐛 **Fixed:** `moelog_aiqna_check_upgrade()` ran migrations in reverse order (1.8.3 before 1.8.0), causing the 1.8.0 TTL initialization to be skipped on fresh installs.
+- 🐛 **Fixed:** `moelog_aiqna_clear_route_cache()` did not actually reset PHP static variable caches. Refactored to use a `$reset` parameter so `pretty_base` and `static_dir` caches are properly cleared on settings save.
+- ✨ **New:** Added "Show Q&A Block" toggle in Display Settings (the `block_enabled` option previously had no UI and could only be controlled via code).
+- 🔧 **Updated:** Gemini API endpoint upgraded from experimental `v1beta` to stable `v1`.
+- 🔧 **Fixed:** `.htaccess` protection file no longer contains leading whitespace when created.
+
+= 2.0.1 (2026-02-19) – Layout Refinement & Custom Banner =
+- 🎨 **UI:** Replaced background images with pure CSS for precise padding, spacing, and border-radius control.
+- 🎨 **Typography:** Standardized font sizes to px across body text, lists, and headings; responsive styles updated.
+- 🖼️ **Custom Banner:** New admin upload option to set a custom banner image via the WordPress media library (recommended 880 × 240 px).
+- 🐛 **Fixed:** Re-added missing `answer.js` script tag lost during refactoring.
+- 🌍 **i18n:** Added English (`en_US`) and Japanese (`ja`) translations for custom banner strings.
+
+= 2.0.0 (2026-02-18) – Major UI Overhaul & CSS Refinement =
+- 📝 **Markdown:** Integrated Parsedown library to properly render Markdown in AI answers.
+- 🎨 **Styles:** Overhauled answer page CSS to complement Markdown output.
+- 🎨 **Admin UI:** Redesigned admin interface with a clean, minimal aesthetic.
 
 = 1.10.2 (2025-11-28) – Bug Fixes & Improvements =
 - 🐛 **Fixed:** Cache statistics now update immediately after deleting cache files.

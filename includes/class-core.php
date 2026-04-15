@@ -687,10 +687,9 @@ class Moelog_AIQnA_Core
         // 標記需要注入預抓取腳本
         $this->prefetch_needed = true;
 
-        // 修正版本: 不顯示 h3 標題,只保留作為 title 屬性
         return sprintf(
-            '<p class="ask_chatgpt" title="%s"></p><div class="moe-aiqna-block"><ul>%s</ul></div>',
-            esc_attr($heading),
+            '<div class="moe-aiqna-block"><h3>%s</h3><ul>%s</ul></div>',
+            esc_html($heading),
             $items
         );
     }

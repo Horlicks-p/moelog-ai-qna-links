@@ -204,9 +204,6 @@ class Moelog_AIQnA_Cache
       return false;
     }
 
-    // 更新訪問時間(可選)
-    @touch($path);
-
     return $html;
   }
 
@@ -595,21 +592,15 @@ class Moelog_AIQnA_Cache
       return;
     }
 
-    $content = <<<EOT
-    # Moelog AI Q&A Static Files Protection
-    # Prevent directory listing
-    Options -Indexes
-
-    # Allow HTML files
-    <FilesMatch "\.html$">
-        Require all granted
-    </FilesMatch>
-
-    # Block everything else
-    <FilesMatch "^\.">
-        Require all denied
-    </FilesMatch>
-    EOT;
+    $content = "# Moelog AI Q&A Static Files Protection\n" .
+      "# Prevent directory listing\n" .
+      "Options -Indexes\n\n" .
+      "<FilesMatch \"\\.html$\">\n" .
+      "    Require all granted\n" .
+      "</FilesMatch>\n\n" .
+      "<FilesMatch \"^\\.\">\n" .
+      "    Require all denied\n" .
+      "</FilesMatch>\n";
 
     file_put_contents($htaccess_file, $content);
     @chmod($htaccess_file, 0644);

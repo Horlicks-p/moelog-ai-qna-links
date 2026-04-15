@@ -23,8 +23,8 @@ class Moelog_AIQnA_AI_Client
    * 預設模型
    */
   const DEFAULT_MODEL_OPENAI = MOELOG_AIQNA_DEFAULT_MODEL_OPENAI; // 'gpt-4o-mini'
-  const DEFAULT_MODEL_GEMINI = MOELOG_AIQNA_DEFAULT_MODEL_GEMINI; // 'gemini-2.5flash'
-  const DEFAULT_MODEL_ANTHROPIC = "claude-opus-4-5-20251101";
+  const DEFAULT_MODEL_GEMINI = MOELOG_AIQNA_DEFAULT_MODEL_GEMINI; // 'gemini-2.5-flash'
+  const DEFAULT_MODEL_ANTHROPIC = "claude-opus-4-5-20251001";
 
   /**
    * 單次請求生命週期的 API Key 快取（避免重複解密與重複記錄 log）
@@ -248,7 +248,7 @@ class Moelog_AIQnA_AI_Client
   private function call_gemini($params)
   {
     $endpoint = sprintf(
-      "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s",
+      "https://generativelanguage.googleapis.com/v1/models/%s:generateContent?key=%s",
       $params["model"],
       $params["api_key"],
     );
@@ -890,9 +890,9 @@ class Moelog_AIQnA_AI_Client
       __("請求參數錯誤。", "moelog-ai-qna"),
       __("AI 服務暫時不可用,請稍後再試。", "moelog-ai-qna"),
       __("AI 服務回傳異常,請稍後再試。", "moelog-ai-qna"),
-      __("呼叫 Gemini 失敗,請稍後再試。", "moelog-ai-qna"),
+      __("呼叫 Google Gemini 失敗,請稍後再試。", "moelog-ai-qna"),
       __("服務暫時無法使用,請檢查 API Key。", "moelog-ai-qna"),
-      __("呼叫 Anthropic 失敗,請稍後再試。", "moelog-ai-qna")
+      __("無法連線到 Anthropic 服務。", "moelog-ai-qna")
     ];
 
     if (in_array($text, $known_errors, true)) {

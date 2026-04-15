@@ -149,6 +149,15 @@ class Moelog_AIQnA_Admin_Settings
       self::PAGE_DISPLAY,
     );
 
+    // 文章底部顯示問題區塊
+    add_settings_field(
+      "block_enabled",
+      __("顯示問題區塊", "moelog-ai-qna"),
+      [$this, "render_block_enabled_display_field"],
+      self::PAGE_DISPLAY,
+      "display",
+    );
+
     // 問題清單抬頭
     add_settings_field(
       "list_heading",
@@ -779,6 +788,29 @@ class Moelog_AIQnA_Admin_Settings
   }
 
   /**
+   * 渲染「顯示問題區塊」欄位（顯示設定分頁用）
+   */
+  public function render_block_enabled_display_field()
+  {
+    $enabled = Moelog_AIQnA_Settings::get("block_enabled", true);
+  ?>
+    <label>
+      <input type="checkbox"
+        name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[block_enabled]"
+        value="1"
+        <?php checked($enabled, true); ?>>
+      <strong><?php esc_html_e("在文章底部自動附加 AI 問題區塊", "moelog-ai-qna"); ?></strong>
+    </label>
+    <p class="description">
+      <?php esc_html_e(
+        "停用後，問題區塊不會自動顯示於文章底部。可改用 moelog_aiqna_render_block() 或 Shortcode 手動插入。",
+        "moelog-ai-qna",
+      ); ?>
+    </p>
+  <?php
+  }
+
+  /**
    * 渲染「自訂 Banner」欄位
    */
   public function render_banner_field()
@@ -1007,9 +1039,9 @@ class Moelog_AIQnA_Admin_Settings
     }
 
     // =========================================
-    // 5. Block Enabled (是否在文章底部顯示問題區塊) - 只在一般設定分頁處理
+    // 5. Block Enabled (是否在文章底部顯示問題區塊) - 只在顯示設定分頁處理
     // =========================================
-    if ($is_general_tab) {
+    if ($is_display_tab) {
       $output["block_enabled"] = !empty($input["block_enabled"]) ? 1 : 0;
     }
 
