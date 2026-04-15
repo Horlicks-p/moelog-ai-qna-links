@@ -1,5 +1,27 @@
 # 文檔修正總結
 
+## v2.0.2 更新 (2026-04-15)
+
+### 代碼與功能修正
+
+| 修正項目 | 說明 | 驗證檔案 |
+|----------|------|----------|
+| Anthropic 模型 ID | 修正日期後綴 `claude-opus-4-5-20251101` → `claude-opus-4-5-20251001` | `moelog-ai-qna.php` |
+| `is_error_message()` | 優化 Gemini 與 Anthropic 錯誤訊息識別，防止錯誤內容被寫入靜態快取 | `class-ai-client.php` |
+| 靜態快取 TTL | 移除讀取時的 `touch()` 呼叫，確保 `mtime` 不會被重置，讓快取 TTL 正常運作 | `class-cache.php` |
+| 版本遷移順序 | 修正 `moelog_aiqna_check_upgrade()` 邏輯，確保 1.8.0 優先於 1.8.3 執行 | `moelog-ai-qna.php` |
+| 路由快取重置 | 實作 `$reset` 參數機制，確保 `pretty_base` 與 `static_dir` 的靜態變數可被清除 | `moelog-ai-qna.php` |
+| Gemini API 端點 | 從實驗性的 `v1beta` 升級為穩定版 `v1` | `class-ai-client.php` |
+
+### 新增功能與 UI 優化
+
+| 功能項目 | 說明 |
+|----------|------|
+| 顯示問題區塊開關 | 在「顯示設定」新增 `block_enabled` 切換開關，提供更直觀的控制 |
+| .htaccess 保護檔 | 修正建立時產生的多餘前導空白，優化檔案格式 |
+
+---
+
 ## v1.1.0 更新 (2025-11-28)
 
 ### 新增文檔
@@ -186,6 +208,7 @@ moelog_aiqna_geo_mode                    // GEO 模組設定（可選）
 
 **v1.0.0 修正完成時間**：2025-11-28  
 **v1.1.0 更新時間**：2025-11-28  
-**檢查範圍**：核心模組、API、配置、數據存儲、安全機制、國際化  
-**修正文件數**：6  
+**v2.0.2 更新時間**：2026-04-15  
+**檢查範圍**：核心模組、API 端點、快取機制、版本遷移、安全性  
+**修正文件數**：3 (README.md, readme.txt, CORRECTIONS.md)  
 **準確度**：基於實際代碼 100% 驗證
