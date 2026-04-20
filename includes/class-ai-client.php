@@ -382,7 +382,7 @@ class Moelog_AIQnA_AI_Client
     $api_key = $params["api_key"] ?? "";
     $model = $params["model"] ?? Moelog_AIQnA_Model_Registry::get_default_model("anthropic");
     $temperature = isset($params["temperature"])
-      ? floatval($params["temperature"])
+      ? min(1.0, floatval($params["temperature"]))
       : 0.3;
     // ✅ max_tokens 可覆寫，限制範圍 1~8192
     $max_tokens = isset($params["max_tokens"])
