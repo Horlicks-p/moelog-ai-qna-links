@@ -37,10 +37,10 @@ class Moelog_AIQnA_Model_Registry
             ],
             "anthropic" => [
                 "label" => "Anthropic Claude",
-                "default" => self::constant_default("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-5-20251001"),
-                "hint" => __("預設模型：claude-opus-4-5-20251001。如需其他 Claude 模型請輸入完整 ID。", "moelog-ai-qna"),
+                "default" => self::constant_default("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-7"),
+                "hint" => __("預設模型：claude-opus-4-7。如需其他 Claude 模型請輸入完整 ID。", "moelog-ai-qna"),
                 "models" => [
-                    ["id" => self::constant_default("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-5-20251001"), "label" => "claude-opus-4-5-20251001"],
+                    ["id" => self::constant_default("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-7"), "label" => "claude-opus-4-7"],
                 ],
             ],
         ];
@@ -66,7 +66,7 @@ class Moelog_AIQnA_Model_Registry
             case "gemini":
                 return self::constant_default("MOELOG_AIQNA_DEFAULT_MODEL_GEMINI", "gemini-2.5-flash");
             case "anthropic":
-                return self::constant_default("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-5-20251001");
+                return self::constant_default("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-7");
             case "openai":
             default:
                 return self::constant_default("MOELOG_AIQNA_DEFAULT_MODEL_OPENAI", "gpt-4o-mini");

@@ -138,7 +138,7 @@ if (!defined("MOELOG_AIQNA_STATIC_DIR")) {
 // AI 預設模型
 define("MOELOG_AIQNA_DEFAULT_MODEL_OPENAI", "gpt-4o-mini");
 define("MOELOG_AIQNA_DEFAULT_MODEL_GEMINI", "gemini-2.5-flash");
-define("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-5-20251001");
+define("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-7");
 
 // 常數定義（避免魔術數字）
 define("MOELOG_AIQNA_DEFAULT_CACHE_TTL_DAYS", 30);

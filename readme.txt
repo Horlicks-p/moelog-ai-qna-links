@@ -140,7 +140,7 @@ The plugin only sends the following to AI providers (OpenAI / Gemini / Claude):
 == 🧩 Changelog ==
 
 = 2.0.2 (2026-04-15) – Bug Fixes & Maintenance =
-- 🐛 **Fixed:** Anthropic default model ID had wrong date suffix (`claude-opus-4-5-20251101` → `claude-opus-4-5-20251001`), which caused API calls to fail with "model not found".
+- 🐛 **Fixed:** Anthropic default model ID had wrong date suffix; upgraded to latest `claude-opus-4-7`.
 - 🐛 **Fixed:** `is_error_message()` known error strings did not match actual Gemini/Anthropic error messages, allowing error responses to be written into the static cache.
 - 🐛 **Fixed:** Static cache files called `touch()` on every read, resetting mtime and preventing TTL expiry. Removed `touch()` so cache expiry now works correctly.
 - 🐛 **Fixed:** `moelog_aiqna_check_upgrade()` ran migrations in reverse order (1.8.3 before 1.8.0), causing the 1.8.0 TTL initialization to be skipped on fresh installs.

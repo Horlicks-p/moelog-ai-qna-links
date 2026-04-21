@@ -24,7 +24,7 @@ class Moelog_AIQnA_AI_Client
    */
   const DEFAULT_MODEL_OPENAI = MOELOG_AIQNA_DEFAULT_MODEL_OPENAI; // 'gpt-4o-mini'
   const DEFAULT_MODEL_GEMINI = MOELOG_AIQNA_DEFAULT_MODEL_GEMINI; // 'gemini-2.5-flash'
-  const DEFAULT_MODEL_ANTHROPIC = "claude-opus-4-5-20251001";
+  const DEFAULT_MODEL_ANTHROPIC = "claude-opus-4-7";
 
   /**
    * 單次請求生命週期的 API Key 快取（避免重複解密與重複記錄 log）

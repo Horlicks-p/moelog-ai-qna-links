@@ -6,7 +6,7 @@
 
 | 修正項目 | 說明 | 驗證檔案 |
 |----------|------|----------|
-| Anthropic 模型 ID | 修正日期後綴 `claude-opus-4-5-20251101` → `claude-opus-4-5-20251001` | `moelog-ai-qna.php` |
+| Anthropic 模型 ID | 升級至 `claude-opus-4-7`（修正先前錯誤後綴 `20251001`，直接跳版最新） | `moelog-ai-qna.php` |
 | `is_error_message()` | 優化 Gemini 與 Anthropic 錯誤訊息識別，防止錯誤內容被寫入靜態快取 | `class-ai-client.php` |
 | 靜態快取 TTL | 移除讀取時的 `touch()` 呼叫，確保 `mtime` 不會被重置，讓快取 TTL 正常運作 | `class-cache.php` |
 | 版本遷移順序 | 修正 `moelog_aiqna_check_upgrade()` 邏輯，確保 1.8.0 優先於 1.8.3 執行 | `moelog-ai-qna.php` |
@@ -126,7 +126,7 @@
 
 - OpenAI 預設：`gpt-4o-mini` ✅
 - Google 預設：`gemini-2.5-flash` ✅
-- Anthropic 預設：`claude-opus-4-5-20251101` ✅
+- Anthropic 預設：`claude-opus-4-7` ✅
 - 新增完整的模型對照表
 
 ### 4. 技術特性

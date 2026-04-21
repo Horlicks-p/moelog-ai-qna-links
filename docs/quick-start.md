@@ -76,7 +76,7 @@ cd moelog-ai-qna-links
 | Google | `gemini-2.5-flash` | 快速、免費額度高 | ✅ |
 | Google | `gemini-2.0-flash-exp` | 實驗版、極快 | |
 | Google | `gemini-2.5-pro` | 高品質、長上下文 | |
-| Anthropic | `claude-opus-4-5-20251101` | 最新版本 | ✅ |
+| Anthropic | `claude-opus-4-7` | 最新版本 | ✅ |
 | Anthropic | `claude-3-5-sonnet-20241022` | 高品質 | |
 
 ### 內容設定
