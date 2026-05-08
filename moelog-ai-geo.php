@@ -357,13 +357,22 @@ class Moelog_AIQnA_GEO
                 "name" => $question,
                 "text" => $question,
                 "answerCount" => 1,
+                "author" => [
+                    "@type" => "Organization",
+                    "name" => $site_name,
+                    "url" => home_url(),
+                ],
+                "datePublished" => get_the_date("c", $post_id),
                 "acceptedAnswer" => [
                     "@type" => "Answer",
                     "text" => $clean_answer,
                     "dateCreated" => current_time("c"),
+                    "upvoteCount" => 0,
+                    "url" => $answer_url,
                     "author" => [
                         "@type" => "Organization",
                         "name" => $site_name,
+                        "url" => home_url(),
                     ],
                 ],
             ],

@@ -1,13 +1,13 @@
-=== Moelog AI Q&A Links ===  
-Contributors: Horlicks  
-Author URI: [https://www.moelog.com/](https://www.moelog.com/)  
-Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, Schema, Structured Data, CSP, Generative Engine Optimization  
-Requires at least: 5.0  
-Tested up to: 6.8.3  
-Requires PHP: 7.4  
-Tested PHP: 8.3  
-Stable tag: 2.0.2  
-License: GPLv2 or later  
+=== Moelog AI Q&A Links ===
+Contributors: Horlicks
+Author URI: [https://www.moelog.com/](https://www.moelog.com/)
+Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, Schema, Structured Data, CSP, Generative Engine Optimization
+Requires at least: 5.0
+Tested up to: 6.8.3
+Requires PHP: 7.4
+Tested PHP: 8.3
+Stable tag: 2.0.2
+License: GPLv2 or later
 License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
 
 == 🧠 Description ==
@@ -18,7 +18,7 @@ License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/lic
 這個回答頁面具備乾淨的 HTML 佈局、打字機動畫效果、內建的快取系統（包含靜態檔案），以及一個可選的 **STM (結構化資料模式)**，旨在幫助搜尋引擎和 AI 爬蟲更好地理解頁面內容。
 
 **展示頁面：**
-範例問題：GitHub是怎樣的一個網站?它的用途是什麼?  
+範例問題：GitHub是怎樣的一個網站?它的用途是什麼?
 演示頁面：[https://www.moelog.com/qna/qba-4cb-3257/](https://www.moelog.com/qna/qba-4cb-3257/)
 
 ---
@@ -147,7 +147,7 @@ STM 模式可協助搜尋引擎和 AI 爬蟲「解析」你的 AI 答案頁，**
 
 == 🧩 Changelog ==
 
-= 2.0.2 (2026-04-15) – 錯誤修正 & 維護更新 =
+= 2.0.2 (2026-04-21) – 錯誤修正 & 維護更新 =
 
 - 🐛 **修正:** Anthropic 預設模型 ID 日期後綴錯誤，並升級至最新 `claude-opus-4-7`。
 - 🐛 **修正:** `is_error_message()` 中 Gemini 和 Anthropic 的已知錯誤訊息與實際回傳字串不符，導致錯誤訊息可能被寫入靜態快取。
@@ -197,9 +197,9 @@ STM 模式可協助搜尋引擎和 AI 爬蟲「解析」你的 AI 答案頁，**
 
 == 🧭 Support ==
 
-Bug reports & feature suggestions:  
-🌐 Official site: [https://www.moelog.com/](https://www.moelog.com/)  
-💻 GitHub: [https://github.com/Horlicks-p/moelog-ai-qna-links](https://github.com/Horlicks-p/moelog-ai-qna-links)  
+Bug reports & feature suggestions:
+🌐 Official site: [https://www.moelog.com/](https://www.moelog.com/)
+💻 GitHub: [https://github.com/Horlicks-p/moelog-ai-qna-links](https://github.com/Horlicks-p/moelog-ai-qna-links)
 
 ---
 
