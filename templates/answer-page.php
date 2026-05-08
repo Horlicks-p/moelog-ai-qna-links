@@ -22,15 +22,12 @@ $GLOBALS["moe_aiqna_is_answer_page"] = true;
   <meta charset="<?php bloginfo("charset"); ?>">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <?php
-  // GEO 模式預設允許索引
-  $default_robots = get_option("moelog_aiqna_geo_mode")
-    ? "index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"
-    : "noindex,nofollow";
-  $robots = apply_filters("moelog_aiqna_answer_robots", $default_robots);
+  // GEO 模式開啟時，robots 和 canonical 由 STM 模組統一處理（避免重複輸出）
+  if (!get_option("moelog_aiqna_geo_mode")) {
+    $robots = apply_filters("moelog_aiqna_answer_robots", "noindex,nofollow");
+    echo '<meta name="robots" content="' . esc_attr($robots) . '">' . "\n";
+  }
   ?>
-  <meta name="robots" content="<?php echo esc_attr($robots); ?>">
-  <!-- 移除這行,讓 STM 模組統一處理 -->
-  <!-- <link rel="canonical" href="<?php echo esc_url($answer_url); ?>" /> -->
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+JP&family=Noto+Sans+TC:wght@100..900&family=Press+Start+2P&display=swap" rel="stylesheet">
   <?php
