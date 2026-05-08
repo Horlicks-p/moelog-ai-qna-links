@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 6.8.3
 Requires PHP: 7.4
 Tested PHP: 8.3
-Stable tag: 2.0.2
+Stable tag: 2.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -138,6 +138,9 @@ The plugin only sends the following to AI providers (OpenAI / Gemini / Claude):
 ---
 
 == 🧩 Changelog ==
+
+= 2.0.3 (2026-05-08) – Structured Data Fix =
+- 🐛 **Fixed:** QAPage Schema was missing recommended fields flagged by Google Search Console: added `upvoteCount` and `url` to `acceptedAnswer`, added `author` and `datePublished` to `mainEntity` (Question), and added `url` to `acceptedAnswer.author`.
 
 = 2.0.2 (2026-04-15) – Bug Fixes & Maintenance =
 - 🐛 **Fixed:** Anthropic default model ID had wrong date suffix; upgraded to latest `claude-opus-4-7`.

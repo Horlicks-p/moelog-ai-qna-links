@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 6.8.3
 Requires PHP: 7.4
 Tested PHP: 8.3
-Stable tag: 2.0.2
+Stable tag: 2.0.3
 License: GPLv2 or later
 License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
 
@@ -146,6 +146,10 @@ STM 模式可協助搜尋引擎和 AI 爬蟲「解析」你的 AI 答案頁，**
 ---
 
 == 🧩 Changelog ==
+
+= 2.0.3 (2026-05-08) – 結構化資料修正 =
+
+- 🐛 **修正:** QAPage Schema 缺少 Google Search Console 標示的建議欄位：於 `acceptedAnswer` 補上 `upvoteCount` 與 `url`；於 `mainEntity`（Question）補上 `author` 與 `datePublished`；於 `acceptedAnswer.author` 補上 `url`。
 
 = 2.0.2 (2026-04-21) – 錯誤修正 & 維護更新 =
 
