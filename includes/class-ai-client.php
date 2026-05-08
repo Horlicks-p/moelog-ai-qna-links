@@ -403,11 +403,13 @@ class Moelog_AIQnA_AI_Client
       return __("問題為空。", "moelog-ai-qna");
     }
 
+    // Claude 4 系列（claude-*-4-* 命名格式）已廢棄 temperature 參數
+    $is_claude4 = (bool) preg_match('/-4[-.]/', $model);
+
     // ✅ 正確的 Anthropic API 格式
     $body = [
       "model" => $model,
       "max_tokens" => $max_tokens,
-      "temperature" => $temperature,
       "system" => $system_text, // system 獨立在外面
       "messages" => [
         // messages 只有 user
@@ -417,6 +419,10 @@ class Moelog_AIQnA_AI_Client
         ],
       ],
     ];
+
+    if (!$is_claude4) {
+      $body["temperature"] = $temperature;
+    }
 
     $args = [
       "headers" => [
