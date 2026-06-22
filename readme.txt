@@ -201,7 +201,7 @@ The plugin only sends the following to AI providers (OpenAI / Gemini / Claude):
 
 Bug reports & feature requests:  
 Official site: https://www.moelog.com/  
-GitHub: https://github.com/Horlicks-p/moelog-ai-qna-links
+GitHub: https://github.com/Horlicks-p/moelog-ai-qna-links  
 
 ---
 
