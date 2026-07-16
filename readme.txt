@@ -3,10 +3,10 @@ Contributors: Horlicks
 Author URI: https://www.moelog.com/
 Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, Schema, Structured Data, CSP, Generative Engine Optimization
 Requires at least: 5.0
-Tested up to: 6.8.3
+Tested up to: 7.0
 Requires PHP: 7.4
 Tested PHP: 8.3
-Stable tag: 2.0.3
+Stable tag: 2.0.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -142,6 +142,16 @@ Visitor IPs, user agents, and other visitor personal data are **not sent to AI p
 ---
 
 == 🧩 Changelog ==
+
+= 2.0.4 (2026-07-16) – Security Hardening =
+* **Access policy:** Draft, private, password-protected, missing posts, and invalid answer tokens now return a consistent 404 before question metadata, cache, or AI access.
+* **Static cache:** Apache cache directories deny direct HTTP access and existing `.htaccess` files are upgraded safely; normal answer URLs continue through PHP.
+* **Trusted proxies:** Only `REMOTE_ADDR` is trusted by default; Cloudflare/X-Forwarded-For headers require explicitly configured proxy CIDRs.
+* **Feedback endpoints:** Public post/question validation, server-recomputed hashes, basic rate limits, and duplicate view/vote protection.
+* **Gemini:** API keys are sent in the `x-goog-api-key` header instead of request URLs.
+* **Anthropic:** Opus 4.7/4.8, Sonnet 5, and unknown models use a conservative sampling request surface without model-name regex guessing.
+* **Anthropic aliases:** Floating `*-latest` aliases are treated as unknown and omit temperature unless explicitly allowlisted after site contract testing.
+* **Compatibility:** Existing public answer URLs and saved model IDs are not rewritten.
 
 = 2.0.3 (2026-05-08) – Structured Data Fix =
 - 🐛 **Fixed:** QAPage Schema was missing recommended fields flagged by Google Search Console: added `upvoteCount` and `url` to `acceptedAnswer`, added `author` and `datePublished` to `mainEntity` (Question), and added `url` to `acceptedAnswer.author`.

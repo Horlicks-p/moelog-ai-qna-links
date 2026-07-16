@@ -3,10 +3,10 @@ Contributors: Horlicks
 Author URI: [https://www.moelog.com/](https://www.moelog.com/)  
 Tags: AI, OpenAI, Gemini, Claude, ChatGPT, Anthropic, Q&A, GPT, AI Answer, Schema, Structured Data, CSP, Generative Engine Optimization  
 Requires at least: 5.0  
-Tested up to: 6.8.3  
+Tested up to: 7.0
 Requires PHP: 7.4  
 Tested PHP: 8.3  
-Stable tag: 2.0.3  
+Stable tag: 2.0.4
 License: GPLv2 or later  
 License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
 
@@ -155,6 +155,17 @@ define('MOELOG_AIQNA_TRUSTED_PROXIES', [
 ---
 
 == 🧩 Changelog ==
+
+= 2.0.4 (2026-07-16) – 安全性修補 =
+
+- 🔒 **公開政策:** 非公開、密碼保護、不存在文章及無效答案 token 採一致 404，且在讀取問題、快取或呼叫 AI 前拒絕。
+- 🔒 **靜態快取:** Apache cache 目錄禁止直接 HTTP 存取，既有 `.htaccess` 會自動安全升級；正常答案 URL 仍由 PHP 輸出。
+- 🔒 **可信代理:** 預設只信任 `REMOTE_ADDR`，只有明確設定的 proxy CIDR 才解析 Cloudflare／X-Forwarded-For。
+- 🔒 **回饋端點:** 伺服器驗證公開文章與實際問題、重算 hash，並加入 view/vote/report 基本限流與重送防護。
+- 🔑 **Gemini:** API key 改由 `x-goog-api-key` header 傳送，不再出現在 request URL。
+- 🤖 **Anthropic:** Opus 4.7／4.8、Sonnet 5 與未知模型採保守參數集合，不再以模型名稱 regex 猜測 sampling 能力。
+- ℹ️ **Anthropic alias:** 浮動 `*-latest` alias 視為未知模型，預設省略 temperature；經站點 contract test 後可用 filter 明確允許。
+- ℹ️ **相容性:** 不修改既有公開答案 URL，也不自動改寫使用者已保存的 model ID。
 
 = 2.0.3 (2026-05-08) – 結構化資料修正 =
 
