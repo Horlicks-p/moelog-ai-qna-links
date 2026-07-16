@@ -30,6 +30,7 @@ define("MOELOG_AIQNA_OPT_KEY", "moelog_aiqna_settings");
 define("MOELOG_AIQNA_SECRET_KEY", "moelog_aiqna_secret");
 define("MOELOG_AIQNA_META_KEY", "_moelog_aiqna_questions");
 define("MOELOG_AIQNA_META_LANG_KEY", "_moelog_aiqna_questions_lang");
+define("MOELOG_AIQNA_CACHE_PROTECTION_VERSION", "1");
 
 // =========================================
 // 路由與快取 - ✅ 優化: 使用延遲載入避免過早讀取資料庫
@@ -232,6 +233,35 @@ function moelog_aiqna_init()
 }
 add_action("plugins_loaded", "moelog_aiqna_init", 5);
 
+/**
+ * 升級既有靜態快取目錄的 HTTP 存取保護。
+ *
+ * 首次成功寫入後記錄版本，避免每次 request 重寫 .htaccess。若主機不可寫，
+ * 保持未完成狀態，後續 request 會再嘗試；Cache::save() 也會拒絕在保護檔
+ * 無法建立時寫入新的完整 HTML。
+ */
+function moelog_aiqna_maybe_upgrade_cache_protection()
+{
+    $option_key = "moelog_aiqna_cache_protection_version";
+    $installed = (string) get_option($option_key, "0");
+
+    if ($installed === MOELOG_AIQNA_CACHE_PROTECTION_VERSION) {
+        return;
+    }
+
+    if (
+        class_exists("Moelog_AIQnA_Cache") &&
+        Moelog_AIQnA_Cache::prepare_static_root()
+    ) {
+        update_option(
+            $option_key,
+            MOELOG_AIQNA_CACHE_PROTECTION_VERSION,
+            false
+        );
+    }
+}
+add_action("plugins_loaded", "moelog_aiqna_maybe_upgrade_cache_protection", 7);
+
 function moelog_aiqna_check_upgrade()
 {
     $db_version = get_option("moelog_aiqna_db_version", "0");
@@ -369,6 +399,7 @@ function moelog_aiqna_uninstall()
     delete_option(MOELOG_AIQNA_SECRET_KEY);
     delete_option("moelog_aiqna_geo_mode");
     delete_option("moe_aiqna_needs_flush");
+    delete_option("moelog_aiqna_cache_protection_version");
 
     // 刪除所有文章 meta
     global $wpdb;
