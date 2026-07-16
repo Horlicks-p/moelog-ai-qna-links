@@ -106,23 +106,30 @@ class Moelog_AIQnA_Renderer
     // 執行爬蟲封鎖
     $this->security->block_unwanted_bots();
 
-    // 處理預抓取請求
+    // 第一階段只解析路由識別資料，不在授權前讀取 post meta。
+    $route = $this->router->parse_route_identifiers();
+    if (!$route) {
+      $this->render_not_found();
+      return;
+    }
+
+    // 在讀取問題 meta、靜態快取或 AI context 前統一驗證公開政策。
+    $post = Moelog_AIQnA_Post_Cache::get($route["post_id"]);
+    if (!Moelog_AIQnA_Access_Policy::is_publicly_accessible($post)) {
+      $this->render_not_found();
+      return;
+    }
+
+    // 通過 access policy 後才允許讀取問題 meta 並驗證 token。
+    $params = $this->router->resolve_request($route, $post);
+    if (!$params) {
+      $this->render_not_found();
+      return;
+    }
+
+    // 只有通過文章政策及 token 驗證的 URL 才能使用 204 預抓取端點。
     if ($this->is_prefetch_request()) {
       $this->handle_prefetch();
-      return;
-    }
-
-    // 解析請求參數
-    $params = $this->router->parse_request();
-    if (!$params) {
-      $this->render_error(400, __("參數錯誤或連結已失效。", "moelog-ai-qna"));
-      return;
-    }
-
-    // 驗證文章存在（使用快取）
-    $post = Moelog_AIQnA_Post_Cache::get($params["post_id"]);
-    if (!$post) {
-      $this->render_error(404, __("找不到文章。", "moelog-ai-qna"));
       return;
     }
 
@@ -406,6 +413,17 @@ p{margin:0 0 20px;line-height:1.6;}
   }
 
   /**
+   * 對不存在、非公開文章及無效 token 使用一致回應。
+   */
+  private function render_not_found()
+  {
+    $this->render_error(
+      404,
+      __("找不到此頁面或連結已失效。", "moelog-ai-qna"),
+    );
+  }
+
+  /**
    * 取得錯誤標題
    *
    * @param int $code HTTP 狀態碼
@@ -449,7 +467,7 @@ p{margin:0 0 20px;line-height:1.6;}
   public function render_for_pregeneration($post_id, $question, $lang = "auto")
   {
     $post = Moelog_AIQnA_Post_Cache::get($post_id);
-    if (!$post) {
+    if (!Moelog_AIQnA_Access_Policy::is_publicly_accessible($post)) {
       return false;
     }
 

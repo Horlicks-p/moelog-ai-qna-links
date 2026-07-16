@@ -4,7 +4,7 @@
 
 本文件記錄 2026-07-16 對 Moelog AI Q&A Links 外掛的靜態檢視結果，並將安全性、功能正確性、架構、相容性、測試及未來發展建議整理成可分階段執行的工作計畫。
 
-本次檢視未修改外掛程式碼，也未在完整 WordPress 執行環境中進行動態或滲透測試。所有 PHP 檔案已在 PHP 8.5 通過語法檢查；目前專案缺少可直接執行的 PHPUnit、WordPress 整合測試及自動化品質檢查流程。
+本次檢視未修改外掛程式碼，也未在完整 WordPress 執行環境中進行動態或滲透測試。公司檢視環境先前回報所有 PHP 檔案已在 PHP 8.5 通過語法檢查；2026-07-16 另於目前工作區使用 PHP 8.2.12 重跑 26 個 PHP 檔案，亦全數通過 `php -l`。開始 Milestone A 前，repository 沒有 `tests/`、`composer.json`、PHPUnit／WordPress test suite 或自動化品質檢查流程，因此 PHP 8.5 結果仍應由 CI 或可重現的 PHP 8.5 環境再次驗證。
 
 ## 2. 整體評估
 
@@ -13,11 +13,13 @@
 建議執行順序如下：
 
 1. 封鎖未公開文章的答案路由。
-2. 強化 URL token、可信代理與公開回饋端點。
+2. 建立可信代理政策並強化公開回饋端點；URL token 改造另案評估，不阻塞緊急安全版。
 3. 修正動態設定、版本與快取失效邏輯。
 4. 補齊生命週期清理及測試、CI、發布流程。
 5. 重構 provider、模板及資料儲存架構。
 6. 再評估 WordPress 原生 AI Client／Connectors API 等未來整合。
+
+目前只承諾執行 Milestone A 與 B。Milestone C、D 是候選方向，必須在 A、B 完成後依實際使用量、維護成本及功能價值重新決定，不預先承諾 service container、專用資料表、WP-CLI 或企業級完整 CI matrix。
 
 ### 2.1 第二次檢視（Claude 建議）核對結果
 
@@ -55,6 +57,22 @@
 - OpenAI API model／endpoint support：<https://platform.openai.com/docs/models>
 - PHP supported versions：<https://www.php.net/supported-versions.php>
 
+### 2.2 第三次現況核對與執行決策
+
+2026-07-16 再次以目前分支逐項抽查後，下列關鍵指控均可由實際程式碼重現，不是推測性建議：
+
+- `moelog-ai-qna.php` 的 top-level fallback 早於 `plugins_loaded` 執行，Router 與 Cache 又將值固化為 class constant，因此 `pretty_base`／`static_dir` 設定實際失效。
+- Router 的公開 URL HMAC 只取 3 個十六進位字元，共 4096 種組合，約 12 位元。
+- Post Cache 使用未檢查文章狀態的 `get_post()`；Router 又在 access policy 前讀取問題 meta，Renderer 也只檢查文章是否存在，形成未公開內容進入 cache／AI 流程的完整路徑。
+- Renderer Security 與 Feedback Controller 都會在未驗證直連來源的情況下優先採用 `CF-Connecting-IP`／`X-Forwarded-For`。
+- Gemini API key 位於 request URL query string。
+- Anthropic 以 `preg_match('/-4[-.]/', $model)` 推測 sampling 能力。
+- plugin header 2.0.2 與程式常數／readme 2.0.3 不一致。
+
+因此 Milestone A 可以執行，但六個安全修補項目不合併成單一大型變更，而是依第 9 節拆成四個可獨立審查、驗收及回滾的 PR。版本統一為 2.0.4 是發布收尾工作，不另算第七個安全功能。
+
+Milestone A 的測試策略採務實分層：每個 PR 必須附手動驗收清單，並盡量加入不需要完整 WordPress test suite 的純邏輯／contract 測試；從零建立 Composer、PHPUnit 與 WordPress integration test suite 的完整基礎設施留在 Milestone B，不阻塞緊急修補發布。
+
 ## 3. Phase 0：建立安全基線
 
 優先級：Critical / High
@@ -70,7 +88,7 @@
 
 建議作法：
 
-- 在讀取問題 meta、讀取靜態快取及呼叫 AI 前，統一執行文章可見性政策。
+- Router 第一階段只正規化路由輸入及識別文章，不先讀取問題 meta；取得文章並通過統一可見性政策後，才允許讀取問題 meta、解析 token、讀取靜態快取或呼叫 AI。
 - 一般公開請求必須通過 `is_post_publicly_viewable()`。
 - 草稿預覽只允許已登入且具有該文章 `read_post` 或 `edit_post` 權限的使用者。
 - 404、403 與無效 token 應採一致回應，避免成為文章 ID 或狀態探測器。
@@ -153,8 +171,8 @@
 
 - 目前正常快取命中本來就是 PHP 在 `template_redirect` 內以 `Cache::load()` 讀檔後輸出，程式與文件沒有把 `.html` 當成正式公開 URL；因此移到 web root 外通常沒有額外的應用層效能代價。
 - 立即修補：Apache `.htaccess` 移除對 `.html` 的 `Require all granted`，改成拒絕直接存取；既有 `.htaccess` 也要有 upgrade routine 重寫，不能只影響新目錄。
-- 完整方案：把快取移到 web root 外，經過授權與路由檢查後由 PHP 輸出，這同時涵蓋 Nginx、Caddy 與不讀 `.htaccess` 的代管環境。
-- 若部署限制必須留在 web root，需提供 Nginx／Caddy deny 設定文件，並考慮改存資料或 fragment 而不是可獨立交付的完整 HTML。
+- 完整方案：優先把快取移到經驗證、可寫且位於 web root 外的路徑，經過授權與路由檢查後由 PHP 輸出，這同時涵蓋 Nginx、Caddy 與不讀 `.htaccess` 的代管環境；不能假設廉價主機或受管 WordPress 一定提供這類路徑。
+- 若部署限制無法安全使用 web root 外路徑，必須採明確的安全退路：提供 Nginx／Caddy deny 設定與啟用時健康檢查，或改存不可獨立交付的資料／fragment。健康檢查無法確認直接存取已封鎖時，不應產生完整公開 HTML 快取。
 - 不依賴單一伺服器的 `.htaccess` 作為安全邊界。
 - 檔案寫入使用暫存檔加原子 rename，避免讀取到半寫入內容。
 - 檔案刪除的 realpath 驗證應比對目錄邊界，而不是只做字串 prefix。
@@ -447,23 +465,24 @@ provider metadata 應描述：
 
 ## 7. Phase 4：測試、品質與發布流程
 
-優先級：High，應與 Phase 0 同步開始
+優先級：High；Milestone A 僅同步建立最小驗收與可行的純邏輯／contract tests，完整測試基礎自 Milestone B 開始
 
-### 7.1 修復並建立測試基礎
+### 7.1 從零建立測試基礎
 
 現況：
 
-- `tests/` 目前是未追蹤內容。
-- 缺少 `composer.json`、PHPUnit 設定及 WordPress test suite。
-- 測試直接呼叫 private `Moelog_AIQnA_Cache::get_ttl()`，無法正常執行。
-- bootstrap 內版本與 static directory 也已過時。
+- Milestone A 開始前 repository 沒有 `tests/` 目錄，也沒有可沿用的測試草稿。
+- PR A1 已開始加入可直接執行的 standalone 純邏輯測試、受環境變數保護的本機 WordPress HTTP smoke test 與手動驗收清單。
+- 仍缺少 `composer.json`、PHPUnit 設定、通用測試 bootstrap 及 WordPress test suite，現有 A1 測試不能視為完整 unit／integration regression suite。
 
 建議作法：
 
+- Milestone A 先為每個 PR 維護可重現的手動驗收清單，並只加入可在不啟動完整 WordPress test suite 下可靠執行的純邏輯／provider contract 測試；不要為了緊急版一次導入完整企業級測試矩陣。
 - 加入 Composer dev dependencies、PHPUnit 及 WordPress test suite。
 - unit tests 聚焦純函式、hash、token、設定正規化及 provider mapping。
 - integration tests 驗證 hooks、Settings API、文章狀態、AJAX、cron、cache、activation 及 uninstall。
 - HTTP API 使用 `pre_http_request` mock，不在測試中真的呼叫付費 provider。
+- 完整 Composer／PHPUnit／WordPress integration test 基礎列為 Milestone B 的交付項目；Milestone A 不得以不存在的自動化測試冒充驗證完成。
 
 ### 7.2 必要安全回歸測試
 
@@ -547,21 +566,77 @@ provider metadata 應描述：
 
 ### Milestone A：2.0.4 短期安全修補版
 
-目標是小範圍、可快速審查與發布，不等待完整架構重構。必要範圍固定為：
+目標是小範圍、可快速審查與發布，不等待完整架構重構。六個安全修補項目拆成下列四個 PR；PR 可依相依關係依序合併，但每個 PR 必須可獨立驗收及回滾。
 
-- 非公開文章 access policy：在讀取 cache、文章 context 或呼叫 AI 前拒絕非公開文章，並採一致 404；本版不改公開 URL 格式。
-- 可信代理 IP：預設只信 `REMOTE_ADDR`，只有明確設定的可信代理才解析轉送標頭。
-- feedback 基本防護：伺服器端驗證公開文章與實際問題、重算 question hash，並為 view／vote／report 加入基本限流；專用資料表、完整冪等投票與高併發原子計數留待後續。
-- Apache 靜態快取旁路封鎖：將 cache 目錄 `.htaccess` 改為拒絕直接讀取 `.html`，並以 upgrade routine 重寫既有保護檔；Nginx／Caddy 與移出 web root 的完整方案留待 Milestone B。
-- Gemini API key 從 query string 移至 `x-goog-api-key` header。
-- Anthropic 短期保守參數：新世代及未知模型省略 sampling 參數，避免 400；完整 capability registry 留待後續。
-- 對上述六項建立最小必要的安全回歸測試，並統一發布版本為 2.0.4。
+#### PR A1：文章公開政策與一致 404
 
-下列項目雖重要，但不得阻塞 2.0.4：URL token／301 SEO 遷移、站點級費用保險絲、feedback 專用資料表、完整 provider 重構及整套 CI。完成 2.0.4 後立即排入 Milestone B。
+範圍：
+
+- 建立單一 access policy；一般公開請求只允許 `is_post_publicly_viewable()` 為真的文章。
+- 調整流程，使 Router 在 access policy 前不讀取問題 meta；通過政策後才解析問題／token、讀取 cache 或準備 AI context。
+- draft、pending、private、trash、不存在文章及無效 token 採一致 404，避免文章 ID／狀態探測。
+- 密碼保護文章不得進入公開答案路由、AI／cache 流程或答案 sitemap；WordPress 5.0～5.6 fallback 必須沿用 Core 的 post-type viewability 語意，不能誤殺內建 Page。
+- 保留既有公開 URL 格式，不在本 PR 加長 token 或導入 301 migration。
+
+驗收邊界：
+
+- 未登入請求無法取得任何非公開文章的問題、答案或靜態快取，也不會觸發外部 AI 呼叫。
+- 內建 Post／Page 在支援的 WordPress 版本維持正常；密碼保護文章的答案 URL 不出現在 sitemap。
+- 已發布文章的既有 URL 仍正常工作。
+- 附文章狀態／權限矩陣的手動驗收記錄；可抽離的 policy／token 邏輯加入最小測試。
+
+#### PR A2：Apache 靜態快取旁路封鎖
+
+範圍：
+
+- cache 目錄 `.htaccess` 改為拒絕直接讀取 `.html`。
+- 加入 upgrade routine，安全重寫既有 cache 目錄的保護檔，而非只保護新目錄。
+- 驗證正常答案 URL 仍由 WordPress／PHP 輸出既有快取。
+- 若同時碰觸寫檔流程，採暫存檔加原子 rename；不在本 PR 搬遷整個快取架構。
+
+驗收邊界：
+
+- Apache 環境直接猜測 `.html` 路徑會被拒絕，正常答案路由仍能命中快取。
+- upgrade 前已存在的 cache 目錄也會更新保護檔。
+- Nginx／Caddy、web root 外搬遷與受管主機安全退路明確保留給 Milestone B，不宣稱本 PR 已解決所有 web server。
+
+#### PR A3：可信代理與 Feedback 基本防護
+
+範圍：
+
+- 集中 client IP 解析；預設只採 `REMOTE_ADDR`，僅在直連來源符合明確設定的可信代理／CDN 網段時解析轉送標頭。
+- bootstrap、view、vote、report 全部驗證文章公開狀態、實際問題關聯，並由伺服器重算／比對 question hash。
+- 為 view、vote、report 加入基本伺服器端限流，限制可建立的 question meta；report 另加站點級總量防護。
+- 不再把前端 `previous_vote` 視為可信狀態；若無法在不擴張資料模型下完成可靠冪等性，先採拒絕重複／保守計數並記錄限制。
+
+驗收邊界：
+
+- 偽造 `CF-Connecting-IP`／`X-Forwarded-For` 不會改變直連訪客的限流識別。
+- 任意 `post_id`／`question_hash` 不會建立不受控 post meta；非公開文章與不存在問題一律拒絕。
+- 專用資料表、跨程序原子計數與完整版匿名投票冪等性不屬於本 PR。
+
+#### PR A4：Provider 安全相容與 2.0.4 發布收尾
+
+範圍：
+
+- Gemini API key 從 query string 移到 `x-goog-api-key` header，確認 request URL 與除錯輸出不含 key。
+- Anthropic 對 Opus 4.7／4.8、Sonnet 5 及未知新模型採保守 request surface，省略非預設 sampling 參數；不以新的名稱 regex 擴大猜測。
+- 保留既有使用者已保存的 model ID，不在安全版默默遷移模型。
+- 統一 plugin header、程式常數及 readme stable tag 為 2.0.4，完成發布前手動 smoke test。
+
+驗收邊界：
+
+- Gemini request URL 不含 API key，header 正確帶入 key。
+- 已知新世代與未知 Anthropic model request 不會由外掛附加非預設 sampling 參數。
+- 版本中繼資料一致；安裝、啟用、既有公開答案、三個 provider request mock／contract 及停用流程完成手動驗收。
+
+Milestone A 的測試交付為四份可重現的手動驗收清單，加上能在現有工作區可靠執行的最小純邏輯／contract tests。完整 Composer、PHPUnit、WordPress integration suite 與 CI matrix 不阻塞 2.0.4，但必須在驗收記錄中明示哪些路徑仍是手動測試。
+
+下列項目雖重要，但不得阻塞 2.0.4：URL token／301 SEO 遷移、站點級 AI 費用保險絲、feedback 專用資料表與完整原子計數、完整 provider 重構、動態 model registry 及整套 CI。完成 2.0.4 後排入 Milestone B 重新排序。
 
 ### Milestone B：正確性與穩定版
 
-- 版本一致性。
+- 版本一致性自動檢查與單一發布版本來源。
 - pretty base／static directory 正常生效。
 - 完成 Nginx／Caddy 等非 Apache 環境的直接存取封鎖，並規劃跨伺服器移出 web root；不重複 Milestone A 已完成的 Apache 修補。
 - 明確分層的 answer/page cache fingerprint、設定失效及 generation lock。
@@ -575,6 +650,8 @@ provider metadata 應描述：
 
 ### Milestone C：架構整理版
 
+Milestone C 是 A、B 完成後才重新估算的選配工作，不是目前發布承諾。只有實際維護痛點或使用量足以支持成本時才啟動：
+
 - provider adapters。
 - Access Policy／Answer Service 分層。
 - 合併模板。
@@ -583,6 +660,8 @@ provider metadata 應描述：
 
 ### Milestone D：現代化版
 
+Milestone D 是長期候選方向，不因 WordPress 或模型世代更新便自動啟動：
+
 - WordPress 7 AI Client／Connectors adapter。
 - 動態 model registry 與 deprecation health check。
 - 成本、使用量與健康監控。
@@ -590,7 +669,24 @@ provider metadata 應描述：
 
 ## 10. 完成定義
 
-本計畫可視為完成，需同時達成：
+### 10.1 Milestone A 完成
+
+- PR A1～A4 的個別驗收邊界全部通過，且沒有把未完成項目描述成已由自動化測試涵蓋。
+- 未公開文章不會進入問題 meta、公開 cache 或 AI 呼叫流程。
+- Apache 既有及新 cache 目錄均拒絕直接讀取完整 HTML。
+- 公開 feedback 端點具有文章／問題關聯驗證、可信 IP 基本限流與 meta flooding 防護。
+- Gemini key 不出現在 URL；Anthropic 新世代／未知模型使用保守 sampling request surface。
+- 2.0.4 所有版本中繼資料一致，且發布前 smoke test 完成。
+
+### 10.2 Milestone B 完成
+
+- 動態設定、answer/page cache fingerprint、generation lock、生命週期清理及費用保險絲均依第 9 節驗收。
+- Composer／PHPUnit／WordPress integration test 基礎可在文件化環境重現執行。
+- 非 Apache 快取安全退路已實作及驗證，不能只提供未驗證的設定範例。
+
+### 10.3 長期完成目標
+
+若後續決定執行 Milestone C、D，完整長期目標如下；這些條件不是 2.0.4 或 Milestone B 的發布阻塞條件：
 
 - 未公開文章及其衍生答案不會透過任何公開路徑、快取或回饋 API 暴露。
 - 公開端點具備資料關聯驗證、可信限流及可接受的濫用防護。

@@ -176,21 +176,87 @@ class Moelog_AIQnA_Router
      */
     public function parse_request()
     {
-        // 檢查是否為回答頁請求
+        $route = $this->parse_route_identifiers();
+        if (!$route) {
+            return false;
+        }
+
+        $post = Moelog_AIQnA_Post_Cache::get($route["post_id"]);
+        if (!Moelog_AIQnA_Access_Policy::is_publicly_accessible($post)) {
+            return false;
+        }
+
+        return $this->resolve_request($route, $post);
+    }
+
+    /**
+     * 只解析答案路由識別資料，不讀取文章或 post meta。
+     *
+     * 呼叫端必須先對 post_id 執行 access policy，才能把結果傳給
+     * resolve_request()。
+     *
+     * @return array|false {
+     * @type int    $post_id
+     * @type string $v150_slug
+     * @type string $v150_hash
+     * }
+     */
+    public function parse_route_identifiers()
+    {
         if (!$this->is_answer_request()) {
             return false;
         }
 
-        $v150_slug = get_query_var("v150_slug");
-        $v150_hash = get_query_var("v150_hash");
-        $post_id = get_query_var("post_id");
+        $post_id = absint(get_query_var("post_id"));
+        $v150_slug = sanitize_key(get_query_var("v150_slug"));
+        $v150_hash = sanitize_key(get_query_var("v150_hash"));
 
-        // 提早返回: 檢查必要參數
+        if (
+            !$post_id ||
+            !preg_match('/^[a-z0-9]+$/', $v150_slug) ||
+            !preg_match('/^[a-f0-9]{3}$/', $v150_hash)
+        ) {
+            return false;
+        }
+
+        return [
+            "post_id" => $post_id,
+            "v150_slug" => $v150_slug,
+            "v150_hash" => $v150_hash,
+        ];
+    }
+
+    /**
+     * 在 access policy 通過後讀取問題 meta 並驗證 token。
+     *
+     * 即使呼叫端漏做前置檢查，本方法仍會在讀取 meta 前重驗政策。
+     *
+     * @param array         $route parse_route_identifiers() 的結果。
+     * @param WP_Post|null  $post  已由呼叫端取得的文章物件。
+     * @return array|false
+     */
+    public function resolve_request($route, $post = null)
+    {
+        if (!is_array($route) || empty($route["post_id"])) {
+            return false;
+        }
+
+        $post_id = absint($route["post_id"]);
+        $v150_slug = sanitize_key($route["v150_slug"] ?? "");
+        $v150_hash = sanitize_key($route["v150_hash"] ?? "");
+
         if (!$post_id || !$v150_slug || !$v150_hash) {
             return false;
         }
 
-        // 查詢 meta 資料
+        if (!($post instanceof WP_Post) || (int) $post->ID !== $post_id) {
+            $post = Moelog_AIQnA_Post_Cache::get($post_id);
+        }
+
+        if (!Moelog_AIQnA_Access_Policy::is_publicly_accessible($post)) {
+            return false;
+        }
+
         $questions = $this->parse_questions_list(
             get_post_meta($post_id, MOELOG_AIQNA_META_KEY, true)
         );
@@ -205,7 +271,7 @@ class Moelog_AIQnA_Router
 
         // 執行解析 (已按建議 #1 簡化參數)
         return $this->parse_v150_slug(
-            intval($post_id),
+            $post_id,
             $v150_slug,
             $v150_hash,
             $questions,
