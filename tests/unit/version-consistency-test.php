@@ -6,7 +6,7 @@
  */
 
 $root = dirname(__DIR__, 2);
-$expected = "2.0.4";
+$expected = "2.0.5";
 $failures = [];
 
 $main = file_get_contents($root . "/moelog-ai-qna.php");

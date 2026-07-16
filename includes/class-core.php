@@ -687,10 +687,31 @@ class Moelog_AIQnA_Core
         // 標記需要注入預抓取腳本
         $this->prefetch_needed = true;
 
-        return sprintf(
+        $html = sprintf(
             '<div class="moe-aiqna-block"><h3>%s</h3><ul>%s</ul></div>',
             esc_html($heading),
             $items
+        );
+
+        /**
+         * 過濾問題清單區塊的 HTML 輸出。
+         *
+         * 讓佈景或站點外掛能自訂容器標記(例如替換標題元素),
+         * 而不必修改外掛本身,避免自動更新時客製遺失。
+         *
+         * @since 2.0.5
+         *
+         * @param string $html    預設區塊 HTML。
+         * @param string $heading 區塊標題文字(未轉義)。
+         * @param string $items   已組合的 <li> 清單 HTML(連結已轉義)。
+         * @param int    $post_id 文章 ID。
+         */
+        return apply_filters(
+            "moelog_aiqna_questions_block_html",
+            $html,
+            $heading,
+            $items,
+            $post_id
         );
     }
     /**

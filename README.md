@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4  
 Tested PHP: 8.3  
-Stable tag: 2.0.4
+Stable tag: 2.0.5
 License: GPLv2 or later  
 License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
 
@@ -155,6 +155,11 @@ define('MOELOG_AIQNA_TRUSTED_PROXIES', [
 ---
 
 == 🧩 Changelog ==
+
+= 2.0.5 (2026-07-16) – 自動更新 =
+
+- ✨ **新增:** 透過 GitHub Releases 自動更新(內附 Plugin Update Checker 5.6,MIT 授權);優先下載 Release 的發布包 asset,而非原始碼壓縮檔。
+- ✨ **新增:** `moelog_aiqna_questions_block_html` filter,佈景可自訂問題清單容器標記,不必修改外掛檔案,客製化不再被自動更新洗掉。
 
 = 2.0.4 (2026-07-16) – 安全性修補 =
 
