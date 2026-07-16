@@ -1,8 +1,8 @@
 # Copyright (C) 2025 Horlicks (moelog.com)
 # This file is distributed under the GPL v2 or later.
 msgid ""
-msgstr "Project-Id-Version: Moelog AI Q&A Links 1.10.2\nReport-Msgid-Bugs-To: https://wordpress.org/support/plugin/moelog-ai-qna-links\nLast-Translator: Horlicks <contact@moelog.com>\nLanguage-Team: English <en_US@li.org>\nLanguage: en_US\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPOT-Creation-Date: 2025-11-27T20:00:00+08:00\nPO-Revision-Date: 2025-11-27T20:00:00+08:00\nX-Generator: Cursor IDE\nX-Domain: moelog-ai-qna\nPlural-Forms: nplurals=2; plural=(n != 1);\n"
-"Project-Id-Version: Moelog AI Q&A Links 1.10.2\n"
+msgstr "Project-Id-Version: Moelog AI Q&A Links 2.0.4\nReport-Msgid-Bugs-To: https://wordpress.org/support/plugin/moelog-ai-qna-links\nLast-Translator: Horlicks <contact@moelog.com>\nLanguage-Team: English <en_US@li.org>\nLanguage: en_US\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPOT-Creation-Date: 2025-11-27T20:00:00+08:00\nPO-Revision-Date: 2025-11-27T20:00:00+08:00\nX-Generator: Cursor IDE\nX-Domain: moelog-ai-qna\nPlural-Forms: nplurals=2; plural=(n != 1);\n"
+"Project-Id-Version: Moelog AI Q&A Links 2.0.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/moelog-ai-qna-links\n"
 "Last-Translator: Horlicks <contact@moelog.com>\n"
 "Language-Team: English (US) <en_US@li.org>\n"
@@ -655,6 +655,10 @@ msgid "回報次數過多,請稍後再試"
 msgstr "Too many reports, please try again later"
 
 #: includes/class-feedback-controller.php
+msgid "操作次數過多,請稍後再試"
+msgstr "Too many actions, please try again later"
+
+#: includes/class-feedback-controller.php
 msgid "訊息過長,請限制在 %d 字以內"
 msgstr "Message too long, please limit to %d characters"
 
@@ -707,8 +711,8 @@ msgid "時間：%s"
 msgstr "Time: %s"
 
 #: includes/class-feedback-controller.php
-msgid "來源 IP："
-msgstr "Source IP:"
+msgid "匿名來源識別："
+msgstr "Anonymous source ID:"
 
 #: includes/class-feedback-controller.php
 msgid "郵件傳送失敗,請稍後再試"
@@ -1738,4 +1742,3 @@ msgstr "Style Fixes: Fixed answer page CSS to better support Markdown content."
 #: includes/class-admin.php
 msgid "UI Redesign: Admin interface redesigned with a clean, elegant style."
 msgstr "UI Redesign: Admin interface redesigned with a clean, elegant style."
-

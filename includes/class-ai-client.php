@@ -24,7 +24,7 @@ class Moelog_AIQnA_AI_Client
    */
   const DEFAULT_MODEL_OPENAI = MOELOG_AIQNA_DEFAULT_MODEL_OPENAI; // 'gpt-4o-mini'
   const DEFAULT_MODEL_GEMINI = MOELOG_AIQNA_DEFAULT_MODEL_GEMINI; // 'gemini-2.5-flash'
-  const DEFAULT_MODEL_ANTHROPIC = "claude-opus-4-7";
+  const DEFAULT_MODEL_ANTHROPIC = MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC;
 
   /**
    * 單次請求生命週期的 API Key 快取（避免重複解密與重複記錄 log）
@@ -248,9 +248,8 @@ class Moelog_AIQnA_AI_Client
   private function call_gemini($params)
   {
     $endpoint = sprintf(
-      "https://generativelanguage.googleapis.com/v1/models/%s:generateContent?key=%s",
-      $params["model"],
-      $params["api_key"],
+      "https://generativelanguage.googleapis.com/v1/models/%s:generateContent",
+      rawurlencode($params["model"]),
     );
 
     // Gemini 將所有提示合併到 user message
@@ -275,6 +274,7 @@ class Moelog_AIQnA_AI_Client
     $args = [
       "headers" => [
         "Content-Type" => "application/json",
+        "x-goog-api-key" => $params["api_key"],
       ],
       "body" => wp_json_encode($body),
       "timeout" => self::TIMEOUT,
@@ -403,9 +403,6 @@ class Moelog_AIQnA_AI_Client
       return __("問題為空。", "moelog-ai-qna");
     }
 
-    // Claude 4 系列（claude-*-4-* 命名格式）已廢棄 temperature 參數
-    $is_claude4 = (bool) preg_match('/-4[-.]/', $model);
-
     // ✅ 正確的 Anthropic API 格式
     $body = [
       "model" => $model,
@@ -420,7 +417,7 @@ class Moelog_AIQnA_AI_Client
       ],
     ];
 
-    if (!$is_claude4) {
+    if ($this->anthropic_supports_temperature($model)) {
       $body["temperature"] = $temperature;
     }
 
@@ -475,6 +472,38 @@ class Moelog_AIQnA_AI_Client
 
     // 錯誤情況
     return $this->handle_anthropic_error($code, $json);
+  }
+
+  /**
+   * Whether an Anthropic model is explicitly known to accept temperature.
+   *
+   * Unknown and newer models use the conservative request surface. This avoids
+   * guessing capabilities from model-name patterns and prevents 400 responses
+   * from Opus 4.7/4.8, Sonnet 5, and future models with the same restriction.
+   * Sites may extend the exact-ID allowlist after contract testing through the
+   * moelog_aiqna_anthropic_temperature_models filter.
+   *
+   * @param string $model
+   * @return bool
+   */
+  private function anthropic_supports_temperature($model)
+  {
+    $supported_models = [
+      "claude-3-opus-20240229",
+      "claude-3-sonnet-20240229",
+      "claude-3-haiku-20240307",
+      "claude-3-5-sonnet-20240620",
+      "claude-3-5-sonnet-20241022",
+      "claude-3-5-haiku-20241022",
+    ];
+
+    $supported_models = apply_filters(
+      "moelog_aiqna_anthropic_temperature_models",
+      $supported_models,
+    );
+
+    return is_array($supported_models) &&
+      in_array((string) $model, $supported_models, true);
   }
 
   /**

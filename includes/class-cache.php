@@ -552,58 +552,117 @@ class Moelog_AIQnA_Cache
   {
     self::init();
 
-    if (file_exists(self::$static_dir_path)) {
-      return true;
+    if (!file_exists(self::$static_dir_path)) {
+      // 建立目錄
+      if (!wp_mkdir_p(self::$static_dir_path)) {
+        Moelog_AIQnA_Debug::log_error(
+          sprintf("Failed to create directory: %s", self::$static_dir_path)
+        );
+        return false;
+      }
+
+      // 設定目錄權限
+      @chmod(self::$static_dir_path, 0755);
+
+      Moelog_AIQnA_Debug::logf(
+        "Created directory: %s",
+        self::$static_dir_path
+      );
     }
 
-    // 建立目錄
-    if (!wp_mkdir_p(self::$static_dir_path)) {
+    if (!is_dir(self::$static_dir_path)) {
       Moelog_AIQnA_Debug::log_error(
-        sprintf("Failed to create directory: %s", self::$static_dir_path)
+        sprintf("Static cache path is not a directory: %s", self::$static_dir_path)
       );
       return false;
     }
 
-    // 設定目錄權限
-    @chmod(self::$static_dir_path, 0755);
-
-    // 建立 .htaccess 保護
-    self::create_htaccess();
+    // 每次顯式準備目錄時驗證內容，讓 upgrade routine 能重寫既有不安全規則。
+    if (!self::create_htaccess()) {
+      return false;
+    }
 
     // 建立 index.html 防止目錄瀏覽
     self::create_index_html();
-
-    Moelog_AIQnA_Debug::logf(
-      "Created directory: %s",
-      self::$static_dir_path
-    );
 
     return true;
   }
 
   /**
-   * 建立 .htaccess 保護檔案
+   * 建立或升級 .htaccess 保護檔案。
+   *
+   * 完整 HTML 只允許由 PHP 經過答案路由與 access policy 後讀取；整個 cache
+   * 目錄均拒絕 HTTP 直接存取。規則同時相容 Apache 2.4 authz_core 與舊版
+   * access_compat。
+   *
+   * @return bool
    */
   private static function create_htaccess()
   {
     $htaccess_file = self::$static_dir_path . "/.htaccess";
+    $content = "# Moelog AI Q&A Cache Protection v1\n" .
+      "# Full HTML cache files are private application data served only by PHP.\n" .
+      "Options -Indexes\n\n" .
+      "<IfModule mod_authz_core.c>\n" .
+      "    Require all denied\n" .
+      "</IfModule>\n" .
+      "<IfModule !mod_authz_core.c>\n" .
+      "    Order Allow,Deny\n" .
+      "    Deny from all\n" .
+      "</IfModule>\n";
 
-    if (file_exists($htaccess_file)) {
-      return;
+    $current = is_file($htaccess_file)
+      ? @file_get_contents($htaccess_file)
+      : false;
+    if ($current === $content) {
+      return true;
     }
 
-    $content = "# Moelog AI Q&A Static Files Protection\n" .
-      "# Prevent directory listing\n" .
-      "Options -Indexes\n\n" .
-      "<FilesMatch \"\\.html$\">\n" .
-      "    Require all granted\n" .
-      "</FilesMatch>\n\n" .
-      "<FilesMatch \"^\\.\">\n" .
-      "    Require all denied\n" .
-      "</FilesMatch>\n";
+    return self::write_file_atomically($htaccess_file, $content);
+  }
 
-    file_put_contents($htaccess_file, $content);
-    @chmod($htaccess_file, 0644);
+  /**
+   * 以同目錄暫存檔寫入後 rename，避免產生半寫入的保護檔。
+   *
+   * Windows 無法覆蓋既有檔案時，退回 LOCK_EX 原地覆寫；Linux／一般正式
+   * 主機使用同檔案系統 rename，可原子取代。
+   *
+   * @param string $path
+   * @param string $content
+   * @return bool
+   */
+  private static function write_file_atomically($path, $content)
+  {
+    $temp_path = $path . ".tmp-" . str_replace(".", "", uniqid("", true));
+    $written = @file_put_contents($temp_path, $content, LOCK_EX);
+
+    if ($written === false || $written !== strlen($content)) {
+      @unlink($temp_path);
+      Moelog_AIQnA_Debug::log_error(
+        sprintf("Failed to write cache protection file: %s", $path)
+      );
+      return false;
+    }
+
+    @chmod($temp_path, 0644);
+
+    if (@rename($temp_path, $path)) {
+      return true;
+    }
+
+    // Windows rename() 通常不能直接覆蓋既有目的檔。
+    $fallback = @file_put_contents($path, $content, LOCK_EX);
+    @unlink($temp_path);
+
+    if ($fallback === false || $fallback !== strlen($content)) {
+      Moelog_AIQnA_Debug::log_error(
+        sprintf("Failed to replace cache protection file: %s", $path)
+      );
+      return false;
+    }
+
+    @chmod($path, 0644);
+    return true;
   }
 
   /**
@@ -614,12 +673,16 @@ class Moelog_AIQnA_Cache
     $index_file = self::$static_dir_path . "/index.html";
 
     if (file_exists($index_file)) {
-      return;
+      return true;
     }
 
     $content = "<!-- Silence is golden. -->";
-    file_put_contents($index_file, $content);
+    $result = file_put_contents($index_file, $content, LOCK_EX);
+    if ($result === false) {
+      return false;
+    }
     @chmod($index_file, 0644);
+    return true;
   }
 
   /**

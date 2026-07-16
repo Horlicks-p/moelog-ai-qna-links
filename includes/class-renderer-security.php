@@ -229,30 +229,7 @@ class Moelog_AIQnA_Renderer_Security
    */
   public function get_client_ip()
   {
-    $ip = "0.0.0.0";
-
-    // Cloudflare
-    if (!empty($_SERVER["HTTP_CF_CONNECTING_IP"])) {
-      $ip = $_SERVER["HTTP_CF_CONNECTING_IP"];
-    }
-    // 代理伺服器
-    elseif (!empty($_SERVER["HTTP_X_FORWARDED_FOR"])) {
-      $ips = explode(",", $_SERVER["HTTP_X_FORWARDED_FOR"]);
-      $ip = trim($ips[0]);
-    }
-    // 直接連線
-    elseif (!empty($_SERVER["REMOTE_ADDR"])) {
-      $ip = $_SERVER["REMOTE_ADDR"];
-    }
-
-    // ✅ 安全增強: 驗證 IP 格式
-    // 允許私有 IP（本地開發環境）
-    if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-      // 如果完全無效，返回默認值
-      $ip = "0.0.0.0";
-    }
-
-    return $ip;
+    return Moelog_AIQnA_Client_IP::resolve();
   }
 }
 

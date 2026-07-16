@@ -185,16 +185,19 @@ class Moelog_AIQnA_Pregenerate
       substr($question, 0, 50)
     );
 
-    // 檢查是否已有快取
-    if (Moelog_AIQnA_Cache::exists($post_id, $question)) {
-      Moelog_AIQnA_Debug::log_info("Pregenerate skipped: Cache already exists");
+    // 排程後文章狀態可能已改變；在讀取／產生快取及呼叫 AI 前重驗。
+    $post = Moelog_AIQnA_Post_Cache::get($post_id);
+    if (!Moelog_AIQnA_Access_Policy::is_publicly_accessible($post)) {
+      Moelog_AIQnA_Debug::logf(
+        "Pregenerate skipped: Post %d is not publicly accessible",
+        $post_id
+      );
       return;
     }
 
-    // 驗證文章存在
-    $post = Moelog_AIQnA_Post_Cache::get($post_id);
-    if (!$post) {
-      $this->log_error($post_id, $question, "Post not found");
+    // 檢查是否已有快取
+    if (Moelog_AIQnA_Cache::exists($post_id, $question)) {
+      Moelog_AIQnA_Debug::log_info("Pregenerate skipped: Cache already exists");
       return;
     }
 

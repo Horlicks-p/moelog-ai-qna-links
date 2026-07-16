@@ -174,11 +174,12 @@ Content-Security-Policy:
 ```php
 // 問題回報功能防濫用
 const REPORT_RATE_LIMIT = 3;      // 每小時 3 次
-const REPORT_RATE_WINDOW = 3600;  // 1 小時
 const REPORT_MAX_LENGTH = 300;    // 最大 300 字
+const REPORT_SITE_RATE_LIMIT = 30; // 全站每小時 30 次
 
-// 使用 Transient 追蹤
-$rate_key = 'moe_aiqna_report_' . md5($client_ip);
+// 預設只信 REMOTE_ADDR，再以 site salt 產生匿名識別
+$identity = Moelog_AIQnA_Client_IP::anonymized_id();
+// bootstrap/view/vote/report 使用各自的 transient 配額
 ```
 
 ### 蜜罐欄位 (Honeypot)

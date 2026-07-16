@@ -2,7 +2,7 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Moelog AI Q&A Links 1.10.2\n"
+"Project-Id-Version: Moelog AI Q&A Links 2.0.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/moelog-ai-qna-links\n"
 "Last-Translator: Horlicks <contact@moelog.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -631,6 +631,10 @@ msgid "回報次數過多,請稍後再試"
 msgstr ""
 
 #: includes/class-feedback-controller.php
+msgid "操作次數過多,請稍後再試"
+msgstr ""
+
+#: includes/class-feedback-controller.php
 msgid "訊息過長,請限制在 %d 字以內"
 msgstr ""
 
@@ -683,7 +687,7 @@ msgid "時間：%s"
 msgstr ""
 
 #: includes/class-feedback-controller.php
-msgid "來源 IP："
+msgid "匿名來源識別："
 msgstr ""
 
 #: includes/class-feedback-controller.php

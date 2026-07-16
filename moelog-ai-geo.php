@@ -759,6 +759,7 @@ class Moelog_AIQnA_GEO
                 AND pm.meta_key = %s
                 AND pm.meta_value <> ''
             WHERE p.post_status = 'publish'
+              AND p.post_password = ''
               AND p.post_type IN ($placeholders)
             ORDER BY p.ID ASC
             LIMIT %d OFFSET %d
