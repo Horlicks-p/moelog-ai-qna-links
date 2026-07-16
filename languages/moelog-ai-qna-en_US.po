@@ -655,6 +655,10 @@ msgid "回報次數過多,請稍後再試"
 msgstr "Too many reports, please try again later"
 
 #: includes/class-feedback-controller.php
+msgid "操作次數過多,請稍後再試"
+msgstr "Too many actions, please try again later"
+
+#: includes/class-feedback-controller.php
 msgid "訊息過長,請限制在 %d 字以內"
 msgstr "Message too long, please limit to %d characters"
 
@@ -707,8 +711,8 @@ msgid "時間：%s"
 msgstr "Time: %s"
 
 #: includes/class-feedback-controller.php
-msgid "來源 IP："
-msgstr "Source IP:"
+msgid "匿名來源識別："
+msgstr "Anonymous source ID:"
 
 #: includes/class-feedback-controller.php
 msgid "郵件傳送失敗,請稍後再試"

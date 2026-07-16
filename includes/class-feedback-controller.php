@@ -14,6 +14,12 @@ class Moelog_AIQnA_Feedback_Controller
 {
     const META_KEY = "_moelog_aiqna_feedback_stats";
     const META_KEY_PREFIX = "_moelog_aiqna_feedback_stats_";
+    const BOOTSTRAP_RATE_LIMIT = 60;
+    const VIEW_RATE_LIMIT = 120;
+    const VOTE_RATE_LIMIT = 30;
+    const RATE_WINDOW = 3600;
+    const VIEW_DEDUPE_WINDOW = 86400;
+    const VOTE_STATE_WINDOW = 2592000;
 
     /**
      * 註冊 AJAX 掛鉤
@@ -107,17 +113,34 @@ class Moelog_AIQnA_Feedback_Controller
     public static function ajax_record_view()
     {
         self::verify_nonce();
-        $post_id = absint($_POST["post_id"] ?? 0);
-        $question_hash = sanitize_text_field($_POST["question_hash"] ?? "");
+        $target = self::validate_feedback_target();
+        $identity = Moelog_AIQnA_Client_IP::anonymized_id();
+
+        if (!self::consume_rate_limit("view", $identity, self::VIEW_RATE_LIMIT)) {
+            self::send_rate_limit_error();
+        }
 
         $should_increment = isset($_POST["increment"])
             ? filter_var($_POST["increment"], FILTER_VALIDATE_BOOLEAN)
             : true;
 
         if ($should_increment) {
-            $stats = self::increment($post_id, "views", $question_hash);
+            $dedupe_key = self::transient_key(
+                "viewed",
+                $identity . "|" . $target["post_id"] . "|" . $target["question_hash"]
+            );
+            if (get_transient($dedupe_key)) {
+                $stats = self::get_stats($target["post_id"], $target["question_hash"]);
+            } else {
+                $stats = self::increment(
+                    $target["post_id"],
+                    "views",
+                    $target["question_hash"]
+                );
+                set_transient($dedupe_key, 1, self::VIEW_DEDUPE_WINDOW);
+            }
         } else {
-            $stats = self::get_stats($post_id, $question_hash);
+            $stats = self::get_stats($target["post_id"], $target["question_hash"]);
         }
 
         wp_send_json_success(["stats" => $stats]);
@@ -130,7 +153,7 @@ class Moelog_AIQnA_Feedback_Controller
     {
         self::verify_nonce();
 
-        $post_id = absint($_POST["post_id"] ?? 0);
+        $target = self::validate_feedback_target();
         $vote = sanitize_key($_POST["vote"] ?? "");
 
         if (!in_array($vote, ["like", "dislike"], true)) {
@@ -139,11 +162,17 @@ class Moelog_AIQnA_Feedback_Controller
             ]);
         }
 
-        $question_hash = sanitize_text_field($_POST["question_hash"] ?? "");
-        // 取得用戶之前的投票（從前端傳入）
-        $previous_vote = sanitize_key($_POST["previous_vote"] ?? "");
-        
-        $stats = self::toggle_vote($post_id, $vote, $previous_vote, $question_hash);
+        $identity = Moelog_AIQnA_Client_IP::anonymized_id();
+        if (!self::consume_rate_limit("vote", $identity, self::VOTE_RATE_LIMIT)) {
+            self::send_rate_limit_error();
+        }
+
+        $stats = self::toggle_vote(
+            $target["post_id"],
+            $vote,
+            $target["question_hash"],
+            $identity
+        );
 
         wp_send_json_success([
             "stats" => $stats,
@@ -155,8 +184,8 @@ class Moelog_AIQnA_Feedback_Controller
      * 問題回報頻率限制常數
      */
     const REPORT_RATE_LIMIT = 3;        // 每小時最大回報次數
-    const REPORT_RATE_WINDOW = 3600;    // 頻率限制時間窗口 (秒)
     const REPORT_MAX_LENGTH = 300;      // 訊息最大字數
+    const REPORT_SITE_RATE_LIMIT = 30;  // 全站每小時最大回報次數
 
     /**
      * AJAX: 回報問題
@@ -164,6 +193,7 @@ class Moelog_AIQnA_Feedback_Controller
     public static function ajax_report_issue()
     {
         self::verify_nonce();
+        $target = self::validate_feedback_target();
 
         // =========================================
         // 🔒 防濫用檢查
@@ -181,25 +211,9 @@ class Moelog_AIQnA_Feedback_Controller
             return;
         }
 
-        // 2. IP 頻率限制
-        $client_ip = self::get_client_ip();
-        $rate_key = "moe_aiqna_report_" . md5($client_ip);
-        
-        // 使用 transient 進行頻率限制
-        $report_count = (int) get_transient($rate_key);
-        
-        if ($report_count >= self::REPORT_RATE_LIMIT) {
-            Moelog_AIQnA_Debug::log_warning("Report rate limited: " . $client_ip);
-            wp_send_json_error([
-                "message" => __("回報次數過多,請稍後再試", "moelog-ai-qna"),
-            ]);
-            return;
-        }
-
-        $post_id = absint($_POST["post_id"] ?? 0);
+        $post_id = $target["post_id"];
         $message = sanitize_textarea_field($_POST["message"] ?? "");
-        $question = sanitize_text_field($_POST["question"] ?? "");
-        $question_hash = sanitize_text_field($_POST["question_hash"] ?? "");
+        $question = $target["question"];
 
         // 3. 訊息長度限制
         if (mb_strlen($message, 'UTF-8') > self::REPORT_MAX_LENGTH) {
@@ -226,18 +240,21 @@ class Moelog_AIQnA_Feedback_Controller
             return;
         }
 
-        $post = get_post($post_id);
-        if (!$post) {
-            wp_send_json_error([
-                "message" => __("找不到對應的內容", "moelog-ai-qna"),
-            ]);
-        }
-
         $admin_email = get_option("admin_email");
         if (empty($admin_email) || !is_email($admin_email)) {
             wp_send_json_error([
                 "message" => __("目前無法送出回饋", "moelog-ai-qna"),
             ]);
+        }
+
+        // 只有格式有效、準備寄出的回報才消耗訪客與站點配額。
+        $identity = Moelog_AIQnA_Client_IP::anonymized_id();
+        if (
+            !self::consume_rate_limit("report", $identity, self::REPORT_RATE_LIMIT) ||
+            !self::consume_rate_limit("report_site", "site", self::REPORT_SITE_RATE_LIMIT)
+        ) {
+            Moelog_AIQnA_Debug::log_warning("Report rate limited");
+            self::send_rate_limit_error();
         }
 
         $subject = sprintf(
@@ -264,9 +281,9 @@ class Moelog_AIQnA_Feedback_Controller
             wp_date("Y-m-d H:i:s")
         );
         $body[] =
-            __("來源 IP：", "moelog-ai-qna") .
+            __("匿名來源識別：", "moelog-ai-qna") .
             " " .
-            sanitize_text_field($client_ip);
+            substr($identity, 0, 16);
 
         $sent = wp_mail(
             $admin_email,
@@ -281,43 +298,9 @@ class Moelog_AIQnA_Feedback_Controller
             ]);
         }
 
-        // ✅ 成功發送後，更新頻率限制計數
-        set_transient($rate_key, $report_count + 1, self::REPORT_RATE_WINDOW);
-
         wp_send_json_success([
             "message" => __("已送出,感謝您的回饋!", "moelog-ai-qna"),
         ]);
-    }
-
-    /**
-     * 取得客戶端 IP
-     *
-     * @return string
-     */
-    private static function get_client_ip()
-    {
-        $ip = "0.0.0.0";
-
-        // Cloudflare
-        if (!empty($_SERVER["HTTP_CF_CONNECTING_IP"])) {
-            $ip = $_SERVER["HTTP_CF_CONNECTING_IP"];
-        }
-        // 代理伺服器
-        elseif (!empty($_SERVER["HTTP_X_FORWARDED_FOR"])) {
-            $ips = explode(",", $_SERVER["HTTP_X_FORWARDED_FOR"]);
-            $ip = trim($ips[0]);
-        }
-        // 直接連線
-        elseif (!empty($_SERVER["REMOTE_ADDR"])) {
-            $ip = $_SERVER["REMOTE_ADDR"];
-        }
-
-        // 驗證 IP 格式
-        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-            $ip = "0.0.0.0";
-        }
-
-        return $ip;
     }
 
     /**
@@ -325,25 +308,106 @@ class Moelog_AIQnA_Feedback_Controller
      */
     public static function ajax_bootstrap()
     {
-        $post_id = absint($_POST["post_id"] ?? 0);
-        $question_hash = sanitize_text_field($_POST["question_hash"] ?? "");
-        $question = sanitize_text_field($_POST["question"] ?? "");
-
-        if (!$post_id) {
-            wp_send_json_error([
-                "message" => __("缺少文章資訊", "moelog-ai-qna"),
-            ]);
+        $target = self::validate_feedback_target();
+        $identity = Moelog_AIQnA_Client_IP::anonymized_id();
+        if (!self::consume_rate_limit("bootstrap", $identity, self::BOOTSTRAP_RATE_LIMIT)) {
+            self::send_rate_limit_error();
         }
 
         $nonce = wp_create_nonce("moelog_aiqna_feedback");
-        $stats = self::get_stats($post_id, $question_hash);
+        $stats = self::get_stats($target["post_id"], $target["question_hash"]);
 
         wp_send_json_success([
             "nonce" => $nonce,
             "stats" => $stats,
-            "question" => $question,
-            "question_hash" => $question_hash,
+            "question" => $target["question"],
+            "question_hash" => $target["question_hash"],
         ]);
+    }
+
+    /**
+     * 驗證公開文章與實際問題，並回傳伺服器端 canonical target。
+     *
+     * 不信任前端 question/hash；以文章目前最多 8 個問題逐一重算 hash。
+     *
+     * @return array
+     */
+    private static function validate_feedback_target()
+    {
+        $post_id = absint($_POST["post_id"] ?? 0);
+        $submitted_hash = strtolower(
+            sanitize_text_field($_POST["question_hash"] ?? "")
+        );
+        $submitted_question = sanitize_text_field($_POST["question"] ?? "");
+
+        if (!$post_id || preg_match('/^[a-f0-9]{16}$/', $submitted_hash) !== 1) {
+            self::send_invalid_target_error();
+        }
+
+        $post = Moelog_AIQnA_Post_Cache::get($post_id);
+        if (!Moelog_AIQnA_Access_Policy::is_publicly_accessible($post)) {
+            self::send_invalid_target_error();
+        }
+
+        $questions = moelog_aiqna_parse_questions(
+            get_post_meta($post_id, MOELOG_AIQNA_META_KEY, true)
+        );
+        foreach (array_slice($questions, 0, 8) as $question) {
+            $expected_hash = Moelog_AIQnA_Cache::generate_hash($post_id, $question);
+            if (!hash_equals($expected_hash, $submitted_hash)) {
+                continue;
+            }
+
+            if ($submitted_question !== "" && !hash_equals($question, $submitted_question)) {
+                self::send_invalid_target_error();
+            }
+
+            return [
+                "post_id" => $post_id,
+                "post" => $post,
+                "question" => $question,
+                "question_hash" => $expected_hash,
+            ];
+        }
+
+        self::send_invalid_target_error();
+    }
+
+    private static function send_invalid_target_error()
+    {
+        wp_send_json_error([
+            "message" => __("找不到對應的內容", "moelog-ai-qna"),
+        ]);
+        exit();
+    }
+
+    private static function send_rate_limit_error()
+    {
+        wp_send_json_error([
+            "message" => __("操作次數過多,請稍後再試", "moelog-ai-qna"),
+        ]);
+        exit();
+    }
+
+    /**
+     * Basic transient-backed attempt limiter. Approximate counters are accepted
+     * in A3; atomic high-concurrency storage remains a later milestone.
+     */
+    private static function consume_rate_limit($action, $identity, $limit)
+    {
+        $key = self::transient_key($action, $identity);
+        $count = (int) get_transient($key);
+        if ($count >= $limit) {
+            return false;
+        }
+        set_transient($key, $count + 1, self::RATE_WINDOW);
+        return true;
+    }
+
+    private static function transient_key($action, $value)
+    {
+        return "moe_aiqna_fb_" . sanitize_key($action) . "_" .
+            substr(hash("sha256", (string) $value), 0, 32);
     }
 
     /**
@@ -415,11 +479,11 @@ class Moelog_AIQnA_Feedback_Controller
      *
      * @param int    $post_id       文章 ID
      * @param string $new_vote      新的投票（like 或 dislike）
-     * @param string $previous_vote 之前的投票（like、dislike 或空字串）
      * @param string $question_hash 問題雜湊
+     * @param string $identity      匿名訪客識別
      * @return array 更新後的統計數據
      */
-    private static function toggle_vote($post_id, $new_vote, $previous_vote, $question_hash = null)
+    private static function toggle_vote($post_id, $new_vote, $question_hash, $identity)
     {
         $post_id = absint($post_id);
         if (!$post_id) {
@@ -428,11 +492,17 @@ class Moelog_AIQnA_Feedback_Controller
             ]);
         }
 
-        // ✅ 相容性：如果沒有 hash，退回共用的 post meta
         $normalized_hash = self::normalize_hash($question_hash);
-        $meta_key = $normalized_hash
-            ? self::get_meta_key($normalized_hash)
-            : self::META_KEY;
+        $meta_key = self::get_meta_key($normalized_hash);
+
+        $vote_state_key = self::transient_key(
+            "vote_state",
+            $identity . "|" . $post_id . "|" . $normalized_hash
+        );
+        $previous_vote = sanitize_key((string) get_transient($vote_state_key));
+        if (!in_array($previous_vote, ["like", "dislike"], true)) {
+            $previous_vote = "";
+        }
 
         $stats = self::get_stats($post_id, $normalized_hash);
         
@@ -454,8 +524,6 @@ class Moelog_AIQnA_Feedback_Controller
             // 增加新的投票數
             $stats[$new_field] = absint($stats[$new_field]) + 1;
         } elseif ($old_field === $new_field) {
-            // 如果用戶點擊相同的按鈕，不處理（或可以減少，視需求而定）
-            // 這裡選擇不處理，保持原樣
             return $stats;
         } else {
             // 第一次投票（沒有 previous_vote）
@@ -463,6 +531,7 @@ class Moelog_AIQnA_Feedback_Controller
         }
 
         update_post_meta($post_id, $meta_key, $stats);
+        set_transient($vote_state_key, $new_vote, self::VOTE_STATE_WINDOW);
 
         return $stats;
     }
@@ -615,4 +684,3 @@ class Moelog_AIQnA_Feedback_Controller
 }
 
 Moelog_AIQnA_Feedback_Controller::register_hooks();
-

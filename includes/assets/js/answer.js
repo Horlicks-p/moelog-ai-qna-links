@@ -221,7 +221,6 @@
       sendRequest('moelog_aiqna_vote', {
         post_id: config.postId,
         vote: type,
-        previous_vote: previousVote || '',
       }).then(function (res) {
         if (res && res.success) {
           updateStats(res.data && res.data.stats);

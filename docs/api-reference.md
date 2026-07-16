@@ -23,10 +23,16 @@
 #### 常數
 
 ```php
-// 問題回報防濫用設定
-const REPORT_RATE_LIMIT = 3;       // 每小時最大回報次數
-const REPORT_RATE_WINDOW = 3600;   // 頻率限制時間窗口 (秒)
-const REPORT_MAX_LENGTH = 300;     // 訊息最大字數
+// 公開 Feedback 防濫用設定
+const BOOTSTRAP_RATE_LIMIT = 60;
+const VIEW_RATE_LIMIT = 120;
+const VOTE_RATE_LIMIT = 30;
+const RATE_WINDOW = 3600;
+const VIEW_DEDUPE_WINDOW = 86400;
+const VOTE_STATE_WINDOW = 2592000;
+const REPORT_RATE_LIMIT = 3;
+const REPORT_SITE_RATE_LIMIT = 30;
+const REPORT_MAX_LENGTH = 300;
 
 // Meta Key
 const META_KEY = '_moelog_aiqna_feedback_stats';
@@ -108,22 +114,19 @@ jQuery.ajax({
 | 機制 | 說明 |
 |------|------|
 | 🍯 Honeypot | 隱藏欄位 `website`，機器人填寫則靜默拒絕 |
-| ⏱️ IP 頻率限制 | 每 IP 每小時最多 3 次回報 |
+| ⏱️ 匿名頻率限制 | 每匿名識別每小時最多 3 次回報，另有全站 30 次上限 |
 | 📏 長度限制 | 訊息 5-300 字元 |
 | 🔒 Nonce 驗證 | WordPress CSRF 保護 |
+| 🔗 資料關聯 | 伺服器驗證公開文章、實際問題並重算 hash |
 
 ```php
-// 頻率限制實現 (使用 Transient)
-$client_ip = self::get_client_ip();
-$rate_key = 'moe_aiqna_report_' . md5($client_ip);
-$report_count = (int) get_transient($rate_key);
+// 預設只採 REMOTE_ADDR；只有明確信任的 proxy 才解析轉送標頭。
+$identity = Moelog_AIQnA_Client_IP::anonymized_id();
 
-if ($report_count >= self::REPORT_RATE_LIMIT) {
-    // 返回錯誤: "回報次數過多,請稍後再試"
+// Controller 使用 transient-backed 基本配額；完整原子計數留待後續。
+if (!self::consume_rate_limit('report', $identity, self::REPORT_RATE_LIMIT)) {
+    self::send_rate_limit_error();
 }
-
-// 成功後更新計數
-set_transient($rate_key, $report_count + 1, self::REPORT_RATE_WINDOW);
 ```
 
 #### AJAX 端點

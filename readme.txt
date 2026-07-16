@@ -121,8 +121,12 @@ STM helps search engines and AI crawlers **parse** your AI answer pages. **It do
 * **URL integrity:** **HMAC** used for answer page URLs to prevent enumeration/tampering.  
 * **XSS protection:** HTML in AI answers is strictly filtered; `on...` attributes are removed and **URLs are rendered as harmless `<span>` elements**.  
 * **Abuse prevention:** Built-in IP-based **rate limiting**.  
-* **IP detection:** Correctly identifies real client IPs behind Cloudflare and reverse proxies.  
-* **GDPR:** No collection or transmission of visitor personal data.
+* **IP detection:** Trusts only `REMOTE_ADDR` by default. Forwarded headers are parsed only when trusted proxy/CDN CIDRs are explicitly configured.
+* **Privacy-friendly rate limits:** Uses short-lived, site-salted anonymous hashes for abuse controls and feedback deduplication; full IPs are not stored in report emails or sent to AI providers.
+
+Trusted proxies may be configured in `wp-config.php`; include only proxy/CDN ranges that directly connect to WordPress and sanitize forwarded headers:
+
+`define('MOELOG_AIQNA_TRUSTED_PROXIES', ['10.0.0.0/8', '2001:db8:ffff::/48']);`
 
 ---
 
@@ -133,7 +137,7 @@ The plugin only sends the following to AI providers (OpenAI / Gemini / Claude):
 * (Optional) Original post content if “Include article content” is checked.  
 * System prompt and language settings.
 
-**No** visitor IPs, user agents, or personal data are sent. All communications are encrypted via HTTPS.
+Visitor IPs, user agents, and other visitor personal data are **not sent to AI providers**. To protect public endpoints, the site temporarily stores rate-limit counters and anonymous identifiers derived from the IP plus the WordPress site salt; these hashes do not directly reveal the original IP. AI-provider traffic uses HTTPS.
 
 ---
 

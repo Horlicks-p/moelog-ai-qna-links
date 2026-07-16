@@ -128,8 +128,17 @@ STM 模式可協助搜尋引擎和 AI 爬蟲「解析」你的 AI 答案頁，**
 - **URL 安全:** 使用 **HMAC 雜湊**生成回答頁 URL，防止惡意枚舉或竄改。
 - **XSS 防護:** AI 回答內容中的 HTML 被嚴格過濾，`on...` 事件被移除，**連結 (URL) 會被轉換為無害的 `<span>` 標籤**。
 - **濫用防護:** 內建 IP 基礎的**頻率限制 (Rate Limiting)**。
-- **IP 偵測:** 可正確識別 Cloudflare 和反向代理 (Proxy) 後方的真實訪客 IP。
-- **GDPR:** 不會收集或傳輸任何訪客個人資料。
+- **IP 偵測:** 預設只信任 `REMOTE_ADDR`。Cloudflare／反向代理必須明確設定可信 proxy CIDR，才會解析轉送標頭。
+- **隱私友善限流:** 僅以 WordPress site salt 產生的短期匿名雜湊進行限流與回饋去重，不將完整 IP 保存到回報郵件或傳送給 AI provider。
+
+可信 proxy 可在 `wp-config.php` 設定；只應填寫實際直連 WordPress 主機且會清理轉送標頭的 proxy/CDN 網段：
+
+```php
+define('MOELOG_AIQNA_TRUSTED_PROXIES', [
+    '10.0.0.0/8',
+    '2001:db8:ffff::/48',
+]);
+```
 
 ---
 
@@ -141,7 +150,7 @@ STM 模式可協助搜尋引擎和 AI 爬蟲「解析」你的 AI 答案頁，**
 - (可選) 如果勾選「包含文章內容」，則會傳送原文內容作為上下文。
 - 系統提示 (System Prompt) 和語言設定。
 
-**不會傳送**任何訪客的 IP、User-Agent 或個人資料。所有通訊均透過 HTTPS 安全加密。
+**不會將**訪客 IP、User-Agent 或其他訪客個人資料傳送給 AI provider。為防止公開端點濫用，站點本地會短期保存由 IP 與 WordPress site salt 產生、不可直接還原 IP 的匿名識別與限流計數。所有 AI provider 通訊均透過 HTTPS。
 
 ---
 

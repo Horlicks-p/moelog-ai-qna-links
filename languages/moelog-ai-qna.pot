@@ -631,6 +631,10 @@ msgid "回報次數過多,請稍後再試"
 msgstr ""
 
 #: includes/class-feedback-controller.php
+msgid "操作次數過多,請稍後再試"
+msgstr ""
+
+#: includes/class-feedback-controller.php
 msgid "訊息過長,請限制在 %d 字以內"
 msgstr ""
 
@@ -683,7 +687,7 @@ msgid "時間：%s"
 msgstr ""
 
 #: includes/class-feedback-controller.php
-msgid "來源 IP："
+msgid "匿名來源識別："
 msgstr ""
 
 #: includes/class-feedback-controller.php

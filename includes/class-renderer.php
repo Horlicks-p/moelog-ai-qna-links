@@ -343,10 +343,11 @@ class Moelog_AIQnA_Renderer
     
     if ($ip_count >= self::MAX_REQUESTS_PER_HOUR) {
       if (Moelog_AIQnA_Debug::is_enabled()) {
+        $anonymous_id = Moelog_AIQnA_Client_IP::anonymized_id($ip);
         error_log(
           sprintf(
-            "[Moelog AIQnA] Rate limit hit: IP %s, Post %d, Question: %s",
-            $ip,
+            "[Moelog AIQnA] Rate limit hit: Visitor %s, Post %d, Question: %s",
+            substr($anonymous_id, 0, 16),
             $post_id,
             substr($question, 0, 50),
           ),

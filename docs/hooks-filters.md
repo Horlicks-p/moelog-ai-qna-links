@@ -941,6 +941,25 @@ add_action('moelog_aiqna_after_generate', function($post_id, $question, $answer)
 
 ---
 
+## 🔐 安全與代理 Filters
+
+### `moelog_aiqna_trusted_proxies`
+
+指定可提供 `CF-Connecting-IP`／`X-Forwarded-For` 的直連 proxy IP 或 CIDR。預設為空陣列；未明確信任時只使用 `REMOTE_ADDR`。
+
+```php
+add_filter('moelog_aiqna_trusted_proxies', function($ranges) {
+    return [
+        '10.0.0.0/8',
+        '2001:db8:ffff::/48',
+    ];
+});
+```
+
+只加入會清理使用者自帶轉送標頭、且實際直接連到 WordPress 主機的 proxy／CDN 網段。一般部署較建議在 `wp-config.php` 使用 `MOELOG_AIQNA_TRUSTED_PROXIES` 常數，避免佈景或一般外掛載入順序影響安全政策。
+
+---
+
 ## 🚀 STM 模式 Hooks
 
 以下 hooks 僅在啟用 STM 模式時可用。
@@ -1013,4 +1032,4 @@ add_filter('moelog_aiqna_blocked_bots', function($blocked) {
 
 ---
 
-最後更新：2026-02-17
+最後更新：2026-07-16
