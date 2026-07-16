@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4
 Tested PHP: 8.3
-Stable tag: 2.0.4
+Stable tag: 2.0.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -142,6 +142,10 @@ Visitor IPs, user agents, and other visitor personal data are **not sent to AI p
 ---
 
 == 🧩 Changelog ==
+
+= 2.0.5 (2026-07-16) – Auto Update =
+* **New:** Automatic updates from GitHub Releases via Plugin Update Checker 5.6 (bundled, MIT). Release ZIP assets are preferred over source archives.
+* **New:** `moelog_aiqna_questions_block_html` filter lets themes customize the question list container markup without patching the plugin, so customizations survive automatic updates.
 
 = 2.0.4 (2026-07-16) – Security Hardening =
 * **Access policy:** Draft, private, password-protected, missing posts, and invalid answer tokens now return a consistent 404 before question metadata, cache, or AI access.
