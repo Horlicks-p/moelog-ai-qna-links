@@ -1,7 +1,7 @@
 <?php
 /** Core WordPress integration contracts for the plugin. */
 
-class Moelog_AIQnA_Plugin_Integration_Test extends WP_UnitTestCase
+class PluginIntegrationTest extends WP_UnitTestCase
 {
     private $saved_settings;
 
