@@ -3,6 +3,7 @@
     "description": "Development-only dependencies for the WordPress integration test suite.",
     "license": "GPL-2.0-or-later",
     "require-dev": {
+        "phpunit/phpunit": "^9.6",
         "yoast/phpunit-polyfills": "^4.0"
     },
     "config": {

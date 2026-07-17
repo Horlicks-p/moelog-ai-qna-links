@@ -14,6 +14,10 @@ $checks = [
     "PHP 8.5 CI boundary" => strpos($quality, '"8.5"') !== false,
     "standalone contracts in CI" => strpos($quality, 'tests/unit/*.php') !== false,
     "WordPress integration job" => strpos($quality, "npm run test:integration") !== false,
+    "composer-managed phpunit" => strpos(
+        (string) ($package["scripts"]["test:integration"] ?? ""),
+        "tests/vendor/bin/phpunit"
+    ) !== false,
     "wp-env failure logs" => strpos($quality, "npm run wp-env -- logs --no-watch") !== false,
     "integration cleanup" => strpos($quality, "if: always()") !== false,
     "pinned official wp-env" => ($package["devDependencies"]["@wordpress/env"] ?? "") === "11.10.0",
