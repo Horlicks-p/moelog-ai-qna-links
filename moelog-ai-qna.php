@@ -257,8 +257,25 @@ add_action("plugins_loaded", "moelog_aiqna_maybe_upgrade_cache_protection", 7);
 /**
  * Refresh runtime path configuration after Settings API persists changes.
  */
-function moelog_aiqna_after_settings_change()
+function moelog_aiqna_after_settings_change($old_value = [], $new_value = [])
 {
+    $history = get_option("moelog_aiqna_static_dir_history", []);
+    $history = is_array($history) ? $history : [];
+    foreach ([$old_value, $new_value] as $settings) {
+        if (is_array($settings) && !empty($settings["static_dir"])) {
+            $directory = sanitize_file_name($settings["static_dir"]);
+            if ($directory !== "") {
+                $history[] = $directory;
+            }
+        }
+    }
+    $history[] = moelog_aiqna_get_static_dir();
+    update_option(
+        "moelog_aiqna_static_dir_history",
+        array_values(array_unique($history)),
+        false
+    );
+
     if (class_exists("Moelog_AIQnA_Settings")) {
         Moelog_AIQnA_Settings::clear_cache();
     }
@@ -273,13 +290,13 @@ add_action(
     "update_option_" . MOELOG_AIQNA_OPT_KEY,
     "moelog_aiqna_after_settings_change",
     10,
-    0
+    2
 );
 add_action(
     "add_option_" . MOELOG_AIQNA_OPT_KEY,
     "moelog_aiqna_after_settings_change",
     10,
-    0
+    2
 );
 
 function moelog_aiqna_check_upgrade()
@@ -401,11 +418,7 @@ function moelog_aiqna_deactivate()
     // 清除 rewrite rules
     flush_rewrite_rules(false);
 
-    // 清除排程任務
-    $timestamp = wp_next_scheduled("moelog_aiqna_ping_search_engines");
-    if ($timestamp) {
-        wp_unschedule_event($timestamp, "moelog_aiqna_ping_search_engines");
-    }
+    Moelog_AIQnA_Lifecycle::unschedule_all_events();
 }
 
 // =========================================
@@ -414,46 +427,7 @@ function moelog_aiqna_deactivate()
 register_uninstall_hook(__FILE__, "moelog_aiqna_uninstall");
 function moelog_aiqna_uninstall()
 {
-    $static_dir = WP_CONTENT_DIR . "/" . moelog_aiqna_get_static_dir();
-
-    // 刪除設定
-    delete_option(MOELOG_AIQNA_OPT_KEY);
-    delete_option(MOELOG_AIQNA_SECRET_KEY);
-    delete_option("moelog_aiqna_geo_mode");
-    delete_option("moe_aiqna_needs_flush");
-    delete_option("moelog_aiqna_cache_protection_version");
-
-    // 刪除所有文章 meta
-    global $wpdb;
-    $wpdb->query(
-        $wpdb->prepare(
-            "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s OR meta_key = %s",
-            MOELOG_AIQNA_META_KEY,
-            MOELOG_AIQNA_META_LANG_KEY
-        )
-    );
-
-    // 清除所有 transient 快取
-    $wpdb->query(
-        "DELETE FROM {$wpdb->options} 
-         WHERE option_name LIKE '_transient_moe_aiqna_%' 
-            OR option_name LIKE '_transient_timeout_moe_aiqna_%'"
-    );
-
-    // 刪除靜態檔案目錄(可選)
-    if (file_exists($static_dir)) {
-        $files = glob($static_dir . "/*.html");
-        foreach ($files as $file) {
-            if (is_file($file)) {
-                unlink($file);
-            }
-        }
-        // 刪除 .htaccess
-        if (file_exists($static_dir . "/.htaccess")) {
-            unlink($static_dir . "/.htaccess");
-        }
-        @rmdir($static_dir);
-    }
+    Moelog_AIQnA_Lifecycle::uninstall();
 }
 
 // =========================================
