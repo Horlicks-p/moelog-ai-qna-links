@@ -112,8 +112,19 @@ class Moelog_AIQnA_Admin_Ajax
       ]);
     }
 
+    $questions = array_values($questions);
+    $question_targets = [];
+    foreach ($questions as $question) {
+      $question_targets[] = [
+        "question" => $question,
+        "hash" => Moelog_AIQnA_Cache::generate_hash($post_id, $question),
+      ];
+    }
+
     wp_send_json_success([
-      "questions" => array_values($questions),
+      // Keep the string list for compatibility with existing admin clients.
+      "questions" => $questions,
+      "question_targets" => $question_targets,
       "post_title" => get_the_title($post_id),
       "count" => count($questions),
     ]);

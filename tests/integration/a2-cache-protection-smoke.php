@@ -20,7 +20,7 @@ if (!file_exists($wp_load)) {
 
 require_once $wp_load;
 
-$question = "A2 temporary cache protection question";
+$question = "What's PHP's <=> cache protection behavior?";
 $marker = "MOELOG_A2_PHP_CACHE_READ_OK";
 $failures = [];
 $post_id = 0;
@@ -105,6 +105,52 @@ try {
                 $failures[] = "normal answer route did not return cached content";
             }
         }
+
+        $original_post = $_POST;
+        try {
+            // Dropdown path: a canonical server-generated hash selects the
+            // target; a stale/tampered question string must be ignored.
+            $_POST = [
+                "moelog_aiqna_clear_single" => "1",
+                "moelog_aiqna_clear_single_nonce" => wp_create_nonce(
+                    "moelog_aiqna_clear_single"
+                ),
+                "post_id" => (string) $post_id,
+                "question_hash" => Moelog_AIQnA_Cache::generate_hash(
+                    $post_id,
+                    $question
+                ),
+                "question" => "stale client text",
+            ];
+            $admin_cache = new Moelog_AIQnA_Admin_Cache();
+            $admin_cache->handle_cache_actions();
+            if (file_exists($path)) {
+                $failures[] = "hash-based admin deletion did not remove cache";
+            }
+
+            // Manual-input path: simulate the slashed value seen by WordPress
+            // request handlers and prove the canonical special-character
+            // question is still resolved before deleting.
+            if (!Moelog_AIQnA_Cache::save($post_id, $question, $marker)) {
+                $failures[] = "could not recreate cache for manual deletion";
+            } else {
+                $_POST = [
+                    "moelog_aiqna_clear_single" => "1",
+                    "moelog_aiqna_clear_single_nonce" => wp_create_nonce(
+                        "moelog_aiqna_clear_single"
+                    ),
+                    "post_id" => (string) $post_id,
+                    "question_hash" => "",
+                    "question" => addslashes($question),
+                ];
+                $admin_cache->handle_cache_actions();
+                if (file_exists($path)) {
+                    $failures[] = "manual admin deletion did not unslash question";
+                }
+            }
+        } finally {
+            $_POST = $original_post;
+        }
     }
 } finally {
     if ($post_id) {
@@ -122,4 +168,4 @@ if ($failures) {
     exit(1);
 }
 
-fwrite(STDOUT, "A2 cache protection smoke test passed (6 assertions).\n");
+fwrite(STDOUT, "A2 cache protection smoke test passed (8 assertions).\n");

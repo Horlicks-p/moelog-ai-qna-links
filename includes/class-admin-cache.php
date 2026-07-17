@@ -186,6 +186,10 @@ class Moelog_AIQnA_Admin_Cache
                                class="regular-text"
                                placeholder="<?php esc_attr_e("或手動輸入完整問題文字", "moelog-ai-qna"); ?>"
                                style="display:block;">
+                        <input type="hidden"
+                               id="clear_question_hash"
+                               name="question_hash"
+                               value="">
                         <p class="description">
                             <?php esc_html_e(
                               "從下拉選單選擇問題，或手動輸入完整的問題文字",
@@ -220,6 +224,7 @@ class Moelog_AIQnA_Admin_Cache
                 var $loadBtn = $('#load-questions-btn');
                 var $questionSelect = $('#clear_question_select');
                 var $questionInput = $('#clear_question');
+                var $questionHash = $('#clear_question_hash');
                 var $loading = $('#questions-loading');
                 var $error = $('#questions-error');
                 var $postTitle = $('#post-title-display');
@@ -237,6 +242,8 @@ class Moelog_AIQnA_Admin_Cache
                     $loading.show();
                     $error.hide();
                     $questionSelect.hide().empty();
+                    $questionInput.val('');
+                    $questionHash.val('');
                     $postTitle.text('');
 
                     $.ajax({
@@ -256,6 +263,7 @@ class Moelog_AIQnA_Admin_Cache
                             
                             if (response.success && response.data.questions) {
                                 var questions = response.data.questions;
+                                var questionTargets = response.data.question_targets || [];
                                 var postTitle = response.data.post_title || '';
                                 
                                 // 顯示文章標題
@@ -272,14 +280,18 @@ class Moelog_AIQnA_Admin_Cache
                                 );
 
                                 questions.forEach(function(question, index) {
-                                    var displayText = question.length > 60 
-                                        ? question.substring(0, 60) + '...' 
+                                    var target = questionTargets[index] || {};
+                                    var questionHash = target.hash || '';
+                                    var canonicalQuestion = target.question || question;
+                                    var displayText = question.length > 60
+                                        ? question.substring(0, 60) + '...'
                                         : question;
                                     $questionSelect.append(
                                         $('<option></option>')
-                                            .attr('value', question)
+                                            .attr('value', questionHash)
+                                            .attr('data-question', canonicalQuestion)
                                             .text((index + 1) + '. ' + displayText)
-                                            .attr('title', question)
+                                            .attr('title', canonicalQuestion)
                                     );
                                 });
 
@@ -288,12 +300,17 @@ class Moelog_AIQnA_Admin_Cache
                                 
                                 // 當選擇問題時，自動填入輸入框並隱藏輸入框（顯示選擇的問題）
                                 $questionSelect.off('change').on('change', function() {
-                                    var selectedValue = $(this).val();
-                                    if (selectedValue) {
-                                        $questionInput.val(selectedValue);
+                                    var selectedHash = $(this).val();
+                                    var selectedQuestion = $(this)
+                                        .find('option:selected')
+                                        .attr('data-question') || '';
+                                    if (selectedHash) {
+                                        $questionHash.val(selectedHash);
+                                        $questionInput.val(selectedQuestion);
                                         // 可選：隱藏輸入框，只顯示選擇的問題
                                         // $questionInput.hide();
                                     } else {
+                                        $questionHash.val('');
                                         $questionInput.val('');
                                         // $questionInput.show();
                                     }
@@ -343,14 +360,16 @@ class Moelog_AIQnA_Admin_Cache
 
                 // 當用戶在輸入框中輸入時，清空下拉選單選擇（避免混淆）
                 $questionInput.on('input', function() {
-                    if ($(this).val() !== $questionSelect.val()) {
-                        $questionSelect.val('');
-                    }
+                    $questionSelect.val('');
+                    $questionHash.val('');
                 });
 
                 // 表單提交前驗證
                 $('#moelog-clear-single-form').on('submit', function(e) {
-                    var selectedQuestion = $questionSelect.val();
+                    var selectedHash = $questionSelect.val();
+                    var selectedQuestion = $questionSelect
+                        .find('option:selected')
+                        .attr('data-question') || '';
                     var inputQuestion = $questionInput.val().trim();
                     
                     // 優先使用下拉選單選擇的問題
@@ -364,6 +383,7 @@ class Moelog_AIQnA_Admin_Cache
                     
                     // 確保提交時使用正確的問題文字
                     $questionInput.val(finalQuestion);
+                    $questionHash.val(selectedHash || '');
                     
                     // 確保 nonce 欄位存在
                     if (!$('#moelog-clear-single-form input[name="moelog_aiqna_clear_single_nonce"]').length) {
@@ -458,8 +478,18 @@ class Moelog_AIQnA_Admin_Cache
         );
         return;
       }
-      $post_id = intval($_POST["post_id"] ?? 0);
-      $question = sanitize_text_field($_POST["question"] ?? "");
+      $post_id = absint($_POST["post_id"] ?? 0);
+      $submitted_hash = isset($_POST["question_hash"]) && is_string($_POST["question_hash"])
+        ? strtolower(sanitize_text_field(wp_unslash($_POST["question_hash"])))
+        : "";
+      $submitted_question = isset($_POST["question"]) && is_string($_POST["question"])
+        ? trim(wp_unslash($_POST["question"]))
+        : "";
+      $question = $this->resolve_cache_question(
+        $post_id,
+        $submitted_hash,
+        $submitted_question,
+      );
 
       if ($post_id && $question) {
         // 只刪除靜態 HTML 檔案（不刪除 transient 快取）
@@ -502,6 +532,55 @@ class Moelog_AIQnA_Admin_Cache
         );
       }
     }
+  }
+
+  /**
+   * Resolve a submitted cache target to the canonical question stored on the post.
+   *
+   * Dropdown selections use the server-generated hash. Manual input remains
+   * supported, but must exactly match one of the post's current questions after
+   * WordPress request slashing is removed.
+   *
+   * @param int    $post_id
+   * @param string $submitted_hash
+   * @param string $submitted_question
+   * @return string|false
+   */
+  private function resolve_cache_question($post_id, $submitted_hash, $submitted_question)
+  {
+    if (!$post_id) {
+      return false;
+    }
+
+    $questions = moelog_aiqna_parse_questions(
+      get_post_meta($post_id, MOELOG_AIQNA_META_KEY, true),
+    );
+    if (!$questions) {
+      return false;
+    }
+
+    if ($submitted_hash !== "") {
+      if (preg_match('/^[a-f0-9]{16}$/', $submitted_hash) !== 1) {
+        return false;
+      }
+
+      foreach ($questions as $question) {
+        $expected_hash = Moelog_AIQnA_Cache::generate_hash($post_id, $question);
+        if (hash_equals($expected_hash, $submitted_hash)) {
+          return $question;
+        }
+      }
+
+      return false;
+    }
+
+    foreach ($questions as $question) {
+      if (hash_equals($question, $submitted_question)) {
+        return $question;
+      }
+    }
+
+    return false;
   }
 }
 
