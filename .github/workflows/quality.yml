@@ -45,7 +45,7 @@ jobs:
         run: npm run test:integration
       - name: Print wp-env logs on failure
         if: failure()
-        run: npm run wp-env logs -- --no-watch
+        run: npm run wp-env -- logs --no-watch
       - name: Stop WordPress test environment
         if: always()
         run: npm run env:stop

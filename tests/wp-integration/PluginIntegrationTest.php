@@ -20,7 +20,12 @@ class Moelog_AIQnA_Plugin_Integration_Test extends WP_UnitTestCase
 
     public function test_plugin_bootstrap_and_structured_result_are_available()
     {
-        $this->assertSame("2.0.5", MOELOG_AIQNA_VERSION);
+        $plugin_data = get_file_data(
+            dirname(__DIR__, 2) . "/moelog-ai-qna.php",
+            ["version" => "Version"]
+        );
+
+        $this->assertSame($plugin_data["version"], MOELOG_AIQNA_VERSION);
         $this->assertTrue(class_exists("Moelog_AIQnA_Provider_Result"));
         $result = Moelog_AIQnA_Provider_Result::success("ok");
         $this->assertTrue($result["ok"]);
