@@ -190,7 +190,18 @@ class Moelog_AIQnA_Renderer
     // ✅ 優化: 檢查答案是否為錯誤訊息,避免寫入錯誤快取(優化項目 5)
     if ($this->template->is_error_response($answer)) {
       // 不寫入快取,直接渲染錯誤頁面
-      $this->render_error(500, $answer);
+      $retry_after = method_exists(
+        $this->ai_client,
+        "get_temporary_error_retry_after"
+      ) ? $this->ai_client->get_temporary_error_retry_after($answer) : 0;
+      if ($retry_after > 0) {
+        if (!headers_sent()) {
+          header("Retry-After: " . (int) $retry_after);
+        }
+        $this->render_error(503, $answer);
+      } else {
+        $this->render_error(500, $answer);
+      }
       return;
     }
 
@@ -439,6 +450,7 @@ p{margin:0 0 20px;line-height:1.6;}
       410 => __("連結已失效", "moelog-ai-qna"),
       429 => __("請求過於頻繁", "moelog-ai-qna"),
       500 => __("伺服器錯誤", "moelog-ai-qna"),
+      503 => __("服務暫時無法使用", "moelog-ai-qna"),
     ];
     return $titles[$code] ?? __("發生錯誤", "moelog-ai-qna");
   }

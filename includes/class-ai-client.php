@@ -975,6 +975,41 @@ class Moelog_AIQnA_AI_Client
 
     return false;
   }
+
+  /**
+   * Return Retry-After seconds for temporary local capacity errors.
+   *
+   * @param string $text Error text returned by generate_answer().
+   * @return int Zero for errors that are not temporary capacity conditions.
+   */
+  public function get_temporary_error_retry_after($text)
+  {
+    $text = trim((string) $text);
+    if ($text === __("此答案正在產生中,請稍後再試。", "moelog-ai-qna")) {
+      $retry_after = class_exists("Moelog_AIQnA_AI_Guard")
+        ? Moelog_AIQnA_AI_Guard::LOCK_TTL
+        : 180;
+      $reason = "generation_lock";
+    } elseif (
+      $text === __("AI 產生額度已達上限,請稍後再試。", "moelog-ai-qna")
+    ) {
+      $retry_after = HOUR_IN_SECONDS;
+      $reason = "generation_budget";
+    } else {
+      return 0;
+    }
+
+    return max(
+      1,
+      (int) apply_filters(
+        "moelog_aiqna_temporary_error_retry_after",
+        $retry_after,
+        $reason,
+        $text
+      )
+    );
+  }
+
   /**
    * 檢查是否為本機 URL
    *

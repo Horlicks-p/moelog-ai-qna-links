@@ -3,6 +3,7 @@
 define("ABSPATH", __DIR__);
 $options = [];
 $limits = ["ai_daily_limit" => 2, "ai_monthly_limit" => 10];
+$cleanup_queries = 0;
 
 function add_option($key, $value, $deprecated = "", $autoload = null) {
     global $options;
@@ -23,9 +24,24 @@ class Moelog_AIQnA_Settings {
 class FakeWpdb {
     public $options = "wp_options";
     public function prepare($query, ...$args) { return [$query, $args]; }
+    public function esc_like($text) { return $text; }
     public function query($prepared) {
-        global $options;
+        global $options, $cleanup_queries;
         [$query, $args] = $prepared;
+        if (strpos($query, "DELETE FROM") !== false) {
+            $cleanup_queries++;
+            [$daily_like, $daily_current, $monthly_like, $monthly_current, $cleanup_like, $cleanup_current] = $args;
+            foreach (array_keys($options) as $key) {
+                if (
+                    (strpos($key, "moelog_aiqna_usage_day-") === 0 && $key !== $daily_current) ||
+                    (strpos($key, "moelog_aiqna_usage_month-") === 0 && $key !== $monthly_current) ||
+                    (strpos($key, "moelog_aiqna_usage_cleanup_") === 0 && $key !== $cleanup_current)
+                ) {
+                    unset($options[$key]);
+                }
+            }
+            return 3;
+        }
         if (strpos($query, "GREATEST") !== false) {
             $key = $args[0];
             $options[$key] = max(0, (int) ($options[$key] ?? 0) - 1);
@@ -54,9 +70,16 @@ $options[$stale_lock] = time() - 1;
 expect_guard(Moelog_AIQnA_AI_Guard::acquire_generation_lock("answer-a"), "replace stale lock");
 Moelog_AIQnA_AI_Guard::release_generation_lock("answer-a");
 
+$options["moelog_aiqna_usage_day-2000-01-01"] = 5;
+$options["moelog_aiqna_usage_month-2000-01"] = 50;
+$options["moelog_aiqna_usage_cleanup_2000-01-01"] = 1;
 expect_guard(Moelog_AIQnA_AI_Guard::consume_generation_budget(), "budget one");
 expect_guard(Moelog_AIQnA_AI_Guard::consume_generation_budget(), "budget two");
 expect_guard(!Moelog_AIQnA_AI_Guard::consume_generation_budget(), "daily budget enforced");
+expect_guard(!isset($options["moelog_aiqna_usage_day-2000-01-01"]), "old daily counter removed");
+expect_guard(!isset($options["moelog_aiqna_usage_month-2000-01"]), "old monthly counter removed");
+expect_guard(!isset($options["moelog_aiqna_usage_cleanup_2000-01-01"]), "old cleanup marker removed");
+expect_guard($cleanup_queries === 1, "usage cleanup runs once per local day");
 
 $options = [];
 $limits = ["ai_daily_limit" => 0, "ai_monthly_limit" => 2];
@@ -73,4 +96,4 @@ if ($failures) {
     foreach ($failures as $failure) { fwrite(STDERR, "FAIL: {$failure}\n"); }
     exit(1);
 }
-fwrite(STDOUT, "AI guard tests passed (13 assertions).\n");
+fwrite(STDOUT, "AI guard tests passed (17 assertions).\n");

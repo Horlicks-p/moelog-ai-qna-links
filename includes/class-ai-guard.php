@@ -11,7 +11,7 @@ if (!defined("ABSPATH")) {
 
 class Moelog_AIQnA_AI_Guard
 {
-    const LOCK_TTL = 120;
+    const LOCK_TTL = 180;
 
     /**
      * Acquire a single-flight lock for one answer fingerprint.
@@ -68,6 +68,8 @@ class Moelog_AIQnA_AI_Guard
         $daily_period = "day-" . current_time("Y-m-d");
         $monthly_period = "month-" . current_time("Y-m");
         $daily_consumed = false;
+
+        self::cleanup_old_counters($daily_period, $monthly_period);
 
         if ($daily > 0 && !self::increment_counter($daily_period, $daily)) {
             return false;
@@ -138,6 +140,46 @@ class Moelog_AIQnA_AI_Guard
             )
         );
         wp_cache_delete($option, "options");
+    }
+
+    /**
+     * Remove obsolete counters once per site-local day.
+     *
+     * @param string $daily_period   Current daily period identifier.
+     * @param string $monthly_period Current monthly period identifier.
+     * @return void
+     */
+    private static function cleanup_old_counters($daily_period, $monthly_period)
+    {
+        global $wpdb;
+
+        $cleanup_option = "moelog_aiqna_usage_cleanup_" . sanitize_key(
+            current_time("Y-m-d")
+        );
+        if (!add_option($cleanup_option, 1, "", false)) {
+            return;
+        }
+
+        $daily_option = "moelog_aiqna_usage_" . sanitize_key($daily_period);
+        $monthly_option = "moelog_aiqna_usage_" . sanitize_key($monthly_period);
+        $deleted = $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->options}
+                 WHERE (option_name LIKE %s AND option_name <> %s)
+                    OR (option_name LIKE %s AND option_name <> %s)
+                    OR (option_name LIKE %s AND option_name <> %s)",
+                $wpdb->esc_like("moelog_aiqna_usage_day-") . "%",
+                $daily_option,
+                $wpdb->esc_like("moelog_aiqna_usage_month-") . "%",
+                $monthly_option,
+                $wpdb->esc_like("moelog_aiqna_usage_cleanup_") . "%",
+                $cleanup_option
+            )
+        );
+
+        if ($deleted === false) {
+            delete_option($cleanup_option);
+        }
     }
 
     /**
