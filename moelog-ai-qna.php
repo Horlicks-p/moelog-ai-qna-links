@@ -31,7 +31,7 @@ define("MOELOG_AIQNA_OPT_KEY", "moelog_aiqna_settings");
 define("MOELOG_AIQNA_SECRET_KEY", "moelog_aiqna_secret");
 define("MOELOG_AIQNA_META_KEY", "_moelog_aiqna_questions");
 define("MOELOG_AIQNA_META_LANG_KEY", "_moelog_aiqna_questions_lang");
-define("MOELOG_AIQNA_CACHE_PROTECTION_VERSION", "1");
+define("MOELOG_AIQNA_CACHE_PROTECTION_VERSION", "2");
 
 // =========================================
 // 路由與快取 - ✅ 優化: 使用延遲載入避免過早讀取資料庫
@@ -242,7 +242,8 @@ function moelog_aiqna_maybe_upgrade_cache_protection()
 
     if (
         class_exists("Moelog_AIQnA_Cache") &&
-        Moelog_AIQnA_Cache::prepare_static_root()
+        Moelog_AIQnA_Cache::prepare_static_root() &&
+        Moelog_AIQnA_Cache::migrate_legacy_static_files()
     ) {
         update_option(
             $option_key,

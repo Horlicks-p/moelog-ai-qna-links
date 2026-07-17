@@ -17,6 +17,8 @@ if (!defined("ABSPATH")) {
 
 class Moelog_AIQnA_Cache
 {
+  const PROTECTED_PAYLOAD_PREFIX = "MOE_CACHE_V1:";
+
   /**
    * 快取有效期(秒)
    */
@@ -190,19 +192,19 @@ class Moelog_AIQnA_Cache
     }
 
     $path = self::get_static_path($post_id, $question);
+    $payload = self::protect_payload($html, basename($path));
+    if ($payload === false) {
+      Moelog_AIQnA_Debug::log_error("Static cache encryption is unavailable");
+      return false;
+    }
 
-    // 寫入檔案
-    $result = file_put_contents($path, $html, LOCK_EX);
-
-    if ($result === false) {
+    // 使用原子取代，避免讀到半寫入密文。
+    if (!self::write_file_atomically($path, $payload)) {
       Moelog_AIQnA_Debug::log_error(
         sprintf("Failed to save static file: %s", $path)
       );
       return false;
     }
-
-    // 設定檔案權限
-    @chmod($path, 0644);
 
     // 清除相關的快取標記
     $cache_key = "static_exists_" . md5($post_id . "|" . $question);
@@ -211,7 +213,7 @@ class Moelog_AIQnA_Cache
     Moelog_AIQnA_Debug::logf(
       "Saved static file: %s (%s bytes)",
       basename($path),
-      number_format($result)
+      number_format(strlen($payload))
     );
 
     return true;
@@ -240,7 +242,162 @@ class Moelog_AIQnA_Cache
       return false;
     }
 
+    $html = self::unprotect_payload($html, basename($path));
+    if ($html === false) {
+      // Plaintext legacy or tampered payloads must never be served. Removing the
+      // file lets the answer transient render a fresh encrypted page cache.
+      @unlink($path);
+      $cache_key = "static_exists_" . md5($post_id . "|" . $question);
+      wp_cache_delete($cache_key, "moelog_aiqna");
+      Moelog_AIQnA_Debug::log_warning(
+        sprintf("Rejected unprotected or invalid static cache: %s", basename($path))
+      );
+      return false;
+    }
+
     return $html;
+  }
+
+  /**
+   * Encrypt existing plaintext HTML files in place during upgrade.
+   *
+   * If authenticated encryption is unavailable, plaintext files are removed
+   * instead of leaving them exposed on non-Apache web servers.
+   *
+   * @return bool
+   */
+  public static function migrate_legacy_static_files()
+  {
+    self::init();
+    $files = glob(self::$static_dir_path . "/*.html");
+    if ($files === false) {
+      return false;
+    }
+
+    $success = true;
+    foreach ($files as $file) {
+      $payload = @file_get_contents($file);
+      if ($payload === false) {
+        $success = false;
+        continue;
+      }
+      if (strpos($payload, self::PROTECTED_PAYLOAD_PREFIX) === 0) {
+        continue;
+      }
+
+      $protected = self::protect_payload($payload, basename($file));
+      if ($protected === false) {
+        @unlink($file);
+        $success = false;
+        continue;
+      }
+      if (!self::write_file_atomically($file, $protected)) {
+        @unlink($file);
+        $success = false;
+      }
+    }
+
+    return $success;
+  }
+
+  /**
+   * Authenticated encryption makes direct cache-file responses harmless on
+   * Nginx, Caddy, IIS and other servers that ignore .htaccess.
+   *
+   * @param string $html
+   * @param string $context Stable file basename used as authenticated data.
+   * @return string|false
+   */
+  private static function protect_payload($html, $context)
+  {
+    $key = self::get_payload_key();
+    if ($key === false || !function_exists("openssl_encrypt")) {
+      return false;
+    }
+
+    try {
+      $iv = function_exists("random_bytes") ? random_bytes(12) : false;
+    } catch (Throwable $error) {
+      $iv = false;
+    }
+    if ($iv === false) {
+      return false;
+    }
+    $tag = "";
+    $ciphertext = openssl_encrypt(
+      (string) $html,
+      "aes-256-gcm",
+      $key,
+      OPENSSL_RAW_DATA,
+      $iv,
+      $tag,
+      (string) $context,
+      16
+    );
+    if ($ciphertext === false || strlen($tag) !== 16) {
+      return false;
+    }
+
+    return self::PROTECTED_PAYLOAD_PREFIX . base64_encode($iv . $tag . $ciphertext);
+  }
+
+  /**
+   * @param string $payload
+   * @param string $context
+   * @return string|false
+   */
+  private static function unprotect_payload($payload, $context)
+  {
+    if (strpos((string) $payload, self::PROTECTED_PAYLOAD_PREFIX) !== 0) {
+      return false;
+    }
+    $key = self::get_payload_key();
+    if ($key === false || !function_exists("openssl_decrypt")) {
+      return false;
+    }
+
+    $decoded = base64_decode(
+      substr($payload, strlen(self::PROTECTED_PAYLOAD_PREFIX)),
+      true
+    );
+    if ($decoded === false || strlen($decoded) < 29) {
+      return false;
+    }
+
+    $iv = substr($decoded, 0, 12);
+    $tag = substr($decoded, 12, 16);
+    $ciphertext = substr($decoded, 28);
+    return openssl_decrypt(
+      $ciphertext,
+      "aes-256-gcm",
+      $key,
+      OPENSSL_RAW_DATA,
+      $iv,
+      $tag,
+      (string) $context
+    );
+  }
+
+  /**
+   * @return string|false Binary 256-bit key.
+   */
+  private static function get_payload_key()
+  {
+    if (defined("MOELOG_AIQNA_CACHE_KEY") && MOELOG_AIQNA_CACHE_KEY !== "") {
+      $material = (string) MOELOG_AIQNA_CACHE_KEY;
+    } elseif (
+      function_exists("get_option") &&
+      defined("MOELOG_AIQNA_SECRET_KEY") &&
+      get_option(MOELOG_AIQNA_SECRET_KEY)
+    ) {
+      $material = (string) get_option(MOELOG_AIQNA_SECRET_KEY);
+    } elseif (function_exists("wp_salt")) {
+      $material = (string) wp_salt("auth");
+    } else {
+      return false;
+    }
+
+    return hash("sha256", "moelog-static-cache-v1|" . $material, true);
   }
 
   /**
