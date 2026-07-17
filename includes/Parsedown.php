@@ -2,7 +2,7 @@
 
 #
 #
-# Parsedown
+# Parsedown (bundled as Moelog_AIQnA_Parsedown to avoid conflicts with other plugins)
 # http://parsedown.org
 #
 # (c) Emanuil Rusev
@@ -13,7 +13,7 @@
 #
 #
 
-class Parsedown
+class Moelog_AIQnA_Parsedown
 {
     # ~
 

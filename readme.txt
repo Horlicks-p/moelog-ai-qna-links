@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4
 Tested PHP: 8.3
-Stable tag: 2.0.6
+Stable tag: 2.0.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -142,6 +142,9 @@ Visitor IPs, user agents, and other visitor personal data are **not sent to AI p
 ---
 
 == 🧩 Changelog ==
+
+= 2.0.7 (2026-07-17) – Hotfix =
+* **Fix:** Fatal error `Call to undefined method Parsedown::setSafeMode()` when another plugin or theme loads a legacy Parsedown (pre-1.7) first. The bundled parser is now plugin-prefixed (`Moelog_AIQnA_Parsedown`) and never collides with foreign copies.
 
 = 2.0.6 (2026-07-17) – Correctness & Stability =
 * **Updater:** GitHub updates require an exactly named release ZIP asset and never fall back to source archives.

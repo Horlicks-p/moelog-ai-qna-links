@@ -427,11 +427,12 @@ class Moelog_AIQnA_GEO
         }
 
         // 先透過 Parsedown 將 Markdown → HTML，再用 wp_strip_all_tags 去除 HTML
-        if (!class_exists('Parsedown')) {
+        // 使用外掛專屬類別名稱，避免與其他外掛的 Parsedown 版本衝突。
+        if (!class_exists('Moelog_AIQnA_Parsedown')) {
             require_once MOELOG_AIQNA_DIR . 'includes/Parsedown.php';
         }
 
-        $parsedown = new Parsedown();
+        $parsedown = new Moelog_AIQnA_Parsedown();
         $parsedown->setSafeMode(true);
         $html = $parsedown->text($markdown);
         $text = wp_strip_all_tags($html);

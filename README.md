@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4  
 Tested PHP: 8.3  
-Stable tag: 2.0.6
+Stable tag: 2.0.7
 License: GPLv2 or later  
 License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
 
@@ -155,6 +155,10 @@ define('MOELOG_AIQNA_TRUSTED_PROXIES', [
 ---
 
 == 🧩 Changelog ==
+
+= 2.0.7 (2026-07-17) – 緊急修復 =
+
+- 🐛 **修復:** 當其他外掛或佈景先載入舊版 Parsedown（1.7 之前，無 `setSafeMode()`）時，答案頁會發生 fatal error。內建解析器已改用外掛專屬類別名稱（`Moelog_AIQnA_Parsedown`），不再與外部同名類別衝突。
 
 = 2.0.6 (2026-07-17) – 正確性與穩定性 =
 

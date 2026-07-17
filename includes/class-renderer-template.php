@@ -307,11 +307,13 @@ class Moelog_AIQnA_Renderer_Template
    */
   private function convert_markdown($text)
   {
-    if (!class_exists('Parsedown')) {
+    // 使用外掛專屬類別名稱，避免其他外掛（如舊版 Parsedown 1.6）先佔用
+    // Parsedown 類別導致 setSafeMode() 不存在的 fatal error。
+    if (!class_exists('Moelog_AIQnA_Parsedown')) {
       require_once MOELOG_AIQNA_DIR . 'includes/Parsedown.php';
     }
 
-    $parsedown = new Parsedown();
+    $parsedown = new Moelog_AIQnA_Parsedown();
     $parsedown->setSafeMode(true);      // 防止原始 HTML 注入 (XSS 防護)
     $parsedown->setBreaksEnabled(true);  // 自動換行
 
