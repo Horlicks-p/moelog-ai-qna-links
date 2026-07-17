@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4  
 Tested PHP: 8.3  
-Stable tag: 2.0.5
+Stable tag: 2.0.6
 License: GPLv2 or later  
 License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
 
@@ -155,6 +155,19 @@ define('MOELOG_AIQNA_TRUSTED_PROXIES', [
 ---
 
 == 🧩 Changelog ==
+
+= 2.0.6 (2026-07-17) – 正確性與穩定性 =
+
+- 🔄 **更新器:** GitHub 更新只接受精確命名的 Release ZIP asset，不再退回原始碼壓縮檔。
+- ⚙️ **設定:** 自訂 URL 前綴（`pretty_base`）與快取目錄（`static_dir`）現在確實生效；舊版 wp-config 常數仍可作為最高優先覆蓋。
+- 🔐 **靜態快取:** 頁面內容以 AES-256-GCM 加密，Nginx／Caddy／IIS 即使直接回傳快取檔也不會洩漏 HTML；遭竄改或舊版明文檔案一律不輸出。
+- 🧬 **快取指紋:** 答案快取與頁面快取分層版本化——版面或模板變更只免費重新渲染，不會觸發付費 AI 重生成。
+- 💰 **費用控管:** 全站每日／每月 AI 產生額度（預設 100／2000，0 為不限制）、同題併發鎖，以及可設定的最大輸出 tokens（預設 2048）。
+- 🚦 **可用性:** 暫時性容量與 provider 錯誤改回 HTTP 503 並附 Retry-After，不再回 500。
+- 🧩 **Provider:** 結構化回傳結果——錯誤文字不再可能被寫入答案快取，翻譯檔變更也不影響成敗判定。
+- 🤖 **Anthropic:** 新安裝預設模型改為 `claude-opus-4-8`；已保存的模型設定不會被改寫。
+- 🧹 **生命週期:** 停用時清除所有排程事件；卸載時以 allowlist 方式清除 options、文章 meta、transients、額度計數、鎖及追蹤過的快取目錄。
+- ✅ **CI:** GitHub Actions 品質矩陣（PHP 7.4–8.5）、wp-env WordPress 整合測試，以及版本一致性 gate 與 draft release 流程。
 
 = 2.0.5 (2026-07-16) – 自動更新 =
 
