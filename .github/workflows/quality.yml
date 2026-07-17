@@ -1,0 +1,51 @@
+name: Quality
+
+on:
+  push:
+    branches: [main, milestone-b-correctness-stability]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  standalone:
+    name: Standalone PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ["7.4", "8.1", "8.3", "8.5"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - name: Lint plugin PHP
+        run: find . -path ./vendor -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Run standalone contracts
+        run: for test in tests/unit/*.php; do php "$test"; done
+
+  wordpress-integration:
+    name: WordPress integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Start WordPress test environment
+        run: npm run env:start
+      - name: Run WordPress integration tests
+        run: npm run test:integration
+      - name: Print wp-env logs on failure
+        if: failure()
+        run: npm run wp-env logs -- --no-watch
+      - name: Stop WordPress test environment
+        if: always()
+        run: npm run env:stop

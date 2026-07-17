@@ -6,15 +6,22 @@
  */
 
 $root = dirname(__DIR__, 2);
-$expected = "2.0.5";
 $failures = [];
 
 $main = file_get_contents($root . "/moelog-ai-qna.php");
 $readme = file_get_contents($root . "/readme.txt");
 $github_readme = file_get_contents($root . "/README.md");
+$package = json_decode(file_get_contents($root . "/package.json"), true);
+$package_lock = json_decode(file_get_contents($root . "/package-lock.json"), true);
+
+if (!preg_match('/^\s*\* Version:\s*([0-9]+\.[0-9]+\.[0-9]+)\s*$/m', $main, $version_match)) {
+    fwrite(STDERR, "FAIL: plugin header semantic version\n");
+    exit(1);
+}
+$expected = $version_match[1];
 
 $checks = [
-    "plugin header" => preg_match('/^\s*\* Version:\s*' . preg_quote($expected, '/') . '\s*$/m', $main),
+    "plugin header" => true,
     "runtime constant" => strpos($main, 'define("MOELOG_AIQNA_VERSION", "' . $expected . '")') !== false,
     "official update URI" => preg_match(
         '#^\s*\* Update URI:\s*https://github\.com/Horlicks-p/moelog-ai-qna-links/\s*$#m',
@@ -25,7 +32,15 @@ $checks = [
     "README stable tag" => preg_match('/^Stable tag:\s*' . preg_quote($expected, '/') . '\s*$/m', $github_readme),
     "WordPress changelog" => strpos($readme, "= " . $expected . " (") !== false,
     "README changelog" => strpos($github_readme, "= " . $expected . " (") !== false,
+    "package version" => is_array($package) && ($package["version"] ?? "") === $expected,
+    "package lock version" => is_array($package_lock) &&
+        ($package_lock["version"] ?? "") === $expected,
 ];
+
+$release_tag = trim((string) getenv("MOELOG_RELEASE_TAG"));
+if ($release_tag !== "") {
+    $checks["release tag"] = ltrim($release_tag, "v") === $expected;
+}
 
 foreach ($checks as $label => $passed) {
     if (!$passed) {
@@ -47,4 +62,7 @@ if ($failures) {
     exit(1);
 }
 
-fwrite(STDOUT, "Version consistency tests passed (12 assertions).\n");
+fwrite(
+    STDOUT,
+    sprintf("Version consistency tests passed (%d assertions).\n", count($checks) + 4)
+);

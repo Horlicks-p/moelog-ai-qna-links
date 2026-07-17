@@ -1,2 +1,6 @@
 # 個人版備份，不提交至 GitHub
 *.bak
+node_modules/
+.wp-env/
+.phpunit.result.cache
+dist/

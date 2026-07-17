@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="tests/wp-integration/bootstrap.php" colors="true">
+  <testsuites>
+    <testsuite name="WordPress integration">
+      <directory suffix="Test.php">tests/wp-integration</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>
