@@ -3,7 +3,7 @@
  * Plugin deactivation and uninstall cleanup.
  *
  * @package Moelog_AIQnA
- * @since   2.1.0
+ * @since   2.0.6
  */
 
 if (!defined("ABSPATH")) {
@@ -90,7 +90,8 @@ class Moelog_AIQnA_Lifecycle
         $wpdb->query(
             "DELETE FROM {$wpdb->options}
              WHERE option_name LIKE 'moelog_aiqna_lock_%'
-                OR option_name LIKE 'moelog_aiqna_usage_%'"
+                OR option_name LIKE 'moelog_aiqna_usage_%'
+                OR option_name LIKE 'moelog_aiqna_feedback_rate_%'"
         );
 
         foreach (
@@ -121,15 +122,28 @@ class Moelog_AIQnA_Lifecycle
     {
         $removed = 0;
         foreach (array_unique((array) $directories) as $directory) {
-            $directory = strtolower((string) $directory);
-            if (preg_match('/^[a-z0-9-]+$/D', $directory) !== 1) {
+            $directory = (string) $directory;
+            if (
+                $directory === "" ||
+                $directory === "." ||
+                $directory === ".." ||
+                strpbrk($directory, "/\\\0") !== false
+            ) {
                 continue;
             }
 
             $path = WP_CONTENT_DIR . "/" . $directory;
-            if (!is_dir($path)) {
+            $content_root = realpath(WP_CONTENT_DIR);
+            $resolved_path = realpath($path);
+            if (
+                $content_root === false ||
+                $resolved_path === false ||
+                !is_dir($resolved_path) ||
+                dirname($resolved_path) !== $content_root
+            ) {
                 continue;
             }
+            $path = $resolved_path;
 
             $files = glob($path . "/*");
             if (is_array($files)) {

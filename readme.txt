@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4
 Tested PHP: 8.3
-Stable tag: 2.0.7
+Stable tag: 2.0.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -142,6 +142,12 @@ Visitor IPs, user agents, and other visitor personal data are **not sent to AI p
 ---
 
 == 🧩 Changelog ==
+
+= 2.0.8 (2026-07-17) – Milestone B Completion =
+* **Proxy trust:** `CF-Connecting-IP` now requires a separate Cloudflare/CDN CIDR allowlist; ordinary trusted proxies ignore spoofed Cloudflare headers and use the trusted XFF chain.
+* **Feedback limits:** Sliding transient counters are replaced by atomic database increments in fixed windows with an observable status hook; rejected requests return HTTP 429 and `Retry-After`.
+* **Cache maintenance:** Upgrade migration no longer encrypts `index.html` and repairs previously encrypted control files; uninstall safely supports custom cache directories containing case, underscores, or dots.
+* **Metadata:** Corrected the lifecycle class `@since` version.
 
 = 2.0.7 (2026-07-17) – Hotfix =
 * **Fix:** Fatal error `Call to undefined method Parsedown::setSafeMode()` when another plugin or theme loads a legacy Parsedown (pre-1.7) first. The bundled parser is now plugin-prefixed (`Moelog_AIQnA_Parsedown`) and never collides with foreign copies.

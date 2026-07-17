@@ -32,12 +32,14 @@ class Moelog_AIQnA_Client_IP
         }
 
         $trusted = self::get_trusted_proxies();
-        if (!self::is_trusted($remote, $trusted)) {
+        $cloudflare = self::get_trusted_cloudflare_proxies();
+        $all_trusted = array_values(array_unique(array_merge($trusted, $cloudflare)));
+        if (!self::is_trusted($remote, $all_trusted)) {
             return $remote;
         }
 
         $cf_ip = self::normalize_ip($server["HTTP_CF_CONNECTING_IP"] ?? "");
-        if ($cf_ip !== null) {
+        if ($cf_ip !== null && self::is_trusted($remote, $cloudflare)) {
             return $cf_ip;
         }
 
@@ -51,7 +53,7 @@ class Moelog_AIQnA_Client_IP
         // Walk from the nearest hop towards the original client. Trusted proxy
         // hops are skipped; the first untrusted valid address is the client.
         for ($index = count($forwarded) - 1; $index >= 0; $index--) {
-            if (!self::is_trusted($forwarded[$index], $trusted)) {
+            if (!self::is_trusted($forwarded[$index], $all_trusted)) {
                 return $forwarded[$index];
             }
         }
@@ -80,10 +82,36 @@ class Moelog_AIQnA_Client_IP
      */
     public static function get_trusted_proxies()
     {
-        $configured = defined("MOELOG_AIQNA_TRUSTED_PROXIES")
-            ? constant("MOELOG_AIQNA_TRUSTED_PROXIES")
-            : [];
+        return self::get_configured_ranges(
+            "MOELOG_AIQNA_TRUSTED_PROXIES",
+            "moelog_aiqna_trusted_proxies"
+        );
+    }
 
+    /**
+     * Return proxy ranges that are specifically authorized to provide the
+     * Cloudflare-specific CF-Connecting-IP header.
+     *
+     * @return array
+     */
+    public static function get_trusted_cloudflare_proxies()
+    {
+        return self::get_configured_ranges(
+            "MOELOG_AIQNA_TRUSTED_CLOUDFLARE_PROXIES",
+            "moelog_aiqna_trusted_cloudflare_proxies"
+        );
+    }
+
+    /**
+     * @param string $constant_name
+     * @param string $filter_name
+     * @return array
+     */
+    private static function get_configured_ranges($constant_name, $filter_name)
+    {
+        $configured = defined($constant_name)
+            ? constant($constant_name)
+            : [];
         if (is_string($configured)) {
             $configured = preg_split('/[\s,]+/', $configured, -1, PREG_SPLIT_NO_EMPTY);
         }
@@ -91,7 +119,7 @@ class Moelog_AIQnA_Client_IP
             $configured = [];
         }
 
-        $configured = apply_filters("moelog_aiqna_trusted_proxies", $configured);
+        $configured = apply_filters($filter_name, $configured);
         if (!is_array($configured)) {
             return [];
         }

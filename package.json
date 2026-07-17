@@ -1,6 +1,6 @@
 {
   "name": "moelog-ai-qna-links",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "private": true,
   "scripts": {
     "wp-env": "wp-env",

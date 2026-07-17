@@ -20,6 +20,7 @@ class Moelog_AIQnA_Feedback_Controller
     const RATE_WINDOW = 3600;
     const VIEW_DEDUPE_WINDOW = 86400;
     const VOTE_STATE_WINDOW = 2592000;
+    private static $last_rate_limit_status = null;
 
     /**
      * 註冊 AJAX 掛鉤
@@ -379,25 +380,43 @@ class Moelog_AIQnA_Feedback_Controller
 
     private static function send_rate_limit_error()
     {
+        $retry_after = is_array(self::$last_rate_limit_status)
+            ? max(1, (int) self::$last_rate_limit_status["retry_after"])
+            : self::RATE_WINDOW;
+        if (!headers_sent()) {
+            status_header(429);
+            header("Retry-After: " . $retry_after);
+        }
         wp_send_json_error([
             "message" => __("操作次數過多,請稍後再試", "moelog-ai-qna"),
-        ]);
+            "retry_after" => $retry_after,
+        ], 429);
         exit();
     }
 
     /**
-     * Basic transient-backed attempt limiter. Approximate counters are accepted
-     * in A3; atomic high-concurrency storage remains a later milestone.
+     * Atomic fixed-window limiter backed by non-autoloaded options.
      */
     private static function consume_rate_limit($action, $identity, $limit)
     {
-        $key = self::transient_key($action, $identity);
-        $count = (int) get_transient($key);
-        if ($count >= $limit) {
-            return false;
-        }
-        set_transient($key, $count + 1, self::RATE_WINDOW);
-        return true;
+        $limit = (int) apply_filters(
+            "moelog_aiqna_feedback_rate_limit",
+            $limit,
+            $action
+        );
+        $window = (int) apply_filters(
+            "moelog_aiqna_feedback_rate_window",
+            self::RATE_WINDOW,
+            $action
+        );
+        self::$last_rate_limit_status = Moelog_AIQnA_Feedback_Rate_Limiter::consume(
+            $action,
+            $identity,
+            max(1, $limit),
+            max(1, $window)
+        );
+
+        return self::$last_rate_limit_status["allowed"] === true;
     }
 
     private static function transient_key($action, $value)

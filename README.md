@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4  
 Tested PHP: 8.3  
-Stable tag: 2.0.7
+Stable tag: 2.0.8
 License: GPLv2 or later  
 License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
 
@@ -128,7 +128,7 @@ STM 模式可協助搜尋引擎和 AI 爬蟲「解析」你的 AI 答案頁，**
 - **URL 安全:** 使用 **HMAC 雜湊**生成回答頁 URL，防止惡意枚舉或竄改。
 - **XSS 防護:** AI 回答內容中的 HTML 被嚴格過濾，`on...` 事件被移除，**連結 (URL) 會被轉換為無害的 `<span>` 標籤**。
 - **濫用防護:** 內建 IP 基礎的**頻率限制 (Rate Limiting)**。
-- **IP 偵測:** 預設只信任 `REMOTE_ADDR`。Cloudflare／反向代理必須明確設定可信 proxy CIDR，才會解析轉送標頭。
+- **IP 偵測:** 預設只信任 `REMOTE_ADDR`。一般反向代理與 Cloudflare 必須分別設定可信 proxy CIDR；只有獨立的 Cloudflare 清單可授權 `CF-Connecting-IP`。
 - **隱私友善限流:** 僅以 WordPress site salt 產生的短期匿名雜湊進行限流與回饋去重，不將完整 IP 保存到回報郵件或傳送給 AI provider。
 
 可信 proxy 可在 `wp-config.php` 設定；只應填寫實際直連 WordPress 主機且會清理轉送標頭的 proxy/CDN 網段：
@@ -155,6 +155,13 @@ define('MOELOG_AIQNA_TRUSTED_PROXIES', [
 ---
 
 == 🧩 Changelog ==
+
+= 2.0.8 (2026-07-17) – Milestone B 完善 =
+
+- 🔒 **代理信任:** `CF-Connecting-IP` 改由獨立 Cloudflare／CDN CIDR 清單授權；一般 trusted proxy 即使收到偽造的 Cloudflare 標頭也只依可信 XFF chain 解析。
+- 🚦 **Feedback 限流:** transient 滑動視窗改為固定視窗與資料庫原子遞增，提供可觀察狀態 hook；拒絕時回傳 HTTP 429 與 `Retry-After`。
+- 🧹 **快取維護:** 升級 migration 不再加密 `index.html`，並會修復既有誤加密控制檔；卸載清理安全支援大小寫、底線與點的自訂快取目錄。
+- 📝 **Metadata:** 修正 lifecycle 類別的 `@since` 版本標記。
 
 = 2.0.7 (2026-07-17) – 緊急修復 =
 

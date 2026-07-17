@@ -19,6 +19,9 @@ if (!file_exists($wp_load)) {
 }
 
 require_once $wp_load;
+if (!function_exists("add_settings_error")) {
+    require_once ABSPATH . "wp-admin/includes/template.php";
+}
 
 $question = "What's PHP's <=> cache protection behavior?";
 $marker = "MOELOG_A2_PHP_CACHE_READ_OK";
@@ -35,6 +38,13 @@ try {
         MOELOG_AIQNA_CACHE_PROTECTION_VERSION
     ) {
         $failures[] = "upgrade routine did not record protection version";
+    }
+    $index_path = Moelog_AIQnA_Cache::get_static_dir_path() . "/index.html";
+    if (
+        !is_file($index_path) ||
+        file_get_contents($index_path) !== "<!-- Silence is golden. -->"
+    ) {
+        $failures[] = "upgrade routine did not preserve the index control file";
     }
 
     $post_id = wp_insert_post([
@@ -170,4 +180,4 @@ if ($failures) {
     exit(1);
 }
 
-fwrite(STDOUT, "A2 cache protection smoke test passed (8 assertions).\n");
+fwrite(STDOUT, "A2 cache protection smoke test passed (9 assertions).\n");
