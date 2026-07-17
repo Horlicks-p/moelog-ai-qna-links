@@ -21,6 +21,8 @@ require_once $wp_load;
 
 $ajax_url = admin_url("admin-ajax.php");
 $question = "A3 temporary feedback question?";
+$apostrophe_question = "What's covered by the A3 feedback check?";
+$markup_question = "How does PHP's <=> operator work?";
 $created_ids = [];
 $transient_keys = [];
 $failures = [];
@@ -71,8 +73,12 @@ try {
     }
     $created_ids = [$post_id, $private_id];
     foreach ($created_ids as $id) {
-        update_post_meta($id, MOELOG_AIQNA_META_KEY, [$question]);
-        update_post_meta($id, MOELOG_AIQNA_META_LANG_KEY, ["en"]);
+        update_post_meta($id, MOELOG_AIQNA_META_KEY, [
+            $question,
+            $apostrophe_question,
+            $markup_question,
+        ]);
+        update_post_meta($id, MOELOG_AIQNA_META_LANG_KEY, ["en", "en", "en"]);
     }
 
     $hash = Moelog_AIQnA_Cache::generate_hash($post_id, $question);
@@ -93,6 +99,29 @@ try {
     } else {
         $nonce = "";
     }
+
+    // Legacy/cached clients may still submit the question text. It must not be
+    // used as an authorization input because WordPress slashes request values.
+    a3_expect_success(a3_post_ajax($ajax_url, [
+        "action" => "moelog_aiqna_feedback_bootstrap",
+        "post_id" => $post_id,
+        "question" => $apostrophe_question,
+        "question_hash" => Moelog_AIQnA_Cache::generate_hash(
+            $post_id,
+            $apostrophe_question
+        ),
+    ]), "apostrophe question bootstrap", $failures);
+
+    // Current clients only submit the hash; canonical question text comes from
+    // the server-side article meta and may safely contain HTML-like syntax.
+    a3_expect_success(a3_post_ajax($ajax_url, [
+        "action" => "moelog_aiqna_feedback_bootstrap",
+        "post_id" => $post_id,
+        "question_hash" => Moelog_AIQnA_Cache::generate_hash(
+            $post_id,
+            $markup_question
+        ),
+    ]), "HTML-like question bootstrap", $failures);
 
     a3_expect_failure(a3_post_ajax($ajax_url, [
         "action" => "moelog_aiqna_feedback_bootstrap",
@@ -247,4 +276,4 @@ if ($failures) {
     exit(1);
 }
 
-fwrite(STDOUT, "A3 feedback smoke test passed (14 endpoint cases, 1 limiter assertion).\n");
+fwrite(STDOUT, "A3 feedback smoke test passed (16 endpoint cases, 1 limiter assertion).\n");

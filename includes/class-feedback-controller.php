@@ -329,6 +329,8 @@ class Moelog_AIQnA_Feedback_Controller
      * 驗證公開文章與實際問題，並回傳伺服器端 canonical target。
      *
      * 不信任前端 question/hash；以文章目前最多 8 個問題逐一重算 hash。
+     * 前端問題原文不參與驗證，避免 WordPress request slashing 或
+     * sanitize_text_field() 改寫引號、HTML/XML 字樣等合法問題。
      *
      * @return array
      */
@@ -338,8 +340,6 @@ class Moelog_AIQnA_Feedback_Controller
         $submitted_hash = strtolower(
             sanitize_text_field($_POST["question_hash"] ?? "")
         );
-        $submitted_question = sanitize_text_field($_POST["question"] ?? "");
-
         if (!$post_id || preg_match('/^[a-f0-9]{16}$/', $submitted_hash) !== 1) {
             self::send_invalid_target_error();
         }
@@ -356,10 +356,6 @@ class Moelog_AIQnA_Feedback_Controller
             $expected_hash = Moelog_AIQnA_Cache::generate_hash($post_id, $question);
             if (!hash_equals($expected_hash, $submitted_hash)) {
                 continue;
-            }
-
-            if ($submitted_question !== "" && !hash_equals($question, $submitted_question)) {
-                self::send_invalid_target_error();
             }
 
             return [

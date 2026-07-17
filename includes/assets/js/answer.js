@@ -112,8 +112,6 @@
       if (typeof config.questionHash !== 'undefined') {
         formData.append('question_hash', config.questionHash);
       }
-      formData.append('question', config.question || '');
-
       return fetch(config.ajaxUrl, {
         method: 'POST',
         credentials: 'same-origin',
@@ -277,7 +275,6 @@
       
       sendRequest('moelog_aiqna_report_issue', {
         post_id: config.postId,
-        question: config.question || '',
         message: value,
         website: hpValue  // 蜜罐欄位
       })
