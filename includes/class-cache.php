@@ -290,7 +290,15 @@ class Moelog_AIQnA_Cache
 
     $success = true;
     foreach ($files as $file) {
-      if (preg_match('/^[0-9]+-[a-f0-9]{16}\.html$/', basename($file)) === 1) {
+      $basename = basename($file);
+      if ($basename === "index.html") {
+        $index = "<!-- Silence is golden. -->";
+        if (@file_get_contents($file) !== $index && !self::write_file_atomically($file, $index)) {
+          $success = false;
+        }
+        continue;
+      }
+      if (preg_match('/^[0-9]+-[a-f0-9]{16}\.html$/', $basename) === 1) {
         @unlink($file);
         continue;
       }
@@ -303,7 +311,7 @@ class Moelog_AIQnA_Cache
         continue;
       }
 
-      $protected = self::protect_payload($payload, basename($file));
+      $protected = self::protect_payload($payload, $basename);
       if ($protected === false) {
         @unlink($file);
         $success = false;

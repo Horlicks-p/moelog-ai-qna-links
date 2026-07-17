@@ -8,13 +8,18 @@
 define("ABSPATH", __DIR__);
 
 $trusted_proxy_ranges = [];
+$trusted_cloudflare_ranges = [];
 
 function apply_filters($name, $value)
 {
-    global $trusted_proxy_ranges;
-    return $name === "moelog_aiqna_trusted_proxies"
-        ? $trusted_proxy_ranges
-        : $value;
+    global $trusted_proxy_ranges, $trusted_cloudflare_ranges;
+    if ($name === "moelog_aiqna_trusted_proxies") {
+        return $trusted_proxy_ranges;
+    }
+    if ($name === "moelog_aiqna_trusted_cloudflare_proxies") {
+        return $trusted_cloudflare_ranges;
+    }
+    return $value;
 }
 
 function wp_salt($scheme = "auth")
@@ -41,10 +46,22 @@ assert_client_ip("203.0.113.10", [
 ], "direct spoofed headers");
 
 $trusted_proxy_ranges = ["10.0.0.0/8", "2001:db8:ffff::/48"];
-assert_client_ip("198.51.100.7", [
+assert_client_ip("198.51.100.20", [
     "REMOTE_ADDR" => "10.1.2.3",
     "HTTP_CF_CONNECTING_IP" => "198.51.100.7",
-], "trusted Cloudflare-style proxy");
+    "HTTP_X_FORWARDED_FOR" => "198.51.100.20, 10.1.2.3",
+], "ordinary trusted proxy ignores spoofed Cloudflare header");
+
+$trusted_cloudflare_ranges = ["192.0.2.0/24", "2001:db8:cf::/48"];
+assert_client_ip("198.51.100.7", [
+    "REMOTE_ADDR" => "192.0.2.10",
+    "HTTP_CF_CONNECTING_IP" => "198.51.100.7",
+], "explicitly trusted Cloudflare IPv4 proxy");
+
+assert_client_ip("2001:db8:1::7", [
+    "REMOTE_ADDR" => "2001:db8:cf::10",
+    "HTTP_CF_CONNECTING_IP" => "2001:db8:1::7",
+], "explicitly trusted Cloudflare IPv6 proxy");
 
 assert_client_ip("198.51.100.20", [
     "REMOTE_ADDR" => "10.1.2.3",
@@ -85,4 +102,4 @@ if (strlen($id) !== 64 || strpos($id, "192.0.2.42") !== false) {
     exit(1);
 }
 
-fwrite(STDOUT, "Client IP tests passed (10 assertions).\n");
+fwrite(STDOUT, "Client IP tests passed (12 assertions).\n");

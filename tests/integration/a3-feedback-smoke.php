@@ -242,8 +242,6 @@ try {
     }
 
     $limit_identity = "a3-rate-test-" . wp_generate_password(8, false, false);
-    $limit_key = $method->invoke(null, "test_limit", $limit_identity);
-    $transient_keys[] = $limit_key;
     $limit_method = new ReflectionMethod(
         "Moelog_AIQnA_Feedback_Controller",
         "consume_rate_limit"
@@ -254,7 +252,7 @@ try {
         $limit_method->invoke(null, "test_limit", $limit_identity, 2) !== true ||
         $limit_method->invoke(null, "test_limit", $limit_identity, 2) !== false
     ) {
-        $failures[] = "transient rate limiter did not enforce its limit";
+        $failures[] = "atomic fixed-window rate limiter did not enforce its limit";
     }
 } catch (Throwable $error) {
     $failures[] = $error->getMessage();
@@ -262,6 +260,10 @@ try {
     foreach (array_unique($transient_keys) as $key) {
         delete_transient($key);
     }
+    $wpdb->query(
+        "DELETE FROM {$wpdb->options}
+         WHERE option_name LIKE 'moelog_aiqna_feedback_rate_%'"
+    );
     foreach ($created_ids as $id) {
         wp_clear_scheduled_hook("moelog_aiqna_clear_cache_async", [$id]);
         wp_delete_post($id, true);

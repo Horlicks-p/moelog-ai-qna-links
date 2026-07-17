@@ -53,8 +53,10 @@ $expect = function ($condition, $label) use (&$failures, &$assertions) {
 mkdir($test_root, 0777, true);
 $clean_dir = $test_root . "/old-cache";
 $guarded_dir = $test_root . "/guarded-cache";
+$mixed_dir = $test_root . "/Cache_V1.2";
 mkdir($clean_dir);
 mkdir($guarded_dir);
+mkdir($mixed_dir);
 file_put_contents($clean_dir . "/42-0123456789abcdef.html", "encrypted");
 file_put_contents($clean_dir . "/42-0123456789abcdef-0123456789ab.html", "encrypted");
 file_put_contents($clean_dir . "/index.html", "");
@@ -62,6 +64,8 @@ file_put_contents($clean_dir . "/.htaccess", "deny");
 file_put_contents($clean_dir . "/.htaccess.tmp-deadbeef", "deny");
 file_put_contents($guarded_dir . "/42-0123456789abcdef.html", "encrypted");
 file_put_contents($guarded_dir . "/keep.txt", "owner data");
+file_put_contents($mixed_dir . "/42-0123456789abcdef.html", "encrypted");
+file_put_contents($mixed_dir . "/index.html", "");
 
 try {
     $expect(
@@ -78,12 +82,22 @@ try {
     $removed = Moelog_AIQnA_Lifecycle::delete_cache_directories([
         "old-cache",
         "guarded-cache",
+        "Cache_V1.2",
         "../outside",
+        ".",
     ]);
-    $expect($removed === 6, "only known cache artifacts counted");
+    $expect($removed === 8, "only known cache artifacts counted");
     $expect(!is_dir($clean_dir), "empty cache directory removed");
+    $expect(!is_dir($mixed_dir), "mixed-case underscore and dot directory removed");
     $expect(is_file($guarded_dir . "/keep.txt"), "unknown owner file preserved");
     $expect(is_dir($guarded_dir), "non-empty owner directory preserved");
+    $lifecycle_source = file_get_contents(
+        dirname(__DIR__, 2) . "/includes/class-lifecycle.php"
+    );
+    $expect(
+        strpos($lifecycle_source, "moelog_aiqna_feedback_rate_%") !== false,
+        "uninstall removes feedback rate counters"
+    );
 } finally {
     if (is_file($guarded_dir . "/keep.txt")) {
         unlink($guarded_dir . "/keep.txt");

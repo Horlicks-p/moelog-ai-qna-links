@@ -945,7 +945,7 @@ add_action('moelog_aiqna_after_generate', function($post_id, $question, $answer)
 
 ### `moelog_aiqna_trusted_proxies`
 
-指定可提供 `CF-Connecting-IP`／`X-Forwarded-For` 的直連 proxy IP 或 CIDR。預設為空陣列；未明確信任時只使用 `REMOTE_ADDR`。
+指定可提供 `X-Forwarded-For` 的直連 proxy IP 或 CIDR。預設為空陣列；未明確信任時只使用 `REMOTE_ADDR`。此清單不授權 Cloudflare 專用標頭。
 
 ```php
 add_filter('moelog_aiqna_trusted_proxies', function($ranges) {
@@ -956,7 +956,56 @@ add_filter('moelog_aiqna_trusted_proxies', function($ranges) {
 });
 ```
 
-只加入會清理使用者自帶轉送標頭、且實際直接連到 WordPress 主機的 proxy／CDN 網段。一般部署較建議在 `wp-config.php` 使用 `MOELOG_AIQNA_TRUSTED_PROXIES` 常數，避免佈景或一般外掛載入順序影響安全政策。
+### `moelog_aiqna_trusted_cloudflare_proxies`
+
+指定可提供 `CF-Connecting-IP` 的 Cloudflare／CDN 直連 IP 或 CIDR。這些網段也會被視為可信 XFF hops，但只有此獨立清單能授權 `CF-Connecting-IP`。請只加入會清除訪客自帶轉送標頭的實際邊緣代理。
+
+```php
+add_filter('moelog_aiqna_trusted_cloudflare_proxies', function($ranges) {
+    return [
+        '192.0.2.0/24',
+        '2001:db8:cf::/48',
+    ];
+});
+```
+
+也可用 `MOELOG_AIQNA_TRUSTED_CLOUDFLARE_PROXIES` 常數提供相同設定。
+
+### `moelog_aiqna_feedback_rate_limit`
+
+依 feedback action 調整固定視窗內的請求上限。回傳值最小為 1。
+
+```php
+add_filter('moelog_aiqna_feedback_rate_limit', function($limit, $action) {
+    return $action === 'vote' ? 20 : $limit;
+}, 10, 2);
+```
+
+### `moelog_aiqna_feedback_rate_window`
+
+依 action 調整固定視窗秒數，預設為 3600 秒。改變視窗不會修改既有時間桶；新請求會進入依新視窗計算的桶。
+
+```php
+add_filter('moelog_aiqna_feedback_rate_window', function($seconds, $action) {
+    return $action === 'bootstrap' ? 900 : $seconds;
+}, 10, 2);
+```
+
+### `moelog_aiqna_feedback_rate_limit_status`
+
+每次嘗試消耗 feedback 配額後觸發，供監控與除錯使用。狀態不含訪客 IP 或匿名 identity，欄位為 `allowed`、`count`、`limit`、`remaining`、`reset_at`、`retry_after`。
+
+```php
+add_action('moelog_aiqna_feedback_rate_limit_status', function($action, $status) {
+    if (!$status['allowed']) {
+        error_log(sprintf('AI Q&A feedback %s limited until %d', $action, $status['reset_at']));
+    }
+}, 10, 2);
+```
+
+被限流的 AJAX request 回傳 HTTP 429，並附 `Retry-After` header 與同名 JSON 欄位。
+
+只加入會清理使用者自帶轉送標頭、且實際直接連到 WordPress 主機的 proxy／CDN 網段。一般部署較建議在 `wp-config.php` 分別使用 `MOELOG_AIQNA_TRUSTED_PROXIES` 與 `MOELOG_AIQNA_TRUSTED_CLOUDFLARE_PROXIES` 常數，避免佈景或一般外掛載入順序影響安全政策。
 
 ### `moelog_aiqna_anthropic_temperature_models`
 

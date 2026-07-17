@@ -102,6 +102,14 @@ try {
         fail_cache_protection("idempotent prepare changed protection rules");
     }
 
+    file_put_contents($cache_dir . "/index.html", Moelog_AIQnA_Cache::PROTECTED_PAYLOAD_PREFIX . "legacy");
+    if (!Moelog_AIQnA_Cache::migrate_legacy_static_files()) {
+        fail_cache_protection("legacy static cache migration failed");
+    }
+    if (file_get_contents($cache_dir . "/index.html") !== "<!-- Silence is golden. -->") {
+        fail_cache_protection("index.html was encrypted instead of restored as a control file");
+    }
+
     $question = "Encrypted cache question";
     $html = "PHP_CACHE_READ_OK";
     if (!Moelog_AIQnA_Cache::save(123, $question, $html)) {
@@ -139,4 +147,4 @@ try {
     remove_test_tree($test_root);
 }
 
-fwrite(STDOUT, "Cache protection tests passed (13 assertions).\n");
+fwrite(STDOUT, "Cache protection tests passed (15 assertions).\n");
