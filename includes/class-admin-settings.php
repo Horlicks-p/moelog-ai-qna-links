@@ -313,7 +313,7 @@ class Moelog_AIQnA_Admin_Settings
 ?>
     <select name="<?php echo esc_attr(
                     MOELOG_AIQNA_OPT_KEY,
-                  ); ?>[provider]" id="provider">
+                  ); ?>[provider]" id="provider" class="regular-text">
       <option value="openai" <?php selected($value, "openai"); ?>>
         <?php esc_html_e("OpenAI", "moelog-ai-qna"); ?>
       </option>
@@ -565,6 +565,7 @@ class Moelog_AIQnA_Admin_Settings
     <input type="number"
       name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[temperature]"
       id="temperature"
+      class="regular-text"
       step="0.1"
       min="0"
       max="2"
@@ -606,7 +607,7 @@ class Moelog_AIQnA_Admin_Settings
   public function render_max_tokens_field()
   {
     printf(
-      '<input type="number" name="%s[max_tokens]" value="%d" min="256" max="8192" step="1" class="small-text">',
+      '<input type="number" name="%s[max_tokens]" value="%d" min="256" max="8192" step="1" class="regular-text">',
       esc_attr(MOELOG_AIQNA_OPT_KEY),
       (int) Moelog_AIQnA_Settings::get("max_tokens", 2048)
     );
@@ -619,8 +620,8 @@ class Moelog_AIQnA_Admin_Settings
   public function render_generation_limits_field()
   {
     printf(
-      '<p style="margin:0 0 14px;"><label>%s <input type="number" name="%s[ai_daily_limit]" value="%d" min="0" max="10000" class="small-text"></label></p>' .
-        '<p style="margin:0;"><label>%s <input type="number" name="%s[ai_monthly_limit]" value="%d" min="0" max="100000" class="small-text"></label></p>',
+      '<p style="margin:0 0 14px;"><label>%s <input type="number" name="%s[ai_daily_limit]" value="%d" min="0" max="10000" class="regular-text moelog-aiqna-limit-input"></label></p>' .
+        '<p style="margin:0;"><label>%s <input type="number" name="%s[ai_monthly_limit]" value="%d" min="0" max="100000" class="regular-text moelog-aiqna-limit-input"></label></p>',
       esc_html__("每日", "moelog-ai-qna"),
       esc_attr(MOELOG_AIQNA_OPT_KEY),
       (int) Moelog_AIQnA_Settings::get("ai_daily_limit", 100),
@@ -643,6 +644,7 @@ class Moelog_AIQnA_Admin_Settings
   ?>
     <input type="number"
       name="<?php echo esc_attr(MOELOG_AIQNA_OPT_KEY); ?>[max_chars]"
+      class="regular-text"
       min="500"
       max="20000"
       step="100"
