@@ -8,7 +8,7 @@
 define("ABSPATH", __DIR__);
 define("MOELOG_AIQNA_DEFAULT_MODEL_OPENAI", "gpt-4o-mini");
 define("MOELOG_AIQNA_DEFAULT_MODEL_GEMINI", "gemini-2.5-flash");
-define("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-7");
+define("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-8");
 
 $captured_requests = [];
 $temperature_models_filter = null;
@@ -52,6 +52,16 @@ function wp_remote_request($url, $args)
         ];
     }
 
+    if (strpos($url, "api.openai.com") !== false) {
+        return [
+            "response" => ["code" => 200],
+            "body" => json_encode([
+                "choices" => [["message" => ["content" => "ok"]]],
+                "usage" => ["total_tokens" => 12],
+            ]),
+        ];
+    }
+
     return [
         "response" => ["code" => 200],
         "body" => json_encode([
@@ -82,6 +92,7 @@ function apply_filters($name, $value)
     return $value;
 }
 
+require_once dirname(__DIR__, 2) . "/includes/class-provider-result.php";
 require_once dirname(__DIR__, 2) . "/includes/class-ai-client.php";
 
 function fail_provider_contract($message)
@@ -120,7 +131,7 @@ function anthropic_params($model)
 
 $client = new Moelog_AIQnA_AI_Client();
 
-call_private_provider($client, "call_gemini", [
+$gemini_result = call_private_provider($client, "call_gemini", [
     "api_key" => "gemini-secret",
     "model" => "gemini-2.5-flash",
     "temperature" => 0.3,
@@ -129,6 +140,12 @@ call_private_provider($client, "call_gemini", [
     "lang_hint" => "English",
     "user_prompt" => "question",
 ]);
+if (
+    !Moelog_AIQnA_Provider_Result::is_valid($gemini_result) ||
+    $gemini_result["ok"] !== true
+) {
+    fail_provider_contract("Gemini did not return a structured success result");
+}
 $gemini = last_request();
 if (
     $gemini["url"] !==
@@ -147,7 +164,7 @@ if (($gemini_body["generationConfig"]["maxOutputTokens"] ?? null) !== 3072) {
     fail_provider_contract("Gemini max token setting was ignored");
 }
 
-call_private_provider($client, "call_openai", [
+$openai_result = call_private_provider($client, "call_openai", [
     "api_key" => "openai-secret",
     "model" => "gpt-4o-mini",
     "temperature" => 0.3,
@@ -156,13 +173,23 @@ call_private_provider($client, "call_openai", [
     "lang_hint" => "English",
     "user_prompt" => "question",
 ]);
+if (
+    !Moelog_AIQnA_Provider_Result::is_valid($openai_result) ||
+    $openai_result["ok"] !== true ||
+    ($openai_result["usage"]["total_tokens"] ?? null) !== 12
+) {
+    fail_provider_contract("OpenAI structured result or usage metadata is invalid");
+}
 $openai_body = json_decode(last_request()["args"]["body"], true);
 if (($openai_body["max_tokens"] ?? null) !== 3072) {
     fail_provider_contract("OpenAI max token setting was ignored");
 }
 
 foreach (["claude-opus-4-7", "claude-opus-4-8", "claude-sonnet-5", "future-custom-model"] as $model) {
-    call_private_provider($client, "call_anthropic", anthropic_params($model));
+    $result = call_private_provider($client, "call_anthropic", anthropic_params($model));
+    if (!Moelog_AIQnA_Provider_Result::is_valid($result) || $result["ok"] !== true) {
+        fail_provider_contract("Anthropic did not return structured success for " . $model);
+    }
     $body = json_decode(last_request()["args"]["body"], true);
     if (array_key_exists("temperature", $body)) {
         fail_provider_contract("Conservative Anthropic request included temperature for " . $model);
@@ -193,4 +220,4 @@ if (($filtered_body["temperature"] ?? null) !== 0.7) {
     fail_provider_contract("Site-tested exact model filter was ignored");
 }
 
-fwrite(STDOUT, "Provider request contract tests passed (15 assertions).\n");
+fwrite(STDOUT, "Provider request contract tests passed (21 assertions).\n");

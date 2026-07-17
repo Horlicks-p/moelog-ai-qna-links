@@ -265,6 +265,13 @@ class Moelog_AIQnA_Pregenerate
       return true;
     }
 
+    if (method_exists($this->ai_client, "is_last_result_error")) {
+      $structured_error = $this->ai_client->is_last_result_error($content);
+      if ($structured_error !== null) {
+        return $structured_error;
+      }
+    }
+
     // 使用 AI Client 的錯誤檢查方法
     if (method_exists($this->ai_client, "is_error_message")) {
       return $this->ai_client->is_error_message($content);

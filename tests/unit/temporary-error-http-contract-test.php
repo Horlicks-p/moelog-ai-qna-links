@@ -5,7 +5,7 @@ define("ABSPATH", __DIR__);
 define("HOUR_IN_SECONDS", 3600);
 define("MOELOG_AIQNA_DEFAULT_MODEL_OPENAI", "gpt-4o-mini");
 define("MOELOG_AIQNA_DEFAULT_MODEL_GEMINI", "gemini-2.5-flash");
-define("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-7");
+define("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-8");
 
 $retry_after_override = null;
 
@@ -27,6 +27,7 @@ function apply_filters($name, $value, ...$args)
 }
 
 require_once dirname(__DIR__, 2) . "/includes/class-ai-guard.php";
+require_once dirname(__DIR__, 2) . "/includes/class-provider-result.php";
 require_once dirname(__DIR__, 2) . "/includes/class-ai-client.php";
 
 $failures = [];
