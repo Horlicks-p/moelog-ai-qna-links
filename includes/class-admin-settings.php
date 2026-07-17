@@ -105,6 +105,20 @@ class Moelog_AIQnA_Admin_Settings
       self::PAGE_GENERAL,
       "general",
     );
+    add_settings_field(
+      "max_tokens",
+      __("最大輸出 Tokens", "moelog-ai-qna"),
+      [$this, "render_max_tokens_field"],
+      self::PAGE_GENERAL,
+      "general",
+    );
+    add_settings_field(
+      "ai_generation_limits",
+      __("AI 產生額度", "moelog-ai-qna"),
+      [$this, "render_generation_limits_field"],
+      self::PAGE_GENERAL,
+      "general",
+    );
 
     // === 內容設定區段 ===
     add_settings_section(
@@ -589,6 +603,37 @@ class Moelog_AIQnA_Admin_Settings
   <?php
   }
 
+  public function render_max_tokens_field()
+  {
+    printf(
+      '<input type="number" name="%s[max_tokens]" value="%d" min="256" max="8192" step="1">',
+      esc_attr(MOELOG_AIQNA_OPT_KEY),
+      (int) Moelog_AIQnA_Settings::get("max_tokens", 2048)
+    );
+    echo '<p class="description">' . esc_html__(
+      "限制單次回答長度，預設 2048；較高數值可能增加費用。",
+      "moelog-ai-qna"
+    ) . '</p>';
+  }
+
+  public function render_generation_limits_field()
+  {
+    printf(
+      '<p style="margin:0 0 14px;"><label><span class="moelog-aiqna-limit-label">%s</span><input type="number" name="%s[ai_daily_limit]" value="%d" min="0" max="10000" class="moelog-aiqna-limit-input"></label></p>' .
+        '<p style="margin:0;"><label><span class="moelog-aiqna-limit-label">%s</span><input type="number" name="%s[ai_monthly_limit]" value="%d" min="0" max="100000" class="moelog-aiqna-limit-input"></label></p>',
+      esc_html__("每日", "moelog-ai-qna"),
+      esc_attr(MOELOG_AIQNA_OPT_KEY),
+      (int) Moelog_AIQnA_Settings::get("ai_daily_limit", 100),
+      esc_html__("每月", "moelog-ai-qna"),
+      esc_attr(MOELOG_AIQNA_OPT_KEY),
+      (int) Moelog_AIQnA_Settings::get("ai_monthly_limit", 2000)
+    );
+    echo '<p class="description">' . esc_html__(
+      "只計算實際進入 provider 的新答案；0 代表不限制。",
+      "moelog-ai-qna"
+    ) . '</p>';
+  }
+
   /**
    * 渲染「內容截斷長度」欄位
    */
@@ -998,6 +1043,15 @@ class Moelog_AIQnA_Admin_Settings
       $temp = floatval($input["temperature"]);
       $output["temperature"] = max(MOELOG_AIQNA_MIN_TEMPERATURE, min(MOELOG_AIQNA_MAX_TEMPERATURE, $temp));
     }
+    if ($is_general_tab && isset($input["max_tokens"])) {
+      $output["max_tokens"] = min(8192, max(256, absint($input["max_tokens"])));
+    }
+    if ($is_general_tab && isset($input["ai_daily_limit"])) {
+      $output["ai_daily_limit"] = min(10000, absint($input["ai_daily_limit"]));
+    }
+    if ($is_general_tab && isset($input["ai_monthly_limit"])) {
+      $output["ai_monthly_limit"] = min(100000, absint($input["ai_monthly_limit"]));
+    }
 
     // =========================================
     // 4. Include Content (是否附上文章內容) - 只在一般設定分頁處理
@@ -1217,14 +1271,6 @@ class Moelog_AIQnA_Admin_Settings
       }
 
       $output["static_dir"] = $static_dir;
-    }
-
-    // 儲存同時就把新目錄與保護檔建好（掛在 wp-content）
-    if (
-      class_exists("Moelog_AIQnA_Cache") &&
-      method_exists("Moelog_AIQnA_Cache", "prepare_static_root")
-    ) {
-      Moelog_AIQnA_Cache::prepare_static_root();
     }
 
     // =========================================

@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4
 Tested PHP: 8.3
-Stable tag: 2.0.5
+Stable tag: 2.0.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -142,6 +142,18 @@ Visitor IPs, user agents, and other visitor personal data are **not sent to AI p
 ---
 
 == 🧩 Changelog ==
+
+= 2.0.6 (2026-07-17) – Correctness & Stability =
+* **Updater:** GitHub updates require an exactly named release ZIP asset and never fall back to source archives.
+* **Settings:** Custom URL prefix (`pretty_base`) and cache directory (`static_dir`) now take effect correctly; legacy wp-config constants remain supported as overrides.
+* **Static cache:** Page payloads are encrypted with AES-256-GCM, so direct file access on Nginx/Caddy/IIS cannot leak HTML; tampered or legacy plaintext files are never served.
+* **Cache fingerprints:** Answer and page caches are versioned separately — display or template changes re-render pages without new paid AI calls.
+* **Cost controls:** Site-wide daily/monthly AI generation budgets (default 100/2000, 0 disables), a single-flight generation lock, and a configurable max output tokens setting (default 2048).
+* **Availability:** Temporary capacity and provider errors return HTTP 503 with Retry-After instead of 500.
+* **Providers:** Structured provider results — error text can no longer be cached as an answer, and translation changes no longer affect success detection.
+* **Anthropic:** Default model for new installs is now `claude-opus-4-8`; saved model choices are never rewritten.
+* **Lifecycle:** Deactivation clears all scheduled events; uninstall removes options, post meta, transients, budget counters, locks, and tracked cache directories with allowlist-only deletion.
+* **CI:** GitHub Actions quality matrix (PHP 7.4–8.5), wp-env WordPress integration tests, and version-consistency gating with draft releases.
 
 = 2.0.5 (2026-07-16) – Auto Update =
 * **New:** Automatic updates from GitHub Releases via Plugin Update Checker 5.6 (bundled, MIT). Release ZIP assets are preferred over source archives.

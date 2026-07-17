@@ -17,10 +17,7 @@ if (!defined("ABSPATH")) {
 
 class Moelog_AIQnA_Cache
 {
-  /**
-   * 靜態檔案目錄名稱
-   */
-  const STATIC_DIR = MOELOG_AIQNA_STATIC_DIR; // 'ai-answers'
+  const PROTECTED_PAYLOAD_PREFIX = "MOE_CACHE_V1:";
 
   /**
    * 快取有效期(秒)
@@ -54,8 +51,49 @@ class Moelog_AIQnA_Cache
   private static function init()
   {
     if (!isset(self::$static_dir_path)) {
-      self::$static_dir_path = WP_CONTENT_DIR . "/" . self::STATIC_DIR;
+      $directory = function_exists("moelog_aiqna_get_static_dir")
+        ? moelog_aiqna_get_static_dir()
+        : (defined("MOELOG_AIQNA_STATIC_DIR")
+          ? strtolower(
+            preg_replace(
+              '/[^a-z0-9-]/i',
+              "",
+              (string) MOELOG_AIQNA_STATIC_DIR
+            ) ?? ""
+          )
+          : "ai-answers");
+      self::$static_dir_path = WP_CONTENT_DIR . "/" . ($directory ?: "ai-answers");
     }
+  }
+
+  /**
+   * Reset request-local path/TTL state after settings change.
+   */
+  public static function reset_runtime_config()
+  {
+    self::$static_dir_path = null;
+  }
+
+  /**
+   * Return the active cache directory name.
+   *
+   * @return string
+   */
+  public static function get_static_dir_name()
+  {
+    self::init();
+    return basename(self::$static_dir_path);
+  }
+
+  /**
+   * Return the active absolute cache directory path.
+   *
+   * @return string
+   */
+  public static function get_static_dir_path()
+  {
+    self::init();
+    return self::$static_dir_path;
   }
 
   // =========================================
@@ -154,19 +192,33 @@ class Moelog_AIQnA_Cache
     }
 
     $path = self::get_static_path($post_id, $question);
+    $payload = self::protect_payload($html, basename($path));
+    if ($payload === false) {
+      Moelog_AIQnA_Debug::log_error("Static cache encryption is unavailable");
+      return false;
+    }
 
-    // 寫入檔案
-    $result = file_put_contents($path, $html, LOCK_EX);
-
-    if ($result === false) {
+    // 使用原子取代，避免讀到半寫入密文。
+    if (!self::write_file_atomically($path, $payload)) {
       Moelog_AIQnA_Debug::log_error(
         sprintf("Failed to save static file: %s", $path)
       );
       return false;
     }
 
-    // 設定檔案權限
-    @chmod($path, 0644);
+    // A new page fingerprint supersedes older renderings of the same answer.
+    // Keep feedback metadata, but remove obsolete page files to avoid buildup.
+    $hash = self::generate_hash($post_id, $question);
+    $siblings = glob(
+      self::$static_dir_path . "/" . $post_id . "-" . $hash . "*.html"
+    );
+    if (is_array($siblings)) {
+      foreach ($siblings as $sibling) {
+        if ($sibling !== $path) {
+          self::delete_file($sibling);
+        }
+      }
+    }
 
     // 清除相關的快取標記
     $cache_key = "static_exists_" . md5($post_id . "|" . $question);
@@ -175,7 +227,7 @@ class Moelog_AIQnA_Cache
     Moelog_AIQnA_Debug::logf(
       "Saved static file: %s (%s bytes)",
       basename($path),
-      number_format($result)
+      number_format(strlen($payload))
     );
 
     return true;
@@ -204,7 +256,166 @@ class Moelog_AIQnA_Cache
       return false;
     }
 
+    $html = self::unprotect_payload($html, basename($path));
+    if ($html === false) {
+      // Plaintext legacy or tampered payloads must never be served. Removing the
+      // file lets the answer transient render a fresh encrypted page cache.
+      @unlink($path);
+      $cache_key = "static_exists_" . md5($post_id . "|" . $question);
+      wp_cache_delete($cache_key, "moelog_aiqna");
+      Moelog_AIQnA_Debug::log_warning(
+        sprintf("Rejected unprotected or invalid static cache: %s", basename($path))
+      );
+      return false;
+    }
+
     return $html;
+  }
+
+  /**
+   * Encrypt existing plaintext HTML files in place during upgrade.
+   *
+   * If authenticated encryption is unavailable, plaintext files are removed
+   * instead of leaving them exposed on non-Apache web servers.
+   *
+   * @return bool
+   */
+  public static function migrate_legacy_static_files()
+  {
+    self::init();
+    $files = glob(self::$static_dir_path . "/*.html");
+    if ($files === false) {
+      return false;
+    }
+
+    $success = true;
+    foreach ($files as $file) {
+      if (preg_match('/^[0-9]+-[a-f0-9]{16}\.html$/', basename($file)) === 1) {
+        @unlink($file);
+        continue;
+      }
+      $payload = @file_get_contents($file);
+      if ($payload === false) {
+        $success = false;
+        continue;
+      }
+      if (strpos($payload, self::PROTECTED_PAYLOAD_PREFIX) === 0) {
+        continue;
+      }
+
+      $protected = self::protect_payload($payload, basename($file));
+      if ($protected === false) {
+        @unlink($file);
+        $success = false;
+        continue;
+      }
+      if (!self::write_file_atomically($file, $protected)) {
+        @unlink($file);
+        $success = false;
+      }
+    }
+
+    return $success;
+  }
+
+  /**
+   * Authenticated encryption makes direct cache-file responses harmless on
+   * Nginx, Caddy, IIS and other servers that ignore .htaccess.
+   *
+   * @param string $html
+   * @param string $context Stable file basename used as authenticated data.
+   * @return string|false
+   */
+  private static function protect_payload($html, $context)
+  {
+    $key = self::get_payload_key();
+    if ($key === false || !function_exists("openssl_encrypt")) {
+      return false;
+    }
+
+    try {
+      $iv = function_exists("random_bytes") ? random_bytes(12) : false;
+    } catch (Throwable $error) {
+      $iv = false;
+    }
+    if ($iv === false) {
+      return false;
+    }
+    $tag = "";
+    $ciphertext = openssl_encrypt(
+      (string) $html,
+      "aes-256-gcm",
+      $key,
+      OPENSSL_RAW_DATA,
+      $iv,
+      $tag,
+      (string) $context,
+      16
+    );
+    if ($ciphertext === false || strlen($tag) !== 16) {
+      return false;
+    }
+
+    return self::PROTECTED_PAYLOAD_PREFIX . base64_encode($iv . $tag . $ciphertext);
+  }
+
+  /**
+   * @param string $payload
+   * @param string $context
+   * @return string|false
+   */
+  private static function unprotect_payload($payload, $context)
+  {
+    if (strpos((string) $payload, self::PROTECTED_PAYLOAD_PREFIX) !== 0) {
+      return false;
+    }
+    $key = self::get_payload_key();
+    if ($key === false || !function_exists("openssl_decrypt")) {
+      return false;
+    }
+
+    $decoded = base64_decode(
+      substr($payload, strlen(self::PROTECTED_PAYLOAD_PREFIX)),
+      true
+    );
+    if ($decoded === false || strlen($decoded) < 29) {
+      return false;
+    }
+
+    $iv = substr($decoded, 0, 12);
+    $tag = substr($decoded, 12, 16);
+    $ciphertext = substr($decoded, 28);
+    return openssl_decrypt(
+      $ciphertext,
+      "aes-256-gcm",
+      $key,
+      OPENSSL_RAW_DATA,
+      $iv,
+      $tag,
+      (string) $context
+    );
+  }
+
+  /**
+   * @return string|false Binary 256-bit key.
+   */
+  private static function get_payload_key()
+  {
+    if (defined("MOELOG_AIQNA_CACHE_KEY") && MOELOG_AIQNA_CACHE_KEY !== "") {
+      $material = (string) MOELOG_AIQNA_CACHE_KEY;
+    } elseif (
+      function_exists("get_option") &&
+      defined("MOELOG_AIQNA_SECRET_KEY") &&
+      get_option(MOELOG_AIQNA_SECRET_KEY)
+    ) {
+      $material = (string) get_option(MOELOG_AIQNA_SECRET_KEY);
+    } elseif (function_exists("wp_salt")) {
+      $material = (string) wp_salt("auth");
+    } else {
+      return false;
+    }
+
+    return hash("sha256", "moelog-static-cache-v1|" . $material, true);
   }
 
   /**
@@ -224,9 +435,16 @@ class Moelog_AIQnA_Cache
 
     if ($question !== null) {
       // 刪除單一檔案
-      $path = self::get_static_path($post_id, $question);
-      $result = self::delete_file($path);
       $hash = self::generate_hash($post_id, $question);
+      $files = glob(
+        self::$static_dir_path . "/" . $post_id . "-" . $hash . "*.html"
+      );
+      $result = false;
+      if (is_array($files)) {
+        foreach ($files as $file) {
+          $result = self::delete_file($file) || $result;
+        }
+      }
       self::delete_feedback_stats($post_id, $hash);
       
       // 清除相關快取標記
@@ -523,7 +741,57 @@ class Moelog_AIQnA_Cache
     // 生成唯一檔名
     $hash = self::generate_hash($post_id, $question);
 
-    return self::$static_dir_path . "/" . $post_id . "-" . $hash . ".html";
+    return self::$static_dir_path . "/" . $post_id . "-" . $hash . "-" .
+      self::generate_page_fingerprint($post_id, $question) . ".html";
+  }
+
+  public static function generate_page_fingerprint($post_id, $question)
+  {
+    $settings = class_exists("Moelog_AIQnA_Settings")
+      ? Moelog_AIQnA_Settings::get()
+      : (function_exists("get_option") && defined("MOELOG_AIQNA_OPT_KEY")
+        ? get_option(MOELOG_AIQNA_OPT_KEY, []) : []);
+    $settings = is_array($settings) ? $settings : [];
+    ksort($settings);
+    $post = function_exists("get_post") ? get_post($post_id) : null;
+    $post_material = is_object($post)
+      ? (($post->post_title ?? "") . "|" . ($post->post_content ?? "")) : "";
+    $post_url = function_exists("get_permalink")
+      ? (string) get_permalink($post_id) : "";
+    $question_languages = (
+      function_exists("get_post_meta") && defined("MOELOG_AIQNA_META_LANG_KEY")
+    ) ? get_post_meta($post_id, MOELOG_AIQNA_META_LANG_KEY, true) : [];
+    $data = [
+      "schema" => "page-2",
+      "answer_schema" => class_exists("Moelog_AIQnA_AI_Client")
+        ? Moelog_AIQnA_AI_Client::ANSWER_SCHEMA_VERSION : "unknown",
+      "post_id" => (int) $post_id,
+      "question" => (string) $question,
+      "post_hash" => hash("sha256", $post_material . "|" . $post_url),
+      "question_languages" => is_array($question_languages)
+        ? $question_languages : [],
+      "settings" => $settings,
+      "geo" => function_exists("get_option")
+        ? (int) get_option("moelog_aiqna_geo_mode", 0) : 0,
+    ];
+    if (function_exists("apply_filters")) {
+      $data["answer_salt"] = apply_filters(
+        "moelog_aiqna_answer_cache_salt",
+        "",
+        [
+          "post_id" => (int) $post_id,
+          "question" => (string) $question,
+        ],
+        $settings
+      );
+      $data["salt"] = apply_filters(
+        "moelog_aiqna_page_cache_salt", "", $post_id, $question
+      );
+    }
+    $encoded = function_exists("wp_json_encode")
+      ? wp_json_encode($data)
+      : json_encode($data);
+    return substr(hash("sha256", (string) $encoded), 0, 12);
   }
 
   /**
@@ -728,7 +996,11 @@ class Moelog_AIQnA_Cache
   {
     $basename = basename($file);
     if (
-      preg_match('/^(\d+)-([a-f0-9]{16})\.html$/', $basename, $matches) === 1
+      preg_match(
+        '/^(\d+)-([a-f0-9]{16})(?:-[a-f0-9]{12})?\.html$/',
+        $basename,
+        $matches
+      ) === 1
     ) {
       $post_id = absint($matches[1]);
       $hash = $matches[2];

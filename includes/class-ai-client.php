@@ -19,6 +19,7 @@ if (!defined("ABSPATH")) {
 
 class Moelog_AIQnA_AI_Client
 {
+  const ANSWER_SCHEMA_VERSION = "2";
   /**
    * 預設模型
    */
@@ -31,6 +32,9 @@ class Moelog_AIQnA_AI_Client
    * @var string|null
    */
   private $api_key_cache = null;
+
+  /** @var array|null */
+  private $last_provider_result = null;
 
   /**
    * API 請求超時時間(秒)
@@ -79,11 +83,19 @@ class Moelog_AIQnA_AI_Client
     // 檢查 API Key
     $api_key = $this->get_api_key(); // ← 移除參數
     if (empty($api_key)) {
-      return __("尚未設定 API Key。", "moelog-ai-qna");
+      return $this->remember_result(
+        Moelog_AIQnA_Provider_Result::error(
+          "api_key_missing",
+          __("尚未設定 API Key。", "moelog-ai-qna"),
+          500,
+          false
+        )
+      );
     }
 
-    // 生成快取鍵值
-    $cache_key = $this->generate_cache_key($params, Moelog_AIQnA_Settings::get());
+    $settings = Moelog_AIQnA_Settings::get();
+    $api_params = $this->prepare_api_params($params, $settings);
+    $cache_key = $this->generate_cache_key($params, $settings, $api_params);
 
     // 檢查快取
     $cached = Moelog_AIQnA_Cache::get_transient($cache_key);
@@ -92,24 +104,68 @@ class Moelog_AIQnA_AI_Client
         "Cache hit for question: %s",
         substr($params["question"], 0, 50)
       );
-      return $cached;
+      return $this->remember_result(
+        Moelog_AIQnA_Provider_Result::success($cached)
+      );
     }
 
-    // 準備 API 請求參數
-    $api_params = $this->prepare_api_params($params, Moelog_AIQnA_Settings::get());
-
-    // 呼叫對應的 API
-    $answer = $this->call_api($provider, $api_params);
-
-    // 清理引用格式
-    $answer = $this->sanitize_citations($answer);
-
-    // 儲存快取
-    if ($answer && !$this->is_error_message($answer)) {
-      Moelog_AIQnA_Cache::set_transient($cache_key, $answer, self::CACHE_TTL);
+    if (!Moelog_AIQnA_AI_Guard::acquire_generation_lock($cache_key)) {
+      return $this->remember_result(
+        Moelog_AIQnA_Provider_Result::error(
+          "generation_in_progress",
+          __("此答案正在產生中,請稍後再試。", "moelog-ai-qna"),
+          503,
+          true,
+          ["retry_after" => Moelog_AIQnA_AI_Guard::LOCK_TTL]
+        )
+      );
     }
 
-    return $answer;
+    try {
+      $cached = Moelog_AIQnA_Cache::get_transient($cache_key);
+      if ($cached !== false) {
+        return $this->remember_result(
+          Moelog_AIQnA_Provider_Result::success($cached)
+        );
+      }
+      if (!Moelog_AIQnA_AI_Guard::consume_generation_budget()) {
+        return $this->remember_result(
+          Moelog_AIQnA_Provider_Result::error(
+            "generation_budget_exhausted",
+            __("AI 產生額度已達上限,請稍後再試。", "moelog-ai-qna"),
+            503,
+            true,
+            ["retry_after" => HOUR_IN_SECONDS]
+          )
+        );
+      }
+
+      $result = $this->call_api($provider, $api_params);
+      if ($result["ok"] === true) {
+        $result["text"] = $this->sanitize_citations($result["text"]);
+        if ($result["text"] === "") {
+          $result = Moelog_AIQnA_Provider_Result::error(
+            "sanitized_response_empty",
+            __("AI 服務回傳異常,請稍後再試。", "moelog-ai-qna"),
+            502,
+            false,
+            [
+              "usage" => $result["usage"],
+              "provider_request_id" => $result["provider_request_id"],
+            ]
+          );
+        } else {
+          Moelog_AIQnA_Cache::set_transient(
+            $cache_key,
+            $result["text"],
+            self::CACHE_TTL
+          );
+        }
+      }
+      return $this->remember_result($result);
+    } finally {
+      Moelog_AIQnA_AI_Guard::release_generation_lock($cache_key);
+    }
   }
 
   // =========================================
@@ -120,7 +176,7 @@ class Moelog_AIQnA_AI_Client
    * 呼叫 OpenAI API
    *
    * @param array $params API 參數
-   * @return string
+   * @return array Structured provider result.
    */
   private function call_openai($params)
   {
@@ -129,6 +185,7 @@ class Moelog_AIQnA_AI_Client
     $body = [
       "model" => $params["model"],
       "temperature" => $params["temperature"],
+      "max_tokens" => isset($params["max_tokens"]) ? (int) $params["max_tokens"] : 2048,
       "messages" => [
         [
           "role" => "system",
@@ -165,7 +222,13 @@ class Moelog_AIQnA_AI_Client
         "OpenAI HTTP Error",
         $response
       );
-      return __("呼叫 OpenAI 失敗,請稍後再試。", "moelog-ai-qna");
+      return Moelog_AIQnA_Provider_Result::error(
+        "openai_transport_error",
+        __("呼叫 OpenAI 失敗,請稍後再試。", "moelog-ai-qna"),
+        0,
+        true,
+        ["retry_after" => 60]
+      );
     }
 
     $code = wp_remote_retrieve_response_code($response);
@@ -181,12 +244,28 @@ class Moelog_AIQnA_AI_Client
     if ($code >= 200 && $code < 300) {
       $content = $json["choices"][0]["message"]["content"] ?? "";
       if ($content !== "") {
-        return trim((string) $content);
+        return Moelog_AIQnA_Provider_Result::success(
+          $content,
+          $this->get_response_metadata($response, $json["usage"] ?? [])
+        );
       }
+      return Moelog_AIQnA_Provider_Result::error(
+        "openai_empty_response",
+        __("AI 服務回傳異常,請稍後再試。", "moelog-ai-qna"),
+        $code,
+        false,
+        $this->get_response_metadata($response)
+      );
     }
 
     // 處理錯誤
-    return $this->handle_openai_error($code, $json);
+    return Moelog_AIQnA_Provider_Result::error(
+      "openai_http_" . (int) $code,
+      $this->handle_openai_error($code, $json),
+      $code,
+      $code === 429 || $code >= 500,
+      $this->get_response_metadata($response, [], $code === 429 ? 60 : 0)
+    );
   }
 
   /**
@@ -243,7 +322,7 @@ class Moelog_AIQnA_AI_Client
    * 呼叫 Google Gemini API
    *
    * @param array $params API 參數
-   * @return string
+   * @return array Structured provider result.
    */
   private function call_gemini($params)
   {
@@ -268,6 +347,9 @@ class Moelog_AIQnA_AI_Client
       ],
       "generationConfig" => [
         "temperature" => $params["temperature"],
+        "maxOutputTokens" => isset($params["max_tokens"])
+          ? (int) $params["max_tokens"]
+          : 2048,
       ],
     ];
 
@@ -289,7 +371,13 @@ class Moelog_AIQnA_AI_Client
         "Gemini HTTP Error",
         $response
       );
-      return __("呼叫 Google Gemini 失敗,請稍後再試。", "moelog-ai-qna");
+      return Moelog_AIQnA_Provider_Result::error(
+        "gemini_transport_error",
+        __("呼叫 Google Gemini 失敗,請稍後再試。", "moelog-ai-qna"),
+        0,
+        true,
+        ["retry_after" => 60]
+      );
     }
 
     $code = wp_remote_retrieve_response_code($response);
@@ -305,12 +393,31 @@ class Moelog_AIQnA_AI_Client
     if ($code >= 200 && $code < 300) {
       $content = $json["candidates"][0]["content"]["parts"][0]["text"] ?? "";
       if ($content !== "") {
-        return trim((string) $content);
+        return Moelog_AIQnA_Provider_Result::success(
+          $content,
+          $this->get_response_metadata(
+            $response,
+            $json["usageMetadata"] ?? []
+          )
+        );
       }
+      return Moelog_AIQnA_Provider_Result::error(
+        "gemini_empty_response",
+        __("AI 服務回傳異常,請稍後再試。", "moelog-ai-qna"),
+        $code,
+        false,
+        $this->get_response_metadata($response)
+      );
     }
 
     // 處理錯誤
-    return $this->handle_gemini_error($code, $json);
+    return Moelog_AIQnA_Provider_Result::error(
+      "gemini_http_" . (int) $code,
+      $this->handle_gemini_error($code, $json),
+      $code,
+      $code === 429 || $code >= 500,
+      $this->get_response_metadata($response, [], $code === 429 ? 60 : 0)
+    );
   }
 
   /**
@@ -373,7 +480,7 @@ class Moelog_AIQnA_AI_Client
    * 呼叫 Anthropic Claude API
    *
    * @param array $params API 參數
-   * @return string
+   * @return array Structured provider result.
    */
   private function call_anthropic($params)
   {
@@ -396,11 +503,21 @@ class Moelog_AIQnA_AI_Client
     $user_text = $params["user_prompt"] ?? "";
 
     if (empty($api_key)) {
-      return __("尚未設定 Anthropic API Key。", "moelog-ai-qna");
+      return Moelog_AIQnA_Provider_Result::error(
+        "anthropic_api_key_missing",
+        __("尚未設定 Anthropic API Key。", "moelog-ai-qna"),
+        500,
+        false
+      );
     }
 
     if (empty($user_text)) {
-      return __("問題為空。", "moelog-ai-qna");
+      return Moelog_AIQnA_Provider_Result::error(
+        "anthropic_empty_question",
+        __("問題為空。", "moelog-ai-qna"),
+        400,
+        false
+      );
     }
 
     // ✅ 正確的 Anthropic API 格式
@@ -440,7 +557,13 @@ class Moelog_AIQnA_AI_Client
         "Anthropic HTTP Error",
         $response
       );
-      return __("無法連線到 Anthropic 服務。", "moelog-ai-qna");
+      return Moelog_AIQnA_Provider_Result::error(
+        "anthropic_transport_error",
+        __("無法連線到 Anthropic 服務。", "moelog-ai-qna"),
+        0,
+        true,
+        ["retry_after" => 60]
+      );
     }
 
     $code = wp_remote_retrieve_response_code($response);
@@ -466,12 +589,28 @@ class Moelog_AIQnA_AI_Client
       }
 
       if (!empty($text)) {
-        return trim((string) $text);
+        return Moelog_AIQnA_Provider_Result::success(
+          $text,
+          $this->get_response_metadata($response, $json["usage"] ?? [])
+        );
       }
+      return Moelog_AIQnA_Provider_Result::error(
+        "anthropic_empty_response",
+        __("AI 服務回傳異常,請稍後再試。", "moelog-ai-qna"),
+        $code,
+        false,
+        $this->get_response_metadata($response)
+      );
     }
 
     // 錯誤情況
-    return $this->handle_anthropic_error($code, $json);
+    return Moelog_AIQnA_Provider_Result::error(
+      "anthropic_http_" . (int) $code,
+      $this->handle_anthropic_error($code, $json),
+      $code,
+      $code === 429 || $code >= 500,
+      $this->get_response_metadata($response, [], $code === 429 ? 60 : 0)
+    );
   }
 
   /**
@@ -554,7 +693,7 @@ class Moelog_AIQnA_AI_Client
    *
    * @param string $provider 供應商 (openai|gemini)
    * @param array  $params   API 參數
-   * @return string
+   * @return array Structured provider result.
    */
   private function call_api($provider, $params)
   {
@@ -618,22 +757,75 @@ class Moelog_AIQnA_AI_Client
 
     switch ($provider) {
       case "gemini":
-        return $this->call_gemini($params);
+        $result = $this->call_gemini($params);
+        break;
 
       case "anthropic":
-        return $this->call_anthropic($params);
+        $result = $this->call_anthropic($params);
+        break;
 
       case "openai":
       default:
-        return $this->call_openai($params);
+        $result = $this->call_openai($params);
+        break;
     }
+
+    return $this->normalize_provider_result($result, $provider);
   }
 
   /**
-   * HTTP 請求(含重試機制)
+   * Normalize a legacy provider adapter into the structured result contract.
    *
-   * @param string $url  請求 URL
-   * @param array  $args 請求參數
+   * @param mixed  $result   Provider adapter result.
+   * @param string $provider Provider identifier.
+   * @return array Structured provider result.
+   */
+  private function normalize_provider_result($result, $provider)
+  {
+    if (Moelog_AIQnA_Provider_Result::is_valid($result)) {
+      return $result;
+    }
+
+    $text = is_scalar($result) ? trim((string) $result) : "";
+    if ($text !== "" && !$this->is_error_message($text)) {
+      return Moelog_AIQnA_Provider_Result::success($text);
+    }
+
+    return Moelog_AIQnA_Provider_Result::error(
+      "legacy_" . sanitize_key($provider) . "_error",
+      $text !== ""
+        ? $text
+        : __("AI 服務回傳異常,請稍後再試。", "moelog-ai-qna"),
+      0,
+      false
+    );
+  }
+
+  private function get_response_metadata($response, $usage = [], $retry_after = 0)
+  {
+    $request_id = "";
+    if (function_exists("wp_remote_retrieve_header")) {
+      foreach (["request-id", "x-request-id"] as $header) {
+        $value = wp_remote_retrieve_header($response, $header);
+        if (is_scalar($value) && trim((string) $value) !== "") {
+          $request_id = trim((string) $value);
+          break;
+        }
+      }
+    }
+
+    return [
+      "usage" => is_array($usage) ? $usage : [],
+      "provider_request_id" => $request_id,
+      "retry_after" => max(0, (int) $retry_after),
+    ];
+  }
+
+  /**
+   * Execute an HTTP request with bounded retries.
+   *
+   * @param string $url  Request URL.
+   * @param array  $args Request arguments.
    * @return array|WP_Error
    */
   private function request_with_retry($url, $args)
@@ -723,6 +915,10 @@ class Moelog_AIQnA_AI_Client
       "temperature" => isset($settings["temperature"])
         ? floatval($settings["temperature"])
         : 0.3,
+      "max_tokens" => min(
+        8192,
+        max(256, isset($settings["max_tokens"]) ? (int) $settings["max_tokens"] : 2048)
+      ),
       "system_prompt" => $settings["system_prompt"] ?? "",
       "lang_hint" => $this->get_language_hint($params["lang"]),
       "user_prompt" => $this->build_user_prompt($params, $settings),
@@ -927,7 +1123,9 @@ class Moelog_AIQnA_AI_Client
       __("AI 服務回傳異常,請稍後再試。", "moelog-ai-qna"),
       __("呼叫 Google Gemini 失敗,請稍後再試。", "moelog-ai-qna"),
       __("服務暫時無法使用,請檢查 API Key。", "moelog-ai-qna"),
-      __("無法連線到 Anthropic 服務。", "moelog-ai-qna")
+      __("無法連線到 Anthropic 服務。", "moelog-ai-qna"),
+      __("此答案正在產生中,請稍後再試。", "moelog-ai-qna"),
+      __("AI 產生額度已達上限,請稍後再試。", "moelog-ai-qna")
     ];
 
     if (in_array($text, $known_errors, true)) {
@@ -957,6 +1155,81 @@ class Moelog_AIQnA_AI_Client
 
     return false;
   }
+
+  /**
+   * Return Retry-After seconds for temporary local capacity errors.
+   *
+   * @param string $text Error text returned by generate_answer().
+   * @return int Zero for errors that are not temporary capacity conditions.
+   */
+  public function get_temporary_error_retry_after($text)
+  {
+    $text = trim((string) $text);
+    if (
+      Moelog_AIQnA_Provider_Result::is_valid($this->last_provider_result) &&
+      $this->last_provider_result["ok"] === false &&
+      $this->last_provider_result["text"] === $text &&
+      $this->last_provider_result["retryable"] === true
+    ) {
+      $retry_after = (int) $this->last_provider_result["retry_after"];
+      return max(
+        1,
+        (int) apply_filters(
+          "moelog_aiqna_temporary_error_retry_after",
+          $retry_after > 0 ? $retry_after : 60,
+          $this->last_provider_result["error_code"],
+          $text
+        )
+      );
+    }
+
+    if ($text === __("此答案正在產生中,請稍後再試。", "moelog-ai-qna")) {
+      $retry_after = class_exists("Moelog_AIQnA_AI_Guard")
+        ? Moelog_AIQnA_AI_Guard::LOCK_TTL
+        : 180;
+      $reason = "generation_lock";
+    } elseif (
+      $text === __("AI 產生額度已達上限,請稍後再試。", "moelog-ai-qna")
+    ) {
+      $retry_after = HOUR_IN_SECONDS;
+      $reason = "generation_budget";
+    } else {
+      return 0;
+    }
+
+    return max(
+      1,
+      (int) apply_filters(
+        "moelog_aiqna_temporary_error_retry_after",
+        $retry_after,
+        $reason,
+        $text
+      )
+    );
+  }
+
+  public function get_last_provider_result()
+  {
+    return $this->last_provider_result;
+  }
+
+  public function is_last_result_error($text)
+  {
+    if (!Moelog_AIQnA_Provider_Result::is_valid($this->last_provider_result)) {
+      return null;
+    }
+    if ($this->last_provider_result["text"] !== trim((string) $text)) {
+      return null;
+    }
+    return $this->last_provider_result["ok"] === false;
+  }
+
+  private function remember_result($result)
+  {
+    $this->last_provider_result = $result;
+    return (string) $result["text"];
+  }
+
   /**
    * 檢查是否為本機 URL
    *
@@ -996,31 +1269,30 @@ class Moelog_AIQnA_AI_Client
    * @param array $settings 插件設定
    * @return string
    */
-  private function generate_cache_key($params, $settings = null)
+  private function generate_cache_key($params, $settings = null, $api_params = null)
   {
     if ($settings === null) {
       $settings = Moelog_AIQnA_Settings::get();
     }
-    $provider = $settings["provider"] ?? "openai";
-    $configured_model = isset($settings["model"])
-      ? trim((string) $settings["model"])
-      : "";
-    if ($configured_model === "") {
-      $configured_model = Moelog_AIQnA_Model_Registry::get_default_model($provider);
+    if ($api_params === null) {
+      $api_params = $this->prepare_api_params($params, $settings);
     }
-    $model = $configured_model;
+    unset($api_params["api_key"]);
+    $key_data = [
+      "schema" => self::ANSWER_SCHEMA_VERSION,
+      "post_id" => (int) $params["post_id"],
+      "question" => (string) $params["question"],
+      "lang" => (string) $params["lang"],
+      "context_hash" => hash("sha256", (string) ($params["context"] ?? "")),
+      "provider" => $settings["provider"] ?? "openai",
+      "request" => $api_params,
+      "salt" => apply_filters("moelog_aiqna_answer_cache_salt", "", $params, $settings),
+    ];
 
-    $context_hash = substr(hash("sha256", $params["context"] ?? ""), 0, 32);
-
-    $key_data = implode("|", [
-      $params["post_id"],
-      $params["question"],
-      $model,
-      $context_hash,
-      $params["lang"],
-    ]);
-
-    return "moe_aiqna_" . hash("sha256", $key_data);
+    return "moe_aiqna_" . hash(
+      "sha256",
+      (string) wp_json_encode($key_data)
+    );
   }
 
   /**
@@ -1143,13 +1415,16 @@ class Moelog_AIQnA_AI_Client
     ];
 
     // 呼叫 API
-    $answer = $this->call_api($provider, $test_params);
+    $result = $this->call_api($provider, $test_params);
 
     // 判斷結果
-    if ($this->is_error_message($answer)) {
+    if ($result["ok"] !== true) {
       return [
         "success" => false,
-        "message" => $answer,
+        "message" => $result["text"],
+        "error_code" => $result["error_code"],
+        "http_status" => $result["http_status"],
+        "retryable" => $result["retryable"],
       ];
     }
 
@@ -1157,7 +1432,9 @@ class Moelog_AIQnA_AI_Client
       "success" => true,
       "message" => __("連線測試成功!", "moelog-ai-qna"),
       "data" => [
-        "response" => $answer,
+        "response" => $result["text"],
+        "usage" => $result["usage"],
+        "provider_request_id" => $result["provider_request_id"],
       ],
     ];
   }

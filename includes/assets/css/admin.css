@@ -448,3 +448,21 @@ body.settings_page_moelog_aiqna .wrap {
 		max-width: 100%;
 	}
 }
+
+/* AI 產生額度：標籤佔固定 3em，輸入框扣掉標籤寬度，右緣與其他欄位（80% / 560px）對齊 */
+.settings_page_moelog_aiqna .moelog-aiqna-limit-label {
+	display: inline-block;
+	width: 3em;
+}
+
+.settings_page_moelog_aiqna input[type="number"].moelog-aiqna-limit-input {
+	width: calc(80% - 3em);
+	max-width: calc(560px - 3em);
+}
+
+@media screen and (max-width: 782px) {
+	.settings_page_moelog_aiqna input[type="number"].moelog-aiqna-limit-input {
+		width: calc(100% - 3em);
+		max-width: calc(100% - 3em);
+	}
+}

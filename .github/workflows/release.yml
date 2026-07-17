@@ -1,0 +1,51 @@
+name: Draft release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  gate-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          coverage: none
+      - name: Verify tag and repository versions
+        env:
+          MOELOG_RELEASE_TAG: ${{ github.ref_name }}
+        run: php tests/unit/version-consistency-test.php
+      - name: Run standalone contracts
+        run: for test in tests/unit/*.php; do php "$test"; done
+      - name: Build release ZIP
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          VERSION="${VERSION#v}"
+          ROOT="dist/moelog-ai-qna-links"
+          mkdir -p "$ROOT"
+          rsync -a ./ "$ROOT/" \
+            --exclude '.git/' --exclude '.github/' --exclude '.agent/' \
+            --exclude '.agents/' --exclude '.claude/' --exclude 'dist/' \
+            --exclude 'docs/' --exclude 'plan/' --exclude 'tests/' \
+            --exclude 'node_modules/' --exclude 'package.json' \
+            --exclude 'package-lock.json' --exclude '.wp-env.json' \
+            --exclude 'phpunit.integration.xml.dist' --exclude '.gitignore' \
+            --exclude 'convert_po_to_mo.py' --exclude 'composer.json' \
+            --exclude 'composer.lock'
+          cd dist
+          zip -qr "moelog-ai-qna-links-${VERSION}.zip" moelog-ai-qna-links
+      - name: Create draft GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG#v}"
+          gh release create "$TAG" \
+            "dist/moelog-ai-qna-links-${VERSION}.zip" \
+            --draft --verify-tag --title "$TAG" --generate-notes
