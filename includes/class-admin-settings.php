@@ -619,7 +619,7 @@ class Moelog_AIQnA_Admin_Settings
   public function render_generation_limits_field()
   {
     printf(
-      '<p style="margin:0 0 6px;"><label>%s <input type="number" name="%s[ai_daily_limit]" value="%d" min="0" max="10000" class="small-text"></label></p>' .
+      '<p style="margin:0 0 14px;"><label>%s <input type="number" name="%s[ai_daily_limit]" value="%d" min="0" max="10000" class="small-text"></label></p>' .
         '<p style="margin:0;"><label>%s <input type="number" name="%s[ai_monthly_limit]" value="%d" min="0" max="100000" class="small-text"></label></p>',
       esc_html__("每日", "moelog-ai-qna"),
       esc_attr(MOELOG_AIQNA_OPT_KEY),
