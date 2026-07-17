@@ -16,15 +16,16 @@ if (!defined("ABSPATH")) {
 class Moelog_AIQnA_Router
 {
     /**
-     * URL 路徑基礎
-     */
-    const PRETTY_BASE = MOELOG_AIQNA_PRETTY_BASE; // 'qna'
-
-    /**
      * HMAC 秘鑰
      * @var string
      */
     private $secret;
+
+    /**
+     * Request-scoped route base resolved from current settings.
+     * @var string
+     */
+    private $pretty_base;
 
     /**
      * 建構函數
@@ -34,6 +35,20 @@ class Moelog_AIQnA_Router
     public function __construct($secret)
     {
         $this->secret = (string) $secret;
+        $this->pretty_base = function_exists("moelog_aiqna_get_pretty_base")
+            ? moelog_aiqna_get_pretty_base()
+            : (defined("MOELOG_AIQNA_PRETTY_BASE")
+                ? strtolower(
+                    preg_replace(
+                        '/[^a-z0-9-]/i',
+                        "",
+                        (string) MOELOG_AIQNA_PRETTY_BASE
+                    ) ?? ""
+                )
+                : "qna");
+        if ($this->pretty_base === "") {
+            $this->pretty_base = "qna";
+        }
     }
 
     // =========================================
@@ -75,7 +90,7 @@ class Moelog_AIQnA_Router
         // v1.5.x 標準格式: /qna/abc-123-456
         // abc = 簡短標識符, 123 = hash, 456 = post_id
         add_rewrite_rule(
-            "^" . self::PRETTY_BASE . '/([a-z0-9]+)-([a-f0-9]{3})-([0-9]+)/?$',
+            "^" . preg_quote($this->pretty_base, "/") . '/([a-z0-9]+)-([a-f0-9]{3})-([0-9]+)/?$',
             'index.php?moe_ai=1&v150_slug=$matches[1]&v150_hash=$matches[2]&post_id=$matches[3]',
             "top"
         );
@@ -96,7 +111,7 @@ class Moelog_AIQnA_Router
     public function build_url($post_id, $question)
     {
         $slug = $this->slugify_question($question, $post_id);
-        return user_trailingslashit(home_url(self::PRETTY_BASE . "/" . $slug));
+        return user_trailingslashit(home_url($this->pretty_base . "/" . $slug));
     }
 
     /**
@@ -444,7 +459,7 @@ class Moelog_AIQnA_Router
         $filtered = [];
         foreach ($rules as $pattern => $destination) {
             if (
-                strpos($pattern, self::PRETTY_BASE) !== false ||
+                strpos($pattern, $this->pretty_base) !== false ||
                 strpos($pattern, "moe_ai") !== false ||
                 strpos($destination, "moe_ai") !== false
             ) {

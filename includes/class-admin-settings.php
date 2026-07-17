@@ -1219,14 +1219,6 @@ class Moelog_AIQnA_Admin_Settings
       $output["static_dir"] = $static_dir;
     }
 
-    // 儲存同時就把新目錄與保護檔建好（掛在 wp-content）
-    if (
-      class_exists("Moelog_AIQnA_Cache") &&
-      method_exists("Moelog_AIQnA_Cache", "prepare_static_root")
-    ) {
-      Moelog_AIQnA_Cache::prepare_static_root();
-    }
-
     // =========================================
     // 13. STM (Structured Data Mode) - 獨立 option
     // =========================================

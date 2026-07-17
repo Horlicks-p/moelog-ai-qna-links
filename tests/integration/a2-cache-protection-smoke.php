@@ -61,7 +61,9 @@ try {
         }
 
         $path = Moelog_AIQnA_Cache::get_static_path($post_id, $question);
-        $url = content_url(MOELOG_AIQNA_STATIC_DIR . "/" . basename($path));
+        $url = content_url(
+            Moelog_AIQnA_Cache::get_static_dir_name() . "/" . basename($path)
+        );
         $response = wp_remote_get($url, [
             "timeout" => 15,
             "redirection" => 0,

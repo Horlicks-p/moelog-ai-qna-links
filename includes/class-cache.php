@@ -18,11 +18,6 @@ if (!defined("ABSPATH")) {
 class Moelog_AIQnA_Cache
 {
   /**
-   * 靜態檔案目錄名稱
-   */
-  const STATIC_DIR = MOELOG_AIQNA_STATIC_DIR; // 'ai-answers'
-
-  /**
    * 快取有效期(秒)
    */
   //const TTL = MOELOG_AIQNA_CACHE_TTL; // 86400 (24小時)
@@ -54,8 +49,49 @@ class Moelog_AIQnA_Cache
   private static function init()
   {
     if (!isset(self::$static_dir_path)) {
-      self::$static_dir_path = WP_CONTENT_DIR . "/" . self::STATIC_DIR;
+      $directory = function_exists("moelog_aiqna_get_static_dir")
+        ? moelog_aiqna_get_static_dir()
+        : (defined("MOELOG_AIQNA_STATIC_DIR")
+          ? strtolower(
+            preg_replace(
+              '/[^a-z0-9-]/i',
+              "",
+              (string) MOELOG_AIQNA_STATIC_DIR
+            ) ?? ""
+          )
+          : "ai-answers");
+      self::$static_dir_path = WP_CONTENT_DIR . "/" . ($directory ?: "ai-answers");
     }
+  }
+
+  /**
+   * Reset request-local path/TTL state after settings change.
+   */
+  public static function reset_runtime_config()
+  {
+    self::$static_dir_path = null;
+  }
+
+  /**
+   * Return the active cache directory name.
+   *
+   * @return string
+   */
+  public static function get_static_dir_name()
+  {
+    self::init();
+    return basename(self::$static_dir_path);
+  }
+
+  /**
+   * Return the active absolute cache directory path.
+   *
+   * @return string
+   */
+  public static function get_static_dir_path()
+  {
+    self::init();
+    return self::$static_dir_path;
   }
 
   // =========================================

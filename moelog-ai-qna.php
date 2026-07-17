@@ -58,10 +58,14 @@ function moelog_aiqna_get_pretty_base($reset = false)
         return $cached;
     }
 
-    // 允許透過常數覆蓋（用於多站點或特殊情況）
+    // 保留舊版 wp-config.php 常數，並支援新名稱作為最高優先覆蓋。
+    if (defined('MOELOG_AIQNA_PRETTY_BASE')) {
+        $cached = sanitize_title((string) MOELOG_AIQNA_PRETTY_BASE);
+        return $cached ?: "qna";
+    }
     if (defined('MOELOG_AIQNA_CUSTOM_PRETTY_BASE')) {
-        $cached = MOELOG_AIQNA_CUSTOM_PRETTY_BASE;
-        return $cached;
+        $cached = sanitize_title((string) MOELOG_AIQNA_CUSTOM_PRETTY_BASE);
+        return $cached ?: "qna";
     }
 
     $settings = get_option(MOELOG_AIQNA_OPT_KEY, []);
@@ -93,10 +97,14 @@ function moelog_aiqna_get_static_dir($reset = false)
         return $cached;
     }
 
-    // 允許透過常數覆蓋（用於多站點或特殊情況）
+    // 保留舊版 wp-config.php 常數，並支援新名稱作為最高優先覆蓋。
+    if (defined('MOELOG_AIQNA_STATIC_DIR')) {
+        $cached = sanitize_file_name((string) MOELOG_AIQNA_STATIC_DIR);
+        return $cached ?: "ai-answers";
+    }
     if (defined('MOELOG_AIQNA_CUSTOM_STATIC_DIR')) {
-        $cached = MOELOG_AIQNA_CUSTOM_STATIC_DIR;
-        return $cached;
+        $cached = sanitize_file_name((string) MOELOG_AIQNA_CUSTOM_STATIC_DIR);
+        return $cached ?: "ai-answers";
     }
 
     $settings = get_option(MOELOG_AIQNA_OPT_KEY, []);
@@ -116,25 +124,6 @@ function moelog_aiqna_clear_route_cache()
 {
     moelog_aiqna_get_pretty_base(true);
     moelog_aiqna_get_static_dir(true);
-}
-
-// ✅ 優化: 延遲定義常數，在 plugins_loaded 時再定義
-// 這樣可以確保在多站點環境中正確讀取設定
-add_action('plugins_loaded', function() {
-    if (!defined("MOELOG_AIQNA_PRETTY_BASE")) {
-        define("MOELOG_AIQNA_PRETTY_BASE", moelog_aiqna_get_pretty_base());
-    }
-    if (!defined("MOELOG_AIQNA_STATIC_DIR")) {
-        define("MOELOG_AIQNA_STATIC_DIR", moelog_aiqna_get_static_dir());
-    }
-}, 1); // 優先級 1，確保在其他 plugins_loaded 之前執行
-
-// 提供臨時常數（在 plugins_loaded 之前可能需要）
-if (!defined("MOELOG_AIQNA_PRETTY_BASE")) {
-    define("MOELOG_AIQNA_PRETTY_BASE", "qna");
-}
-if (!defined("MOELOG_AIQNA_STATIC_DIR")) {
-    define("MOELOG_AIQNA_STATIC_DIR", "ai-answers");
 }
 
 // AI 預設模型
@@ -263,6 +252,34 @@ function moelog_aiqna_maybe_upgrade_cache_protection()
     }
 }
 add_action("plugins_loaded", "moelog_aiqna_maybe_upgrade_cache_protection", 7);
+
+/**
+ * Refresh runtime path configuration after Settings API persists changes.
+ */
+function moelog_aiqna_after_settings_change()
+{
+    if (class_exists("Moelog_AIQnA_Settings")) {
+        Moelog_AIQnA_Settings::clear_cache();
+    }
+    moelog_aiqna_clear_route_cache();
+
+    if (class_exists("Moelog_AIQnA_Cache")) {
+        Moelog_AIQnA_Cache::reset_runtime_config();
+        Moelog_AIQnA_Cache::prepare_static_root();
+    }
+}
+add_action(
+    "update_option_" . MOELOG_AIQNA_OPT_KEY,
+    "moelog_aiqna_after_settings_change",
+    10,
+    0
+);
+add_action(
+    "add_option_" . MOELOG_AIQNA_OPT_KEY,
+    "moelog_aiqna_after_settings_change",
+    10,
+    0
+);
 
 function moelog_aiqna_check_upgrade()
 {
@@ -396,6 +413,8 @@ function moelog_aiqna_deactivate()
 register_uninstall_hook(__FILE__, "moelog_aiqna_uninstall");
 function moelog_aiqna_uninstall()
 {
+    $static_dir = WP_CONTENT_DIR . "/" . moelog_aiqna_get_static_dir();
+
     // 刪除設定
     delete_option(MOELOG_AIQNA_OPT_KEY);
     delete_option(MOELOG_AIQNA_SECRET_KEY);
@@ -421,7 +440,6 @@ function moelog_aiqna_uninstall()
     );
 
     // 刪除靜態檔案目錄(可選)
-    $static_dir = WP_CONTENT_DIR . "/" . MOELOG_AIQNA_STATIC_DIR;
     if (file_exists($static_dir)) {
         $files = glob($static_dir . "/*.html");
         foreach ($files as $file) {
@@ -578,7 +596,7 @@ if (defined("WP_DEBUG") && WP_DEBUG) {
             return;
         }
 
-        $cache_dir = WP_CONTENT_DIR . "/" . MOELOG_AIQNA_STATIC_DIR;
+        $cache_dir = Moelog_AIQnA_Cache::get_static_dir_path();
         $cache_count = 0;
         if (file_exists($cache_dir)) {
             $cache_count = count(glob($cache_dir . "/*.html"));
