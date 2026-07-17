@@ -2,7 +2,7 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Moelog AI Q&A Links 2.0.6\n"
+"Project-Id-Version: Moelog AI Q&A Links 2.0.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/moelog-ai-qna-links\n"
 "Last-Translator: Horlicks <contact@moelog.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"

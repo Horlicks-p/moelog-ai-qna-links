@@ -1,8 +1,8 @@
 # Copyright (C) 2025 Horlicks (moelog.com)
 # This file is distributed under the GPL v2 or later.
 msgid ""
-msgstr "Project-Id-Version: Moelog AI Q&A Links 2.0.6\nReport-Msgid-Bugs-To: https://wordpress.org/support/plugin/moelog-ai-qna-links\nLast-Translator: Horlicks <contact@moelog.com>\nLanguage-Team: Traditional Chinese <zh_TW@li.org>\nLanguage: zh_TW\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPOT-Creation-Date: 2025-11-27T20:00:00+08:00\nPO-Revision-Date: 2025-11-27T20:00:00+08:00\nX-Generator: Cursor IDE\nX-Domain: moelog-ai-qna\nPlural-Forms: nplurals=1; plural=0;\n"
-"Project-Id-Version: Moelog AI Q&A Links 2.0.6\n"
+msgstr "Project-Id-Version: Moelog AI Q&A Links 2.0.7\nReport-Msgid-Bugs-To: https://wordpress.org/support/plugin/moelog-ai-qna-links\nLast-Translator: Horlicks <contact@moelog.com>\nLanguage-Team: Traditional Chinese <zh_TW@li.org>\nLanguage: zh_TW\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPOT-Creation-Date: 2025-11-27T20:00:00+08:00\nPO-Revision-Date: 2025-11-27T20:00:00+08:00\nX-Generator: Cursor IDE\nX-Domain: moelog-ai-qna\nPlural-Forms: nplurals=1; plural=0;\n"
+"Project-Id-Version: Moelog AI Q&A Links 2.0.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/moelog-ai-qna-links\n"
 "Last-Translator: Horlicks <contact@moelog.com>\n"
 "Language-Team: Traditional Chinese <zh_TW@li.org>\n"
