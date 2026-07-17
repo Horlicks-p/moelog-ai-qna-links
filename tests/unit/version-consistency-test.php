@@ -16,6 +16,10 @@ $github_readme = file_get_contents($root . "/README.md");
 $checks = [
     "plugin header" => preg_match('/^\s*\* Version:\s*' . preg_quote($expected, '/') . '\s*$/m', $main),
     "runtime constant" => strpos($main, 'define("MOELOG_AIQNA_VERSION", "' . $expected . '")') !== false,
+    "official update URI" => preg_match(
+        '#^\s*\* Update URI:\s*https://github\.com/Horlicks-p/moelog-ai-qna-links/\s*$#m',
+        $main
+    ),
     "main footer" => strpos($main, "EOF - Moelog AI Q&A v" . $expected) !== false,
     "WordPress stable tag" => preg_match('/^Stable tag:\s*' . preg_quote($expected, '/') . '\s*$/m', $readme),
     "README stable tag" => preg_match('/^Stable tag:\s*' . preg_quote($expected, '/') . '\s*$/m', $github_readme),
@@ -43,4 +47,4 @@ if ($failures) {
     exit(1);
 }
 
-fwrite(STDOUT, "Version consistency tests passed (11 assertions).\n");
+fwrite(STDOUT, "Version consistency tests passed (12 assertions).\n");
