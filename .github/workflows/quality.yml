@@ -39,6 +39,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Install PHP test dependencies
+        run: composer install --no-interaction --no-progress
       - name: Start WordPress test environment
         run: npm run env:start
       - name: Run WordPress integration tests

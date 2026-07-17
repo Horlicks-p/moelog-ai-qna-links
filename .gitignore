@@ -4,3 +4,5 @@ node_modules/
 .wp-env/
 .phpunit.result.cache
 dist/
+tests/vendor/
+composer.lock

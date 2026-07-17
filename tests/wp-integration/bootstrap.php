@@ -7,6 +7,18 @@ if (!$_tests_dir) {
     exit(1);
 }
 
+// WP 核心測試套件要求 PHPUnit Polyfills；由 composer 安裝到 tests/vendor。
+$_polyfills = dirname(__DIR__) .
+    "/vendor/yoast/phpunit-polyfills/phpunitpolyfills-autoload.php";
+if (!is_file($_polyfills)) {
+    fwrite(
+        STDERR,
+        "PHPUnit Polyfills missing. Run `composer install` in the plugin root first.\n"
+    );
+    exit(1);
+}
+require_once $_polyfills;
+
 require_once rtrim($_tests_dir, "/\\") . "/includes/functions.php";
 
 tests_add_filter("muplugins_loaded", function () {

@@ -1,0 +1,11 @@
+{
+    "name": "horlicks-p/moelog-ai-qna-links",
+    "description": "Development-only dependencies for the WordPress integration test suite.",
+    "license": "GPL-2.0-or-later",
+    "require-dev": {
+        "yoast/phpunit-polyfills": "^4.0"
+    },
+    "config": {
+        "vendor-dir": "tests/vendor"
+    }
+}

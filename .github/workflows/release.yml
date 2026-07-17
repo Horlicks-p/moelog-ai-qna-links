@@ -36,7 +36,8 @@ jobs:
             --exclude 'node_modules/' --exclude 'package.json' \
             --exclude 'package-lock.json' --exclude '.wp-env.json' \
             --exclude 'phpunit.integration.xml.dist' --exclude '.gitignore' \
-            --exclude 'convert_po_to_mo.py'
+            --exclude 'convert_po_to_mo.py' --exclude 'composer.json' \
+            --exclude 'composer.lock'
           cd dist
           zip -qr "moelog-ai-qna-links-${VERSION}.zip" moelog-ai-qna-links
       - name: Create draft GitHub release
