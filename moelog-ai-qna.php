@@ -31,7 +31,7 @@ define("MOELOG_AIQNA_OPT_KEY", "moelog_aiqna_settings");
 define("MOELOG_AIQNA_SECRET_KEY", "moelog_aiqna_secret");
 define("MOELOG_AIQNA_META_KEY", "_moelog_aiqna_questions");
 define("MOELOG_AIQNA_META_LANG_KEY", "_moelog_aiqna_questions_lang");
-define("MOELOG_AIQNA_CACHE_PROTECTION_VERSION", "2");
+define("MOELOG_AIQNA_CACHE_PROTECTION_VERSION", "3");
 
 // =========================================
 // 路由與快取 - ✅ 優化: 使用延遲載入避免過早讀取資料庫

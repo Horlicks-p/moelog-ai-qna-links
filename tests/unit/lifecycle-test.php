@@ -56,8 +56,10 @@ $guarded_dir = $test_root . "/guarded-cache";
 mkdir($clean_dir);
 mkdir($guarded_dir);
 file_put_contents($clean_dir . "/42-0123456789abcdef.html", "encrypted");
+file_put_contents($clean_dir . "/42-0123456789abcdef-0123456789ab.html", "encrypted");
 file_put_contents($clean_dir . "/index.html", "");
 file_put_contents($clean_dir . "/.htaccess", "deny");
+file_put_contents($clean_dir . "/.htaccess.tmp-deadbeef", "deny");
 file_put_contents($guarded_dir . "/42-0123456789abcdef.html", "encrypted");
 file_put_contents($guarded_dir . "/keep.txt", "owner data");
 
@@ -78,7 +80,7 @@ try {
         "guarded-cache",
         "../outside",
     ]);
-    $expect($removed === 4, "only known cache artifacts counted");
+    $expect($removed === 6, "only known cache artifacts counted");
     $expect(!is_dir($clean_dir), "empty cache directory removed");
     $expect(is_file($guarded_dir . "/keep.txt"), "unknown owner file preserved");
     $expect(is_dir($guarded_dir), "non-empty owner directory preserved");

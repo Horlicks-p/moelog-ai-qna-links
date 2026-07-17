@@ -19,6 +19,7 @@ if (!defined("ABSPATH")) {
 
 class Moelog_AIQnA_AI_Client
 {
+  const ANSWER_SCHEMA_VERSION = "2";
   /**
    * 預設模型
    */
@@ -82,8 +83,9 @@ class Moelog_AIQnA_AI_Client
       return __("尚未設定 API Key。", "moelog-ai-qna");
     }
 
-    // 生成快取鍵值
-    $cache_key = $this->generate_cache_key($params, Moelog_AIQnA_Settings::get());
+    $settings = Moelog_AIQnA_Settings::get();
+    $api_params = $this->prepare_api_params($params, $settings);
+    $cache_key = $this->generate_cache_key($params, $settings, $api_params);
 
     // 檢查快取
     $cached = Moelog_AIQnA_Cache::get_transient($cache_key);
@@ -95,21 +97,27 @@ class Moelog_AIQnA_AI_Client
       return $cached;
     }
 
-    // 準備 API 請求參數
-    $api_params = $this->prepare_api_params($params, Moelog_AIQnA_Settings::get());
-
-    // 呼叫對應的 API
-    $answer = $this->call_api($provider, $api_params);
-
-    // 清理引用格式
-    $answer = $this->sanitize_citations($answer);
-
-    // 儲存快取
-    if ($answer && !$this->is_error_message($answer)) {
-      Moelog_AIQnA_Cache::set_transient($cache_key, $answer, self::CACHE_TTL);
+    if (!Moelog_AIQnA_AI_Guard::acquire_generation_lock($cache_key)) {
+      return __("此答案正在產生中,請稍後再試。", "moelog-ai-qna");
     }
 
-    return $answer;
+    try {
+      $cached = Moelog_AIQnA_Cache::get_transient($cache_key);
+      if ($cached !== false) {
+        return $cached;
+      }
+      if (!Moelog_AIQnA_AI_Guard::consume_generation_budget()) {
+        return __("AI 產生額度已達上限,請稍後再試。", "moelog-ai-qna");
+      }
+
+      $answer = $this->sanitize_citations($this->call_api($provider, $api_params));
+      if ($answer && !$this->is_error_message($answer)) {
+        Moelog_AIQnA_Cache::set_transient($cache_key, $answer, self::CACHE_TTL);
+      }
+      return $answer;
+    } finally {
+      Moelog_AIQnA_AI_Guard::release_generation_lock($cache_key);
+    }
   }
 
   // =========================================
@@ -129,6 +137,7 @@ class Moelog_AIQnA_AI_Client
     $body = [
       "model" => $params["model"],
       "temperature" => $params["temperature"],
+      "max_tokens" => isset($params["max_tokens"]) ? (int) $params["max_tokens"] : 2048,
       "messages" => [
         [
           "role" => "system",
@@ -268,6 +277,9 @@ class Moelog_AIQnA_AI_Client
       ],
       "generationConfig" => [
         "temperature" => $params["temperature"],
+        "maxOutputTokens" => isset($params["max_tokens"])
+          ? (int) $params["max_tokens"]
+          : 2048,
       ],
     ];
 
@@ -723,6 +735,10 @@ class Moelog_AIQnA_AI_Client
       "temperature" => isset($settings["temperature"])
         ? floatval($settings["temperature"])
         : 0.3,
+      "max_tokens" => min(
+        8192,
+        max(256, isset($settings["max_tokens"]) ? (int) $settings["max_tokens"] : 2048)
+      ),
       "system_prompt" => $settings["system_prompt"] ?? "",
       "lang_hint" => $this->get_language_hint($params["lang"]),
       "user_prompt" => $this->build_user_prompt($params, $settings),
@@ -927,7 +943,9 @@ class Moelog_AIQnA_AI_Client
       __("AI 服務回傳異常,請稍後再試。", "moelog-ai-qna"),
       __("呼叫 Google Gemini 失敗,請稍後再試。", "moelog-ai-qna"),
       __("服務暫時無法使用,請檢查 API Key。", "moelog-ai-qna"),
-      __("無法連線到 Anthropic 服務。", "moelog-ai-qna")
+      __("無法連線到 Anthropic 服務。", "moelog-ai-qna"),
+      __("此答案正在產生中,請稍後再試。", "moelog-ai-qna"),
+      __("AI 產生額度已達上限,請稍後再試。", "moelog-ai-qna")
     ];
 
     if (in_array($text, $known_errors, true)) {
@@ -996,31 +1014,30 @@ class Moelog_AIQnA_AI_Client
    * @param array $settings 插件設定
    * @return string
    */
-  private function generate_cache_key($params, $settings = null)
+  private function generate_cache_key($params, $settings = null, $api_params = null)
   {
     if ($settings === null) {
       $settings = Moelog_AIQnA_Settings::get();
     }
-    $provider = $settings["provider"] ?? "openai";
-    $configured_model = isset($settings["model"])
-      ? trim((string) $settings["model"])
-      : "";
-    if ($configured_model === "") {
-      $configured_model = Moelog_AIQnA_Model_Registry::get_default_model($provider);
+    if ($api_params === null) {
+      $api_params = $this->prepare_api_params($params, $settings);
     }
-    $model = $configured_model;
+    unset($api_params["api_key"]);
+    $key_data = [
+      "schema" => self::ANSWER_SCHEMA_VERSION,
+      "post_id" => (int) $params["post_id"],
+      "question" => (string) $params["question"],
+      "lang" => (string) $params["lang"],
+      "context_hash" => hash("sha256", (string) ($params["context"] ?? "")),
+      "provider" => $settings["provider"] ?? "openai",
+      "request" => $api_params,
+      "salt" => apply_filters("moelog_aiqna_answer_cache_salt", "", $params, $settings),
+    ];
 
-    $context_hash = substr(hash("sha256", $params["context"] ?? ""), 0, 32);
-
-    $key_data = implode("|", [
-      $params["post_id"],
-      $params["question"],
-      $model,
-      $context_hash,
-      $params["lang"],
-    ]);
-
-    return "moe_aiqna_" . hash("sha256", $key_data);
+    return "moe_aiqna_" . hash(
+      "sha256",
+      (string) wp_json_encode($key_data)
+    );
   }
 
   /**

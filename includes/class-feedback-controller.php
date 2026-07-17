@@ -654,7 +654,7 @@ class Moelog_AIQnA_Feedback_Controller
 
             foreach ($post_ids as $post_id) {
                 // 檢查對應的靜態檔案是否存在
-                $pattern = $static_dir . "/" . $post_id . "-" . $hash . ".html";
+                $pattern = $static_dir . "/" . $post_id . "-" . $hash . "*.html";
                 $files = glob($pattern);
 
                 if (empty($files) || !file_exists($files[0])) {

@@ -119,6 +119,18 @@ try {
         fail_cache_protection("PHP could not decrypt protected cache");
     }
 
+    $question_hash = Moelog_AIQnA_Cache::generate_hash(123, $question);
+    $legacy_sibling = $cache_dir . "/123-" . $question_hash . ".html";
+    $old_page_sibling = $cache_dir . "/123-" . $question_hash . "-ffffffffffff.html";
+    file_put_contents($legacy_sibling, "obsolete");
+    file_put_contents($old_page_sibling, "obsolete");
+    if (!Moelog_AIQnA_Cache::save(123, $question, $html)) {
+        fail_cache_protection("replacement cache save failed");
+    }
+    if (file_exists($legacy_sibling) || file_exists($old_page_sibling)) {
+        fail_cache_protection("obsolete page fingerprint files were retained");
+    }
+
     file_put_contents($cache_file, $raw_payload . "tampered");
     if (Moelog_AIQnA_Cache::load(123, $question) !== false) {
         fail_cache_protection("tampered cache payload was accepted");
@@ -127,4 +139,4 @@ try {
     remove_test_tree($test_root);
 }
 
-fwrite(STDOUT, "Cache protection tests passed (11 assertions).\n");
+fwrite(STDOUT, "Cache protection tests passed (13 assertions).\n");

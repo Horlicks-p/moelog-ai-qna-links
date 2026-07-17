@@ -206,6 +206,20 @@ class Moelog_AIQnA_Cache
       return false;
     }
 
+    // A new page fingerprint supersedes older renderings of the same answer.
+    // Keep feedback metadata, but remove obsolete page files to avoid buildup.
+    $hash = self::generate_hash($post_id, $question);
+    $siblings = glob(
+      self::$static_dir_path . "/" . $post_id . "-" . $hash . "*.html"
+    );
+    if (is_array($siblings)) {
+      foreach ($siblings as $sibling) {
+        if ($sibling !== $path) {
+          self::delete_file($sibling);
+        }
+      }
+    }
+
     // 清除相關的快取標記
     $cache_key = "static_exists_" . md5($post_id . "|" . $question);
     wp_cache_delete($cache_key, "moelog_aiqna");
@@ -276,6 +290,10 @@ class Moelog_AIQnA_Cache
 
     $success = true;
     foreach ($files as $file) {
+      if (preg_match('/^[0-9]+-[a-f0-9]{16}\.html$/', basename($file)) === 1) {
+        @unlink($file);
+        continue;
+      }
       $payload = @file_get_contents($file);
       if ($payload === false) {
         $success = false;
@@ -417,9 +435,16 @@ class Moelog_AIQnA_Cache
 
     if ($question !== null) {
       // 刪除單一檔案
-      $path = self::get_static_path($post_id, $question);
-      $result = self::delete_file($path);
       $hash = self::generate_hash($post_id, $question);
+      $files = glob(
+        self::$static_dir_path . "/" . $post_id . "-" . $hash . "*.html"
+      );
+      $result = false;
+      if (is_array($files)) {
+        foreach ($files as $file) {
+          $result = self::delete_file($file) || $result;
+        }
+      }
       self::delete_feedback_stats($post_id, $hash);
       
       // 清除相關快取標記
@@ -716,7 +741,57 @@ class Moelog_AIQnA_Cache
     // 生成唯一檔名
     $hash = self::generate_hash($post_id, $question);
 
-    return self::$static_dir_path . "/" . $post_id . "-" . $hash . ".html";
+    return self::$static_dir_path . "/" . $post_id . "-" . $hash . "-" .
+      self::generate_page_fingerprint($post_id, $question) . ".html";
+  }
+
+  public static function generate_page_fingerprint($post_id, $question)
+  {
+    $settings = class_exists("Moelog_AIQnA_Settings")
+      ? Moelog_AIQnA_Settings::get()
+      : (function_exists("get_option") && defined("MOELOG_AIQNA_OPT_KEY")
+        ? get_option(MOELOG_AIQNA_OPT_KEY, []) : []);
+    $settings = is_array($settings) ? $settings : [];
+    ksort($settings);
+    $post = function_exists("get_post") ? get_post($post_id) : null;
+    $post_material = is_object($post)
+      ? (($post->post_title ?? "") . "|" . ($post->post_content ?? "")) : "";
+    $post_url = function_exists("get_permalink")
+      ? (string) get_permalink($post_id) : "";
+    $question_languages = (
+      function_exists("get_post_meta") && defined("MOELOG_AIQNA_META_LANG_KEY")
+    ) ? get_post_meta($post_id, MOELOG_AIQNA_META_LANG_KEY, true) : [];
+    $data = [
+      "schema" => "page-2",
+      "answer_schema" => class_exists("Moelog_AIQnA_AI_Client")
+        ? Moelog_AIQnA_AI_Client::ANSWER_SCHEMA_VERSION : "unknown",
+      "post_id" => (int) $post_id,
+      "question" => (string) $question,
+      "post_hash" => hash("sha256", $post_material . "|" . $post_url),
+      "question_languages" => is_array($question_languages)
+        ? $question_languages : [],
+      "settings" => $settings,
+      "geo" => function_exists("get_option")
+        ? (int) get_option("moelog_aiqna_geo_mode", 0) : 0,
+    ];
+    if (function_exists("apply_filters")) {
+      $data["answer_salt"] = apply_filters(
+        "moelog_aiqna_answer_cache_salt",
+        "",
+        [
+          "post_id" => (int) $post_id,
+          "question" => (string) $question,
+        ],
+        $settings
+      );
+      $data["salt"] = apply_filters(
+        "moelog_aiqna_page_cache_salt", "", $post_id, $question
+      );
+    }
+    $encoded = function_exists("wp_json_encode")
+      ? wp_json_encode($data)
+      : json_encode($data);
+    return substr(hash("sha256", (string) $encoded), 0, 12);
   }
 
   /**
@@ -921,7 +996,11 @@ class Moelog_AIQnA_Cache
   {
     $basename = basename($file);
     if (
-      preg_match('/^(\d+)-([a-f0-9]{16})\.html$/', $basename, $matches) === 1
+      preg_match(
+        '/^(\d+)-([a-f0-9]{16})(?:-[a-f0-9]{12})?\.html$/',
+        $basename,
+        $matches
+      ) === 1
     ) {
       $post_id = absint($matches[1]);
       $hash = $matches[2];

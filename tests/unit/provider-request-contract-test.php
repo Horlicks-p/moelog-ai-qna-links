@@ -93,7 +93,9 @@ function fail_provider_contract($message)
 function call_private_provider($client, $method_name, $params)
 {
     $method = new ReflectionMethod($client, $method_name);
-    $method->setAccessible(true);
+    if (PHP_VERSION_ID < 80100) {
+        $method->setAccessible(true);
+    }
     return $method->invoke($client, $params);
 }
 
@@ -109,6 +111,7 @@ function anthropic_params($model)
         "api_key" => "anthropic-secret",
         "model" => $model,
         "temperature" => 0.7,
+        "max_tokens" => 3072,
         "system_prompt" => "system",
         "lang_hint" => "English",
         "user_prompt" => "question",
@@ -121,6 +124,7 @@ call_private_provider($client, "call_gemini", [
     "api_key" => "gemini-secret",
     "model" => "gemini-2.5-flash",
     "temperature" => 0.3,
+    "max_tokens" => 3072,
     "system_prompt" => "system",
     "lang_hint" => "English",
     "user_prompt" => "question",
@@ -138,12 +142,33 @@ if (strpos($gemini["url"], "gemini-secret") !== false || strpos($gemini["url"], 
 if (($gemini["args"]["headers"]["x-goog-api-key"] ?? "") !== "gemini-secret") {
     fail_provider_contract("Gemini API key header missing");
 }
+$gemini_body = json_decode($gemini["args"]["body"], true);
+if (($gemini_body["generationConfig"]["maxOutputTokens"] ?? null) !== 3072) {
+    fail_provider_contract("Gemini max token setting was ignored");
+}
+
+call_private_provider($client, "call_openai", [
+    "api_key" => "openai-secret",
+    "model" => "gpt-4o-mini",
+    "temperature" => 0.3,
+    "max_tokens" => 3072,
+    "system_prompt" => "system",
+    "lang_hint" => "English",
+    "user_prompt" => "question",
+]);
+$openai_body = json_decode(last_request()["args"]["body"], true);
+if (($openai_body["max_tokens"] ?? null) !== 3072) {
+    fail_provider_contract("OpenAI max token setting was ignored");
+}
 
 foreach (["claude-opus-4-7", "claude-opus-4-8", "claude-sonnet-5", "future-custom-model"] as $model) {
     call_private_provider($client, "call_anthropic", anthropic_params($model));
     $body = json_decode(last_request()["args"]["body"], true);
     if (array_key_exists("temperature", $body)) {
         fail_provider_contract("Conservative Anthropic request included temperature for " . $model);
+    }
+    if (($body["max_tokens"] ?? null) !== 3072) {
+        fail_provider_contract("Anthropic max token setting was ignored for " . $model);
     }
 }
 
@@ -168,4 +193,4 @@ if (($filtered_body["temperature"] ?? null) !== 0.7) {
     fail_provider_contract("Site-tested exact model filter was ignored");
 }
 
-fwrite(STDOUT, "Provider request contract tests passed (10 assertions).\n");
+fwrite(STDOUT, "Provider request contract tests passed (15 assertions).\n");

@@ -87,6 +87,11 @@ class Moelog_AIQnA_Lifecycle
                 OR option_name LIKE '_transient_moelog_aiqna_%'
                 OR option_name LIKE '_transient_timeout_moelog_aiqna_%'"
         );
+        $wpdb->query(
+            "DELETE FROM {$wpdb->options}
+             WHERE option_name LIKE 'moelog_aiqna_lock_%'
+                OR option_name LIKE 'moelog_aiqna_usage_%'"
+        );
 
         foreach (
             [
@@ -133,8 +138,8 @@ class Moelog_AIQnA_Lifecycle
                     if (
                         is_file($file) &&
                         (
-                            preg_match('/^[0-9]+-[a-f0-9]{16}\.html$/', $basename) === 1 ||
-                            preg_match('/^[0-9]+-[a-f0-9]{16}\.html\.tmp-[a-z0-9]+$/i', $basename) === 1 ||
+                            preg_match('/^[0-9]+-[a-f0-9]{16}(?:-[a-f0-9]{12})?\.html$/', $basename) === 1 ||
+                            preg_match('/^[0-9]+-[a-f0-9]{16}(?:-[a-f0-9]{12})?\.html\.tmp-[a-z0-9]+$/i', $basename) === 1 ||
                             $basename === "index.html"
                         )
                     ) {
@@ -148,6 +153,19 @@ class Moelog_AIQnA_Lifecycle
             foreach ([".htaccess", "web.config"] as $control_file) {
                 if (is_file($path . "/" . $control_file) && @unlink($path . "/" . $control_file)) {
                     $removed++;
+                }
+            }
+            $control_temps = glob($path . "/.*.tmp-*");
+            if (is_array($control_temps)) {
+                foreach ($control_temps as $temp_file) {
+                    $basename = basename($temp_file);
+                    if (
+                        is_file($temp_file) &&
+                        preg_match('/^\.(?:htaccess|index\.html)\.tmp-[a-z0-9]+$/i', $basename) === 1 &&
+                        @unlink($temp_file)
+                    ) {
+                        $removed++;
+                    }
                 }
             }
             @rmdir($path);
