@@ -3,6 +3,7 @@
 node_modules/
 .wp-env/
 .phpunit.result.cache
+.claude/
 dist/
 tests/vendor/
 composer.lock
