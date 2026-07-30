@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4  
 Tested PHP: 8.3  
-Stable tag: 2.0.8
+Stable tag: 2.0.9
 License: GPLv2 or later  
 License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
 
@@ -155,6 +155,14 @@ define('MOELOG_AIQNA_TRUSTED_PROXIES', [
 ---
 
 == 🧩 Changelog ==
+
+= 2.0.9 (2026-07-30) – 回饋統計修復 =
+
+- 📊 **修復:** 觀看、好評、差評次數不再歸零。原本清除或過期靜態 HTML 快取時（包含每次儲存文章都會觸發的自動清除）會連帶刪掉累積的統計數據。
+- 🧹 **孤兒清理:** 改為比對每篇文章目前的問題清單來判定殘留統計，不再依賴快取檔案是否存在；只有真正被移除的問題才會清理。
+- 👁️ **觀看去重:** 移除瀏覽器端永久 `localStorage` 標記，改由後端 24 小時視窗單獨負責，管理員清除統計後對既有訪客立即生效。
+- 🔄 **重置可靠性:** 清除所有回饋統計改用世代計數器讓去重 key 失效，在 persistent object cache（Redis／Memcached）環境同樣有效。
+- 🖼️ **顯示:** 靜態頁不再烙印過期數字，避免先顯示舊值再更正的閃動。
 
 = 2.0.8 (2026-07-17) – Milestone B 完善 =
 

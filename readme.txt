@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4
 Tested PHP: 8.3
-Stable tag: 2.0.8
+Stable tag: 2.0.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -142,6 +142,13 @@ Visitor IPs, user agents, and other visitor personal data are **not sent to AI p
 ---
 
 == 🧩 Changelog ==
+
+= 2.0.9 (2026-07-30) – Feedback Stats Fix =
+* **Fix:** View, like, and dislike counts no longer reset to zero. Clearing or expiring the static HTML cache — including the automatic clear that runs on every post save — deleted the accumulated stats along with the files.
+* **Orphan cleanup:** Stale stats are now detected by comparing each post’s current question list instead of checking whether a cached file exists, so only genuinely removed questions are cleaned up.
+* **View dedupe:** The permanent browser-side `localStorage` flag is gone; deduplication is handled solely by the 24-hour server-side window, so an admin reset takes effect immediately for existing visitors.
+* **Reset reliability:** Clearing all feedback stats now invalidates dedupe keys through a generation counter, which also works with a persistent object cache (Redis/Memcached).
+* **Display:** Static pages no longer bake in a stale counter that was briefly shown before being corrected.
 
 = 2.0.8 (2026-07-17) – Milestone B Completion =
 * **Proxy trust:** `CF-Connecting-IP` now requires a separate Cloudflare/CDN CIDR allowlist; ordinary trusted proxies ignore spoofed Cloudflare headers and use the trusted XFF chain.

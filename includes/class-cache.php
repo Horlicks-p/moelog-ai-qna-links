@@ -453,8 +453,10 @@ class Moelog_AIQnA_Cache
           $result = self::delete_file($file) || $result;
         }
       }
-      self::delete_feedback_stats($post_id, $hash);
-      
+
+      // 互動統計屬於「問題」而非「快取檔案」，不隨 HTML 一起刪除。
+      // 孤兒統計由 Feedback_Controller::cleanup_orphaned_stats() 負責。
+
       // 清除相關快取標記
       $cache_key = "static_exists_" . md5($post_id . "|" . $question);
       wp_cache_delete($cache_key, "moelog_aiqna");
@@ -476,9 +478,7 @@ class Moelog_AIQnA_Cache
 
       $count = 0;
       foreach ($files as $file) {
-        $deleted = self::delete_file($file);
-        self::delete_feedback_stats_from_filename($file);
-        if ($deleted) {
+        if (self::delete_file($file)) {
           $count++;
         }
       }
@@ -526,23 +526,19 @@ class Moelog_AIQnA_Cache
     // ✅ 優化: 批量刪除，避免過載
     foreach (array_chunk($files, $batch_size) as $batch) {
       foreach ($batch as $file) {
-        $deleted = self::delete_file($file);
-        self::delete_feedback_stats_from_filename($file);
-        if ($deleted) {
+        if (self::delete_file($file)) {
           $count++;
         }
       }
-      
+
       // ✅ 優化: 每批之間稍作停頓，避免過載（僅在大量文件時）
       if (count($files) > $batch_size) {
         usleep(10000); // 10ms
       }
     }
 
-    // 同步清理無對應檔案的互動統計
-    if ($count > 0 && class_exists("Moelog_AIQnA_Feedback_Controller")) {
-      Moelog_AIQnA_Feedback_Controller::cleanup_orphaned_stats();
-    }
+    // 互動統計刻意保留：清除 HTML 快取不代表問題消失，
+    // 下次重新生成後 bootstrap 仍會取回累積的 views/likes/dislikes。
 
     // ✅ 優化: 清除所有相關快取標記
     // wp_cache_flush_group() 需要 WP 6.1+ 且有物件快取外掛支援，加防護
@@ -586,15 +582,10 @@ class Moelog_AIQnA_Cache
     foreach ($files as $file) {
       $age = $now - filemtime($file);
       if ($age >= self::get_ttl()) {
-        self::delete_feedback_stats_from_filename($file);
         if (self::delete_file($file)) {
           $count++;
         }
       }
-    }
-
-    if ($count > 0 && class_exists("Moelog_AIQnA_Feedback_Controller")) {
-      Moelog_AIQnA_Feedback_Controller::cleanup_orphaned_stats();
     }
 
     if ($count > 0) {
@@ -993,46 +984,6 @@ class Moelog_AIQnA_Cache
     }
 
     return @unlink($path);
-  }
-
-  /**
-   * 依據檔名刪除對應的互動統計
-   *
-   * @param string $file 靜態檔案路徑
-   */
-  private static function delete_feedback_stats_from_filename($file)
-  {
-    $basename = basename($file);
-    if (
-      preg_match(
-        '/^(\d+)-([a-f0-9]{16})(?:-[a-f0-9]{12})?\.html$/',
-        $basename,
-        $matches
-      ) === 1
-    ) {
-      $post_id = absint($matches[1]);
-      $hash = $matches[2];
-      self::delete_feedback_stats($post_id, $hash);
-    }
-  }
-
-  /**
-   * 刪除特定問題的互動統計
-   *
-   * @param int    $post_id 文章 ID
-   * @param string $hash    問題雜湊
-   */
-  private static function delete_feedback_stats($post_id, $hash)
-  {
-    $post_id = absint($post_id);
-    // PHP 8.1+: 確保 preg_replace 不返回 null
-    $hash = preg_replace('/[^a-f0-9]/', "", strtolower((string) $hash)) ?? "";
-
-    if (!$post_id || empty($hash)) {
-      return;
-    }
-
-    delete_post_meta($post_id, "_moelog_aiqna_feedback_stats_" . $hash);
   }
 
   // =========================================

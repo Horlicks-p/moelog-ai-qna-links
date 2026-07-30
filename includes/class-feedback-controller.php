@@ -20,6 +20,7 @@ class Moelog_AIQnA_Feedback_Controller
     const RATE_WINDOW = 3600;
     const VIEW_DEDUPE_WINDOW = 86400;
     const VOTE_STATE_WINDOW = 2592000;
+    const GENERATION_OPTION = "moelog_aiqna_feedback_generation";
     private static $last_rate_limit_status = null;
 
     /**
@@ -419,10 +420,26 @@ class Moelog_AIQnA_Feedback_Controller
         return self::$last_rate_limit_status["allowed"] === true;
     }
 
+    /**
+     * 目前的去重世代。遞增即可讓所有既有 view/vote 去重 key 失效。
+     *
+     * @return int
+     */
+    private static function generation()
+    {
+        return max(0, (int) get_option(self::GENERATION_OPTION, 0));
+    }
+
     private static function transient_key($action, $value)
     {
+        // 世代值併入 key：管理員清除統計時只要遞增世代，舊 key 立刻失效，
+        // 不必用萬用字元掃描資料庫或 Redis。
         return "moe_aiqna_fb_" . sanitize_key($action) . "_" .
-            substr(hash("sha256", (string) $value), 0, 32);
+            substr(
+                hash("sha256", self::generation() . "|" . (string) $value),
+                0,
+                32
+            );
     }
 
     /**
@@ -476,6 +493,19 @@ class Moelog_AIQnA_Feedback_Controller
                 "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s",
                 self::META_KEY
             )
+        );
+
+        // 讓既有的觀看去重與投票狀態一併失效。否則歸零後，既有訪客在去重
+        // 視窗內（觀看 24 小時、投票 30 天）都無法再計入，數字會卡在 0。
+        //
+        // 這裡遞增世代而非 DELETE wp_options：在 persistent object cache
+        // （Redis/Memcached）環境下 get_transient() 讀的是 object cache
+        // 而非資料庫，直接刪資料列不會生效。遞增世代則兩種環境都可靠，
+        // 殘留的舊 transient 會自行到期。
+        update_option(
+            self::GENERATION_OPTION,
+            self::generation() + 1,
+            false
         );
 
         Moelog_AIQnA_Debug::log_info("Cleared all feedback stats, deleted {$deleted} records");
@@ -618,7 +648,15 @@ class Moelog_AIQnA_Feedback_Controller
     }
 
     /**
-     * 清理孤兒統計數據（對應的靜態檔案已不存在）
+     * 清理孤兒統計數據（對應的問題已不存在）
+     *
+     * 判斷依據是「文章目前的問題清單」，而非靜態 HTML 是否存在。
+     * 靜態檔案會因為快取過期、文章更新、fingerprint 變動而頻繁重建，
+     * 拿它當依據會讓累積的 views/likes/dislikes 被反覆歸零。
+     *
+     * 只有在能明確判定問題已消失時才刪除：文章被刪、問題被移除、問題
+     * 全部清空都算孤兒；只有 meta 讀取結果無法判定時才跳過，寧可留下
+     * 少量孤兒，也不誤刪真實數據。
      *
      * @return array {
      *     @type int $scanned 掃描的 meta 數量
@@ -631,20 +669,18 @@ class Moelog_AIQnA_Feedback_Controller
         global $wpdb;
 
         $prefix = self::META_KEY_PREFIX;
-        $scanned = 0;
         $deleted = 0;
         $details = [];
 
-        // 取得所有符合格式的 meta key
-        $meta_keys = $wpdb->get_col(
+        $rows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT DISTINCT meta_key FROM {$wpdb->postmeta} 
+                "SELECT post_id, meta_key FROM {$wpdb->postmeta}
                  WHERE meta_key LIKE %s",
                 $wpdb->esc_like($prefix) . "%"
             )
         );
 
-        if (empty($meta_keys)) {
+        if (empty($rows)) {
             return [
                 "scanned" => 0,
                 "deleted" => 0,
@@ -652,42 +688,46 @@ class Moelog_AIQnA_Feedback_Controller
             ];
         }
 
-        $scanned = count($meta_keys);
-        $static_dir = Moelog_AIQnA_Cache::get_static_dir_path();
+        $scanned = count($rows);
+        $expected_by_post = [];
 
-        foreach ($meta_keys as $meta_key) {
-            // 從 meta_key 中提取 hash
-            $hash = str_replace($prefix, "", $meta_key);
-            if (empty($hash) || strlen($hash) !== 16) {
+        foreach ($rows as $row) {
+            $post_id = absint($row->post_id);
+            $hash = substr((string) $row->meta_key, strlen($prefix));
+
+            if (!$post_id || preg_match('/^[a-f0-9]{16}$/', $hash) !== 1) {
                 continue;
             }
 
-            // 取得所有使用此 meta_key 的文章 ID
-            $post_ids = $wpdb->get_col(
-                $wpdb->prepare(
-                    "SELECT post_id FROM {$wpdb->postmeta} 
-                     WHERE meta_key = %s",
-                    $meta_key
-                )
-            );
-
-            foreach ($post_ids as $post_id) {
-                // 檢查對應的靜態檔案是否存在
-                $pattern = $static_dir . "/" . $post_id . "-" . $hash . "*.html";
-                $files = glob($pattern);
-
-                if (empty($files) || !file_exists($files[0])) {
-                    // 檔案不存在，刪除統計數據
-                    delete_post_meta($post_id, $meta_key);
-                    $deleted++;
-
-                    $details[] = [
-                        "post_id" => $post_id,
-                        "meta_key" => $meta_key,
-                        "hash" => $hash,
-                    ];
-                }
+            if (!array_key_exists($post_id, $expected_by_post)) {
+                $expected_by_post[$post_id] = self::collect_question_hashes(
+                    $post_id
+                );
             }
+
+            $expected = $expected_by_post[$post_id];
+
+            // null = 無法判定，保守跳過
+            if ($expected === null || isset($expected[$hash])) {
+                continue;
+            }
+
+            delete_post_meta($post_id, $row->meta_key);
+            $deleted++;
+
+            $details[] = [
+                "post_id" => $post_id,
+                "meta_key" => $row->meta_key,
+                "hash" => $hash,
+            ];
+        }
+
+        if ($deleted > 0) {
+            Moelog_AIQnA_Debug::logf(
+                "Cleaned %d orphaned feedback stats (scanned %d)",
+                $deleted,
+                $scanned
+            );
         }
 
         return [
@@ -695,6 +735,45 @@ class Moelog_AIQnA_Feedback_Controller
             "deleted" => $deleted,
             "details" => $details,
         ];
+    }
+
+    /**
+     * 重算某篇文章目前所有問題的 hash。
+     *
+     * 空陣列代表「這篇文章已經沒有任何問題」，其統計皆為孤兒；
+     * null 代表無法判定，呼叫端必須保守跳過。
+     *
+     * @param int $post_id
+     * @return array<string,true>|null
+     */
+    private static function collect_question_hashes($post_id)
+    {
+        // 文章已不存在（含永久刪除）→ 統計確定是孤兒
+        if (!get_post($post_id)) {
+            return [];
+        }
+
+        // 用 metadata_exists() 區分「問題已全部移除」與「meta 讀取異常」：
+        // 前者 meta 列本身不存在或內容為空，是可以安全清理的孤兒；
+        // 後者才需要保守跳過。
+        if (!metadata_exists("post", $post_id, MOELOG_AIQNA_META_KEY)) {
+            return [];
+        }
+
+        $raw = get_post_meta($post_id, MOELOG_AIQNA_META_KEY, true);
+
+        // meta 列存在卻取不到預期型別 → 判定不了，交由呼叫端跳過
+        if (!is_string($raw) && !is_array($raw)) {
+            return null;
+        }
+
+        $hashes = [];
+        foreach (moelog_aiqna_parse_questions($raw) as $question) {
+            $hash = Moelog_AIQnA_Cache::generate_hash($post_id, $question);
+            $hashes[$hash] = true;
+        }
+
+        return $hashes;
     }
 }
 

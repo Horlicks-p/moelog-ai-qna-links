@@ -37,7 +37,6 @@
     })();
 
     var keySuffix = config.questionHash || (config.postId ? String(config.postId) : '');
-    var viewKey = keySuffix ? 'moe_aiqna_view_' + keySuffix : '';
     var voteKey = keySuffix ? 'moe_aiqna_vote_' + keySuffix : '';
     var reportKey = keySuffix ? 'moe_aiqna_report_' + keySuffix : '';
     var dict = config.i18n || {};
@@ -90,6 +89,11 @@
     }
 
     function applyLocalState() {
+      // 清掉舊版留下的永久觀看標記，避免長期殘留在訪客瀏覽器
+      if (storage && keySuffix) {
+        storage.removeItem('moe_aiqna_view_' + keySuffix);
+      }
+
       if (storage && voteKey) {
         var picked = storage.getItem(voteKey);
         if (picked) {
@@ -189,18 +193,15 @@
     function recordView() {
       if (!config.postId || !config.nonce) return;
 
-      var hasViewed = storage && viewKey && storage.getItem(viewKey);
-      if (hasViewed) return;
-
+      // 觀看去重完全交給後端（24 小時 transient）。前端不再用 localStorage
+      // 記錄，因為那沒有到期機制：管理員清除統計後，既有瀏覽器會永遠不再
+      // 送出請求，數字就卡在 0 長不回來。
       sendRequest('moelog_aiqna_record_view', {
         post_id: config.postId,
         increment: true,
       }).then(function (res) {
         if (res && res.success && res.data && res.data.stats) {
           updateStats(res.data.stats);
-          if (storage && viewKey) {
-            storage.setItem(viewKey, '1');
-          }
         }
       });
     }

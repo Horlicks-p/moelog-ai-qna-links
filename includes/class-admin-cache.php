@@ -114,7 +114,7 @@ class Moelog_AIQnA_Admin_Cache
               "moelog_aiqna_cleanup_orphaned_nonce",
             ); ?>
             <p><?php esc_html_e(
-              "如果手動刪除了靜態 HTML 檔案（例如透過 FTP），對應的統計數據可能會殘留在資料庫中。此功能會掃描所有統計數據，並刪除對應檔案已不存在的孤兒數據。",
+              "如果刪除了文章或移除了某些問題，對應的統計數據可能會殘留在資料庫中。此功能會比對每篇文章目前的問題清單，刪除已不存在問題的孤兒數據。清除靜態 HTML 快取不會影響統計，累積的觀看與評價會保留。",
               "moelog-ai-qna",
             ); ?></p>
             <button type="submit"
@@ -122,7 +122,7 @@ class Moelog_AIQnA_Admin_Cache
                     class="button button-secondary"
                     onclick="return confirm('<?php echo esc_js(
                       __(
-                        "確定要清理孤兒統計數據嗎？此操作會掃描資料庫並刪除對應檔案已不存在的統計數據。",
+                        "確定要清理孤兒統計數據嗎？此操作會掃描資料庫並刪除已不存在問題的統計數據。",
                         "moelog-ai-qna",
                       ),
                     ); ?>');">

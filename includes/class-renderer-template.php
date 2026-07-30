@@ -506,15 +506,16 @@ window.MoelogAIQnA.feedback = <?php echo wp_json_encode($feedback_config); ?>;
   <div class="moe-feedback-stats">
     <div class="moe-feedback-stat">
       <img src="<?php echo esc_url(MOELOG_AIQNA_URL . 'includes/assets/images/viewer.png'); ?>" alt="<?php esc_attr_e('瀏覽次數', 'moelog-ai-qna'); ?>" width="28" height="28" aria-hidden="true">
-      <span data-stat="views"><?php echo esc_html($feedback_stats['views']); ?></span>
+      <?php // 由 answer.js bootstrap 填入，避免顯示快取當時的舊數值 ?>
+      <span data-stat="views">&mdash;</span>
     </div>
     <div class="moe-feedback-stat">
       <img src="<?php echo esc_url(MOELOG_AIQNA_URL . 'includes/assets/images/good.png'); ?>" alt="<?php esc_attr_e('好評', 'moelog-ai-qna'); ?>" width="28" height="28" aria-hidden="true">
-      <span data-stat="likes"><?php echo esc_html($feedback_stats['likes']); ?></span>
+      <span data-stat="likes">&mdash;</span>
     </div>
     <div class="moe-feedback-stat">
       <img src="<?php echo esc_url(MOELOG_AIQNA_URL . 'includes/assets/images/bad.png'); ?>" alt="<?php esc_attr_e('差評', 'moelog-ai-qna'); ?>" width="28" height="28" aria-hidden="true">
-      <span data-stat="dislikes"><?php echo esc_html($feedback_stats['dislikes']); ?></span>
+      <span data-stat="dislikes">&mdash;</span>
     </div>
   </div>
   <?php endif; ?>
