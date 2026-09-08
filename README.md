@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4  
 Tested PHP: 8.3  
-Stable tag: 2.0.9
+Stable tag: 2.1.0
 License: GPLv2 or later  
 License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
 
@@ -27,6 +27,7 @@ License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/lic
 
 - **多供應商支援:** 可串接 **OpenAI** (GPT-4o-mini 等)、**Google Gemini** (Gemini 2.5 Flash 等) 和 **Anthropic Claude**。
 - **高度客製化:** 可自訂系統提示 (System Prompt)、模型、溫度 (Temperature)。
+- **單題答案控制:** 每題可使用一般 AI、加入站長確認的事實提示，或直接顯示人工指定答案（不呼叫 AI）。
 - **智慧語言偵測:** 內建規則自動偵測 (繁中/日文/英文)，無需 API。
 - **雙層快取系統:** 使用 WordPress Transients 和**靜態 HTML 檔案**雙層快取，大幅提升載入速度。
 - **智慧預生成:** 使用**內容雜湊 (Content Hash)** 偵測，僅在文章或問題變更時才重新生成答案，節省 API 成本。
@@ -149,12 +150,22 @@ define('MOELOG_AIQNA_TRUSTED_PROXIES', [
 - 由**網站作者**在後台預設的問題。
 - (可選) 如果勾選「包含文章內容」，則會傳送原文內容作為上下文。
 - 系統提示 (System Prompt) 和語言設定。
+- (可選) 該題由網站作者填寫的「答案提示／已知事實」；人工指定答案不會傳送給 AI。
 
 **不會將**訪客 IP、User-Agent 或其他訪客個人資料傳送給 AI provider。為防止公開端點濫用，站點本地會短期保存由 IP 與 WordPress site salt 產生、不可直接還原 IP 的匿名識別與限流計數。所有 AI provider 通訊均透過 HTTPS。
 
 ---
 
 == 🧩 Changelog ==
+
+= 2.1.0 (2026-09-09) – 單題答案控制 =
+
+- 🤖 **三種回答模式:** 每個問題可選擇一般 AI、AI 回答＋站長提示，或人工指定答案。
+- 💡 **站長提示:** 將編輯者確認的設定與事實以高優先指令加入單題 Prompt，降低冷門動漫知識答錯的機率。
+- ✍️ **人工答案:** 可直接輸入完整 Markdown 答案，完全略過 AI API，並沿用既有的 HTML 安全過濾。
+- 🔄 **快取一致性:** 單題設定會跟隨拖曳排序，提示或人工答案變更時會使該題快取失效並重新生成。
+- 🎛️ **緊湊介面:** 回答方式以圖示選單排列在語言選單後方；只有提示與人工模式才展開額外輸入框。
+- 🌐 **多語系:** 更新繁中、英文與日文翻譯，並補充 README 的功能與隱私說明。
 
 = 2.0.9 (2026-07-30) – 回饋統計修復 =
 

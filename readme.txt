@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4
 Tested PHP: 8.3
-Stable tag: 2.0.9
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,6 +23,7 @@ The answer page features a clean HTML layout, a typing animation effect, a built
 
 * **Multi-provider support:** Integrates with **OpenAI** (e.g., GPT-4o-mini), **Google Gemini** (e.g., Gemini 2.5 Flash), and **Anthropic Claude**.  
 * **Highly customizable:** Configure system prompt, model, and temperature.  
+* **Per-question answer control:** Use standard AI, add editor-verified guidance, or display an editor-written answer without calling AI.
 * **Smart language detection:** Built-in rules (Traditional Chinese / Japanese / English), no external API needed.  
 * **Dual-layer caching:** WordPress Transients + **static HTML files** for faster load times.  
 * **Smart pregeneration:** Uses a **content hash** to regenerate answers only when posts or questions change, saving API costs.  
@@ -136,12 +137,21 @@ The plugin only sends the following to AI providers (OpenAI / Gemini / Claude):
 * Questions predefined by the **site author** in the admin.  
 * (Optional) Original post content if “Include article content” is checked.  
 * System prompt and language settings.
+* (Optional) Editor-provided answer guidance / verified facts for that question. Editor-written answers are not sent to AI providers.
 
 Visitor IPs, user agents, and other visitor personal data are **not sent to AI providers**. To protect public endpoints, the site temporarily stores rate-limit counters and anonymous identifiers derived from the IP plus the WordPress site salt; these hashes do not directly reveal the original IP. AI-provider traffic uses HTTPS.
 
 ---
 
 == 🧩 Changelog ==
+
+= 2.1.0 (2026-09-09) – Per-Question Answer Control =
+* **Three answer modes:** Each question can use standard AI, AI with editor guidance, or an editor-written answer.
+* **Editor guidance:** Adds verified settings and facts to the question prompt as high-priority instructions, improving accuracy for niche topics.
+* **Editor-written answers:** Display complete Markdown answers without calling an AI provider, while retaining the existing HTML safety filters.
+* **Cache consistency:** Answer settings follow drag-and-drop sorting; changing guidance or a manual answer invalidates and regenerates that question's cache.
+* **Compact UI:** The icon-based answer-mode selector sits beside the language selector and only expands an input panel when needed.
+* **Translations:** Updated Traditional Chinese, English, and Japanese translations plus feature and privacy documentation.
 
 = 2.0.9 (2026-07-30) – Feedback Stats Fix =
 * **Fix:** View, like, and dislike counts no longer reset to zero. Clearing or expiring the static HTML cache — including the automatic clear that runs on every post save — deleted the accumulated stats along with the files.

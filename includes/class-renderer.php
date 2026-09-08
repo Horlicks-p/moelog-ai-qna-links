@@ -173,22 +173,10 @@ class Moelog_AIQnA_Renderer
     );
     $params["question_hash"] = $question_hash;
 
-    // 準備 AI 呼叫參數
-    $ai_params = [
-      "post_id" => $params["post_id"],
-      "question" => $params["question"],
-      "lang" =>
-        $params["lang"] !== "auto"
-          ? $params["lang"]
-          : $this->detect_language($params["question"]),
-      "context" => $this->get_post_context($post),
-    ];
-
-    // 呼叫 AI 生成答案
-    $answer = $this->ai_client->generate_answer($ai_params);
+    $answer = $this->resolve_answer($params, $post);
 
     // ✅ 優化: 檢查答案是否為錯誤訊息,避免寫入錯誤快取(優化項目 5)
-    if ($this->template->is_error_response($answer)) {
+    if (!$this->has_manual_answer($params) && $this->template->is_error_response($answer)) {
       // 不寫入快取,直接渲染錯誤頁面
       $retry_after = method_exists(
         $this->ai_client,
@@ -275,6 +263,62 @@ class Moelog_AIQnA_Renderer
     } else {
       return strlen($raw) > $max_chars ? substr($raw, 0, $max_chars) : $raw;
     }
+  }
+
+  /**
+   * Resolve a question using its editor-selected answer mode.
+   *
+   * Manual answers bypass the provider entirely. Guided answers add the
+   * editor's verified facts to the provider prompt.
+   *
+   * @param array   $params Answer request parameters.
+   * @param WP_Post $post   Source post.
+   * @return string
+   */
+  private function resolve_answer($params, $post)
+  {
+    $config = moelog_aiqna_get_answer_config(
+      $params["post_id"],
+      $params["question"]
+    );
+
+    if (
+      $config["mode"] === "manual" &&
+      trim((string) $config["manual_answer"]) !== ""
+    ) {
+      return (string) $config["manual_answer"];
+    }
+
+    $ai_params = [
+      "post_id" => $params["post_id"],
+      "question" => $params["question"],
+      "lang" =>
+        ($params["lang"] ?? "auto") !== "auto"
+          ? $params["lang"]
+          : $this->detect_language($params["question"]),
+      "context" => $this->get_post_context($post),
+      "answer_hint" => $config["mode"] === "guided"
+        ? (string) $config["hint"]
+        : "",
+    ];
+
+    return $this->ai_client->generate_answer($ai_params);
+  }
+
+  /**
+   * Whether the request has a usable editor-authored answer.
+   *
+   * @param array $params Answer request parameters.
+   * @return bool
+   */
+  private function has_manual_answer($params)
+  {
+    $config = moelog_aiqna_get_answer_config(
+      $params["post_id"],
+      $params["question"]
+    );
+    return $config["mode"] === "manual" &&
+      trim((string) $config["manual_answer"]) !== "";
   }
 
   /**
@@ -490,17 +534,11 @@ p{margin:0 0 20px;line-height:1.6;}
       "lang" => $lang !== "auto" ? $lang : $this->detect_language($question),
     ];
 
-    // 準備 AI 呼叫參數
-    $ai_params = [
-      "post_id" => $params["post_id"],
-      "question" => $params["question"],
-      "lang" => $params["lang"],
-      "context" => $this->get_post_context($post),
-    ];
-
-    // 呼叫 AI
-    $answer = $this->ai_client->generate_answer($ai_params);
-    if (!$answer) {
+    $answer = $this->resolve_answer($params, $post);
+    if (
+      !$answer ||
+      (!$this->has_manual_answer($params) && $this->template->is_error_response($answer))
+    ) {
       return false;
     }
 

@@ -18,6 +18,12 @@ class Moelog_AIQnA_Metabox
     /** 單一問題最大字元數 */
     const MAX_QUESTION_LENGTH = 200;
 
+    /** 單題 AI 提示最大字元數 */
+    const MAX_HINT_LENGTH = 3000;
+
+    /** 單題人工答案最大字元數 */
+    const MAX_MANUAL_ANSWER_LENGTH = 12000;
+
     /** 建構子:掛鉤 */
     public function __construct()
     {
@@ -70,6 +76,8 @@ class Moelog_AIQnA_Metabox
         $data = [
             "MAX_QUESTIONS" => self::MAX_QUESTIONS,
             "MAX_LENGTH" => self::MAX_QUESTION_LENGTH,
+            "MAX_HINT_LENGTH" => self::MAX_HINT_LENGTH,
+            "MAX_MANUAL_LENGTH" => self::MAX_MANUAL_ANSWER_LENGTH,
             "ajaxurl" => admin_url("admin-ajax.php"),
             "i18n" => [
                 "clearAllConfirm" => __(
@@ -92,6 +100,14 @@ class Moelog_AIQnA_Metabox
                 ),
                 "dragTitle" => __("拖曳排序", "moelog-ai-qna"),
                 "removeTitle" => __("刪除此問題", "moelog-ai-qna"),
+                "answerModeAi" => __("一般 AI 回答", "moelog-ai-qna"),
+                "answerModeGuided" => __("AI 回答＋站長提示", "moelog-ai-qna"),
+                "answerModeManual" => __("人工指定答案", "moelog-ai-qna"),
+                "answerModeLabel" => __("回答方式", "moelog-ai-qna"),
+                "hintLabel" => __("答案提示／已知事實", "moelog-ai-qna"),
+                "manualLabel" => __("人工指定答案", "moelog-ai-qna"),
+                "hintPlaceholder" => __("輸入已確認的設定、名稱或事實，AI 回答不得與此衝突。", "moelog-ai-qna"),
+                "manualPlaceholder" => __("輸入要直接顯示的完整答案，可使用 Markdown。此模式不會呼叫 AI。", "moelog-ai-qna"),
                 "regenerateConfirm" => __(
                     "確定要清除快取並重新生成所有答案嗎?",
                     "moelog-ai-qna"
@@ -154,6 +170,7 @@ function init(){
         bind();
         initSortable();
         initCounters();
+        $(ROWS_SEL+' .moe-question-row').each(function(){ toggleAnswerMode($(this)); });
         updateCounter();
     });
 }
@@ -208,6 +225,11 @@ function bind(){
         updateCharCount($(this));
         checkEmpty($(this).closest('.moe-question-row'));
     });
+
+    $(document).off('change.moeAnswerMode', ROOT_SEL+' .moe-answer-mode')
+    .on('change.moeAnswerMode', ROOT_SEL+' .moe-answer-mode', function(){
+        toggleAnswerMode($(this).closest('.moe-question-row'));
+    });
     
     // 手動重新生成
     $(document).off('click.moeRegen', '#moelog-aiqna-regenerate')
@@ -260,14 +282,30 @@ function addQuestion(){
         '    <option value="ja">🇯🇵 日文</option>',
         '    <option value="en">🇺🇸 英文</option>',
         '  </select>',
+        '  <select name="moelog_aiqna_modes[]" class="moe-answer-mode" title="'+CFG.i18n.answerModeLabel+'" aria-label="'+CFG.i18n.answerModeLabel+'">',
+        '    <option value="ai">🤖 '+CFG.i18n.answerModeAi+'</option>',
+        '    <option value="guided">💡 '+CFG.i18n.answerModeGuided+'</option>',
+        '    <option value="manual">✍️ '+CFG.i18n.answerModeManual+'</option>',
+        '  </select>',
         '  <button type="button" class="button moe-remove-btn" title="'+CFG.i18n.removeTitle+'">',
         '    <span class="dashicons dashicons-trash"></span>',
         '  </button>',
+        '  <div class="moe-answer-config">',
+        '    <div class="moe-answer-panel moe-guided-panel">',
+        '      <label><strong>'+CFG.i18n.hintLabel+'</strong></label>',
+        '      <textarea name="moelog_aiqna_hints[]" rows="3" maxlength="'+CFG.MAX_HINT_LENGTH+'" placeholder="'+CFG.i18n.hintPlaceholder+'"></textarea>',
+        '    </div>',
+        '    <div class="moe-answer-panel moe-manual-panel">',
+        '      <label><strong>'+CFG.i18n.manualLabel+'</strong></label>',
+        '      <textarea name="moelog_aiqna_manual_answers[]" rows="6" maxlength="'+CFG.MAX_MANUAL_LENGTH+'" placeholder="'+CFG.i18n.manualPlaceholder+'"></textarea>',
+        '    </div>',
+        '  </div>',
         '</div>'
     ].join('');
     $(ROWS_SEL).append(tpl);
     updateCounter();
     var \$new = $(ROWS_SEL+' .moe-question-row:last .moe-question-input');
+    toggleAnswerMode(\$new.closest('.moe-question-row'));
     \$new.focus();
     if (\$new[0] && \$new[0].scrollIntoView){
         \$new[0].scrollIntoView({behavior:'smooth', block:'nearest'});
@@ -327,6 +365,13 @@ function checkEmpty(\$row){
     else { \$row.removeClass('moe-empty'); }
 }
 
+function toggleAnswerMode(\$row){
+    var mode = \$row.find('.moe-answer-mode').val() || 'ai';
+    \$row.find('.moe-answer-config').toggle(mode !== 'ai');
+    \$row.find('.moe-guided-panel').toggle(mode === 'guided');
+    \$row.find('.moe-manual-panel').toggle(mode === 'manual');
+}
+
 ready(init);
 })(jQuery);
 JS
@@ -343,7 +388,7 @@ JS
 
 /* 問題行容器 */
 #moelog-aiqna-rows .moe-question-row{
-    display:flex; align-items:flex-start; gap:8px; margin-bottom:12px; padding:10px;
+    display:flex; flex-wrap:wrap; align-items:flex-start; gap:8px; margin-bottom:12px; padding:10px;
     background:#fff; border:1px solid #ddd; border-radius:4px; transition:all .2s;
 }
 #moelog-aiqna-rows .moe-question-row:hover{ border-color:#2271b1; box-shadow:0 0 0 1px #2271b1; }
@@ -393,7 +438,7 @@ JS
 #moelog-aiqna-rows .moe-char-count .current{ font-weight: 600; }
 
 /* 語言選擇 */
-#moelog-aiqna-rows .moe-lang-select{ 
+#moelog-aiqna-rows .moe-lang-select{
     flex-shrink: 0; 
     min-width: 130px; 
     height: 34px;
@@ -414,12 +459,29 @@ JS
     border-color: #d63638; 
     color: #fff; 
 }
-#moelog-aiqna-rows .moe-remove-btn .dashicons{ 
+#moelog-aiqna-rows .moe-remove-btn .dashicons{
     font-size: 16px; 
     width: 16px; 
     height: 16px; 
     line-height: 1.3; 
 }
+
+/* 回答方式緊接在語言選單後方，圖示讓模式容易辨識 */
+#moelog-aiqna-rows .moe-answer-mode{
+    flex-shrink:0; min-width:190px; height:34px; align-self:flex-start;
+}
+
+/* 單題回答來源 */
+#moelog-aiqna-rows .moe-answer-config{
+    flex:1 0 calc(100% - 53px); margin-left:53px; padding:10px;
+    background:#f6f7f7; border-radius:3px; box-sizing:border-box;
+}
+#moelog-aiqna-rows .moe-answer-panel{ margin-top:10px; }
+#moelog-aiqna-rows .moe-answer-panel label{ display:block; margin-bottom:5px; }
+#moelog-aiqna-rows .moe-answer-panel textarea{
+    display:block; width:100%; resize:vertical; box-sizing:border-box;
+}
+#moelog-aiqna-rows .moe-answer-panel .description{ margin:4px 0 0; }
 
 /* 排序佔位符 */
 #moelog-aiqna-rows .moe-sortable-placeholder{
@@ -492,13 +554,19 @@ JS
         text-align: left; 
         padding-top: 4px; 
     }
-    #moelog-aiqna-rows .moe-lang-select{ 
-        order: 3; 
+    #moelog-aiqna-rows .moe-lang-select{
+        order: 3;
         flex: 1 1 auto;
         min-width: 110px;
     }
-    #moelog-aiqna-rows .moe-remove-btn{ 
-        order: 4;
+    #moelog-aiqna-rows .moe-answer-mode{
+        order:4; flex:1 1 auto; min-width:160px;
+    }
+    #moelog-aiqna-rows .moe-remove-btn{
+        order: 5;
+    }
+    #moelog-aiqna-rows .moe-answer-config{
+        order:6; flex-basis:100%; margin-left:0;
     }
 }
 
@@ -537,6 +605,9 @@ CSS
     {
         $questions = $this->get_questions($post->ID);
         $langs = $this->get_languages($post->ID);
+        $modes = $this->get_meta_array($post->ID, MOELOG_AIQNA_META_MODE_KEY);
+        $hints = $this->get_meta_array($post->ID, MOELOG_AIQNA_META_HINT_KEY);
+        $manual_answers = $this->get_meta_array($post->ID, MOELOG_AIQNA_META_MANUAL_KEY);
 
         wp_nonce_field("moelog_aiqna_save", "moelog_aiqna_nonce");
         ?>
@@ -561,6 +632,10 @@ CSS
                         "moelog-ai-qna"
                     ); ?></li>
                     <li><?php esc_html_e(
+                        "每題可選擇一般 AI、加入站長提示，或直接使用人工答案",
+                        "moelog-ai-qna"
+                    ); ?></li>
+                    <li><?php esc_html_e(
                         "發布後會在文章底部顯示問題清單",
                         "moelog-ai-qna"
                     ); ?></li>
@@ -574,7 +649,13 @@ CSS
             </div>
 
             <div id="moelog-aiqna-rows">
-                <?php $this->render_question_rows($questions, $langs); ?>
+                <?php $this->render_question_rows(
+                    $questions,
+                    $langs,
+                    $modes,
+                    $hints,
+                    $manual_answers
+                ); ?>
             </div>
 
             <?php if (
@@ -707,7 +788,7 @@ CSS
     }
 
     /** 渲染問題行群 */
-    private function render_question_rows($questions, $langs)
+    private function render_question_rows($questions, $langs, $modes, $hints, $manual_answers)
     {
         if (empty($questions)) {
             $this->render_single_row("", "auto", 0);
@@ -715,7 +796,10 @@ CSS
         }
         foreach ($questions as $index => $question) {
             $lang = isset($langs[$index]) ? $langs[$index] : "auto";
-            $this->render_single_row($question, $lang, $index);
+            $mode = isset($modes[$index]) ? $modes[$index] : "ai";
+            $hint = isset($hints[$index]) ? $hints[$index] : "";
+            $manual_answer = isset($manual_answers[$index]) ? $manual_answers[$index] : "";
+            $this->render_single_row($question, $lang, $index, $mode, $hint, $manual_answer);
         }
     }
 
@@ -723,7 +807,10 @@ CSS
     private function render_single_row(
         $question = "",
         $lang = "auto",
-        $index = 0
+        $index = 0,
+        $mode = "ai",
+        $hint = "",
+        $manual_answer = ""
     ) {
         $question = esc_textarea($question);
         $row_class = empty($question)
@@ -786,12 +873,38 @@ CSS
                 ); ?>><?php esc_html_e("🇺🇸 英文", "moelog-ai-qna"); ?></option>
             </select>
 
+            <select name="moelog_aiqna_modes[]" class="moe-answer-mode"
+                title="<?php esc_attr_e("回答方式", "moelog-ai-qna"); ?>"
+                aria-label="<?php esc_attr_e("回答方式", "moelog-ai-qna"); ?>">
+                <option value="ai" <?php selected($mode, "ai"); ?>>🤖 <?php esc_html_e("一般 AI 回答", "moelog-ai-qna"); ?></option>
+                <option value="guided" <?php selected($mode, "guided"); ?>>💡 <?php esc_html_e("AI 回答＋站長提示", "moelog-ai-qna"); ?></option>
+                <option value="manual" <?php selected($mode, "manual"); ?>>✍️ <?php esc_html_e("人工指定答案", "moelog-ai-qna"); ?></option>
+            </select>
+
             <button type="button" class="button moe-remove-btn" title="<?php esc_attr_e(
                 "刪除此問題",
                 "moelog-ai-qna"
             ); ?>">
                 <span class="dashicons dashicons-trash"></span>
             </button>
+
+            <div class="moe-answer-config"<?php echo $mode === "ai" ? ' style="display:none"' : ""; ?>>
+                <div class="moe-answer-panel moe-guided-panel"<?php echo $mode !== "guided" ? ' style="display:none"' : ""; ?>>
+                    <label><strong><?php esc_html_e("答案提示／已知事實", "moelog-ai-qna"); ?></strong></label>
+                    <textarea name="moelog_aiqna_hints[]" rows="3"
+                        maxlength="<?php echo esc_attr(self::MAX_HINT_LENGTH); ?>"
+                        placeholder="<?php esc_attr_e("輸入已確認的設定、名稱或事實，AI 回答不得與此衝突。", "moelog-ai-qna"); ?>"><?php echo esc_textarea($hint); ?></textarea>
+                    <p class="description"><?php esc_html_e("這段內容只會傳給 AI，不會原樣顯示在前台。", "moelog-ai-qna"); ?></p>
+                </div>
+
+                <div class="moe-answer-panel moe-manual-panel"<?php echo $mode !== "manual" ? ' style="display:none"' : ""; ?>>
+                    <label><strong><?php esc_html_e("人工指定答案", "moelog-ai-qna"); ?></strong></label>
+                    <textarea name="moelog_aiqna_manual_answers[]" rows="6"
+                        maxlength="<?php echo esc_attr(self::MAX_MANUAL_ANSWER_LENGTH); ?>"
+                        placeholder="<?php esc_attr_e("輸入要直接顯示的完整答案，可使用 Markdown。此模式不會呼叫 AI。", "moelog-ai-qna"); ?>"><?php echo esc_textarea($manual_answer); ?></textarea>
+                    <p class="description"><?php esc_html_e("內容會經過既有的 Markdown 與安全過濾後顯示。", "moelog-ai-qna"); ?></p>
+                </div>
+            </div>
         </div>
         <?php
     }
@@ -821,6 +934,9 @@ CSS
         // --- 2. 取得「舊」資料 (用於比對) ---
         $old_questions = $this->get_questions($post_id);
         $old_langs = $this->get_languages($post_id);
+        $old_modes = $this->get_meta_array($post_id, MOELOG_AIQNA_META_MODE_KEY);
+        $old_hints = $this->get_meta_array($post_id, MOELOG_AIQNA_META_HINT_KEY);
+        $old_manual_answers = $this->get_meta_array($post_id, MOELOG_AIQNA_META_MANUAL_KEY);
 
         // --- 3. 取得並清理「新」資料 ---
         $new_questions_raw = isset($_POST["moelog_aiqna_questions"])
@@ -829,9 +945,21 @@ CSS
         $new_langs_raw = isset($_POST["moelog_aiqna_langs"])
             ? (array) $_POST["moelog_aiqna_langs"]
             : [];
+        $new_modes_raw = isset($_POST["moelog_aiqna_modes"])
+            ? (array) $_POST["moelog_aiqna_modes"]
+            : [];
+        $new_hints_raw = isset($_POST["moelog_aiqna_hints"])
+            ? (array) $_POST["moelog_aiqna_hints"]
+            : [];
+        $new_manual_answers_raw = isset($_POST["moelog_aiqna_manual_answers"])
+            ? (array) $_POST["moelog_aiqna_manual_answers"]
+            : [];
 
         $clean_q = [];
         $clean_l = [];
+        $clean_modes = [];
+        $clean_hints = [];
+        $clean_manual_answers = [];
         foreach ($new_questions_raw as $i => $q) {
             $q = trim(wp_unslash($q));
             if ($q === "") {
@@ -854,16 +982,51 @@ CSS
 
             $clean_q[] = $q;
             $clean_l[] = $lg;
+
+            $mode = isset($new_modes_raw[$i])
+                ? sanitize_key(wp_unslash($new_modes_raw[$i]))
+                : "ai";
+            if (!in_array($mode, ["ai", "guided", "manual"], true)) {
+                $mode = "ai";
+            }
+
+            $hint = isset($new_hints_raw[$i])
+                ? sanitize_textarea_field(wp_unslash($new_hints_raw[$i]))
+                : "";
+            $manual_answer = isset($new_manual_answers_raw[$i])
+                ? sanitize_textarea_field(wp_unslash($new_manual_answers_raw[$i]))
+                : "";
+            $hint = $this->truncate_text($hint, self::MAX_HINT_LENGTH);
+            $manual_answer = $this->truncate_text(
+                $manual_answer,
+                self::MAX_MANUAL_ANSWER_LENGTH
+            );
+
+            // Empty specialized modes cannot do what their label promises.
+            if (($mode === "guided" && $hint === "") || ($mode === "manual" && $manual_answer === "")) {
+                $mode = "ai";
+            }
+
+            $clean_modes[] = $mode;
+            $clean_hints[] = $hint;
+            $clean_manual_answers[] = $manual_answer;
         }
 
         $clean_q = array_slice($clean_q, 0, self::MAX_QUESTIONS);
         $clean_l = array_slice($clean_l, 0, self::MAX_QUESTIONS);
+        $clean_modes = array_slice($clean_modes, 0, self::MAX_QUESTIONS);
+        $clean_hints = array_slice($clean_hints, 0, self::MAX_QUESTIONS);
+        $clean_manual_answers = array_slice($clean_manual_answers, 0, self::MAX_QUESTIONS);
 
         // --- 4. 智慧比對 (核心) ---
         $questions_changed = $clean_q !== $old_questions;
         $langs_changed = $clean_l !== $old_langs;
+        $answer_settings_changed =
+            $clean_modes !== $old_modes ||
+            $clean_hints !== $old_hints ||
+            $clean_manual_answers !== $old_manual_answers;
 
-        if (!$questions_changed && !$langs_changed) {
+        if (!$questions_changed && !$langs_changed && !$answer_settings_changed) {
             // ✅ 問題和語言都沒變?
             // 不儲存、不清除快取、不預生成。直接返回。
             return;
@@ -883,6 +1046,9 @@ CSS
             // 儲存 (推薦使用陣列格式, 你的 get_questions 函式可以處理)
             update_post_meta($post_id, MOELOG_AIQNA_META_KEY, $clean_q);
             update_post_meta($post_id, MOELOG_AIQNA_META_LANG_KEY, $clean_l);
+            update_post_meta($post_id, MOELOG_AIQNA_META_MODE_KEY, $clean_modes);
+            update_post_meta($post_id, MOELOG_AIQNA_META_HINT_KEY, $clean_hints);
+            update_post_meta($post_id, MOELOG_AIQNA_META_MANUAL_KEY, $clean_manual_answers);
             
             // ✅ 清除相關快取
             Moelog_AIQnA_Meta_Cache::clear($post_id, MOELOG_AIQNA_META_KEY);
@@ -891,6 +1057,9 @@ CSS
             // 清空
             delete_post_meta($post_id, MOELOG_AIQNA_META_KEY);
             delete_post_meta($post_id, MOELOG_AIQNA_META_LANG_KEY);
+            delete_post_meta($post_id, MOELOG_AIQNA_META_MODE_KEY);
+            delete_post_meta($post_id, MOELOG_AIQNA_META_HINT_KEY);
+            delete_post_meta($post_id, MOELOG_AIQNA_META_MANUAL_KEY);
         }
 
         // 清除快取
@@ -927,6 +1096,21 @@ CSS
     {
         $langs = get_post_meta($post_id, MOELOG_AIQNA_META_LANG_KEY, true);
         return is_array($langs) ? $langs : [];
+    }
+
+    /** 取得陣列型文章 meta */
+    private function get_meta_array($post_id, $meta_key)
+    {
+        $value = get_post_meta($post_id, $meta_key, true);
+        return is_array($value) ? $value : [];
+    }
+
+    /** 安全截斷多位元文字 */
+    private function truncate_text($text, $max_length)
+    {
+        return function_exists("mb_substr")
+            ? mb_substr((string) $text, 0, $max_length, "UTF-8")
+            : substr((string) $text, 0, $max_length);
     }
 
     /** 問題數量 */

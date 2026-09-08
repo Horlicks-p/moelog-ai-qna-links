@@ -19,6 +19,7 @@ $fingerprint_post = (object) [
 $answer_cache_salt = "";
 $page_cache_salt = "";
 $fingerprint_languages = ["en"];
+$fingerprint_answer_config = ["mode" => "ai", "hint" => "", "manual_answer" => ""];
 
 class Moelog_AIQnA_Settings
 {
@@ -52,6 +53,12 @@ function get_post_meta($post_id, $key, $single = false)
 {
     global $fingerprint_languages;
     return $fingerprint_languages;
+}
+
+function moelog_aiqna_get_answer_config($post_id, $question)
+{
+    global $fingerprint_answer_config;
+    return $fingerprint_answer_config;
 }
 
 function apply_filters($name, $value, ...$args)
@@ -155,16 +162,24 @@ $fingerprint_languages = ["zh_TW"];
 $page_language_changed = Moelog_AIQnA_Cache::generate_page_fingerprint(42, "What changed?");
 $expect($page_post_changed !== $page_language_changed, "question language invalidates page cache");
 
+$fingerprint_answer_config = [
+    "mode" => "guided",
+    "hint" => "Editor verified fact",
+    "manual_answer" => "",
+];
+$page_answer_config_changed = Moelog_AIQnA_Cache::generate_page_fingerprint(42, "What changed?");
+$expect($page_language_changed !== $page_answer_config_changed, "per-question answer settings invalidate page cache");
+
 $page_cache_salt = "template-v2";
 $expect(
-    $page_language_changed !== Moelog_AIQnA_Cache::generate_page_fingerprint(42, "What changed?"),
+    $page_answer_config_changed !== Moelog_AIQnA_Cache::generate_page_fingerprint(42, "What changed?"),
     "page cache salt forces re-rendering"
 );
 
 $page_cache_salt = "";
 $answer_cache_salt = "answer-v3";
 $expect(
-    $page_language_changed !== Moelog_AIQnA_Cache::generate_page_fingerprint(42, "What changed?"),
+    $page_answer_config_changed !== Moelog_AIQnA_Cache::generate_page_fingerprint(42, "What changed?"),
     "answer cache salt also invalidates rendered pages"
 );
 

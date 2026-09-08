@@ -760,6 +760,9 @@ class Moelog_AIQnA_Cache
     $question_languages = (
       function_exists("get_post_meta") && defined("MOELOG_AIQNA_META_LANG_KEY")
     ) ? get_post_meta($post_id, MOELOG_AIQNA_META_LANG_KEY, true) : [];
+    $answer_config = function_exists("moelog_aiqna_get_answer_config")
+      ? moelog_aiqna_get_answer_config($post_id, $question)
+      : [];
     $data = [
       "schema" => "page-2",
       "answer_schema" => class_exists("Moelog_AIQnA_AI_Client")
@@ -773,6 +776,12 @@ class Moelog_AIQnA_Cache
       "geo" => function_exists("get_option")
         ? (int) get_option("moelog_aiqna_geo_mode", 0) : 0,
     ];
+    if (
+      is_array($answer_config) &&
+      $answer_config !== ["mode" => "ai", "hint" => "", "manual_answer" => ""]
+    ) {
+      $data["answer_config"] = $answer_config;
+    }
     if (function_exists("apply_filters")) {
       $data["answer_salt"] = apply_filters(
         "moelog_aiqna_answer_cache_salt",

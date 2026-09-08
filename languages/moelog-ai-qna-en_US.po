@@ -1,8 +1,8 @@
 # Copyright (C) 2025 Horlicks (moelog.com)
 # This file is distributed under the GPL v2 or later.
 msgid ""
-msgstr "Project-Id-Version: Moelog AI Q&A Links 2.0.9\nReport-Msgid-Bugs-To: https://wordpress.org/support/plugin/moelog-ai-qna-links\nLast-Translator: Horlicks <contact@moelog.com>\nLanguage-Team: English <en_US@li.org>\nLanguage: en_US\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPOT-Creation-Date: 2025-11-27T20:00:00+08:00\nPO-Revision-Date: 2025-11-27T20:00:00+08:00\nX-Generator: Cursor IDE\nX-Domain: moelog-ai-qna\nPlural-Forms: nplurals=2; plural=(n != 1);\n"
-"Project-Id-Version: Moelog AI Q&A Links 2.0.9\n"
+msgstr "Project-Id-Version: Moelog AI Q&A Links 2.1.0\nReport-Msgid-Bugs-To: https://wordpress.org/support/plugin/moelog-ai-qna-links\nLast-Translator: Horlicks <contact@moelog.com>\nLanguage-Team: English <en_US@li.org>\nLanguage: en_US\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPOT-Creation-Date: 2025-11-27T20:00:00+08:00\nPO-Revision-Date: 2025-11-27T20:00:00+08:00\nX-Generator: Cursor IDE\nX-Domain: moelog-ai-qna\nPlural-Forms: nplurals=2; plural=(n != 1);\n"
+"Project-Id-Version: Moelog AI Q&A Links 2.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/moelog-ai-qna-links\n"
 "Last-Translator: Horlicks <contact@moelog.com>\n"
 "Language-Team: English (US) <en_US@li.org>\n"
@@ -1742,3 +1742,42 @@ msgstr "Style Fixes: Fixed answer page CSS to better support Markdown content."
 #: includes/class-admin.php
 msgid "UI Redesign: Admin interface redesigned with a clean, elegant style."
 msgstr "UI Redesign: Admin interface redesigned with a clean, elegant style."
+#: includes/class-metabox.php
+msgid "一般 AI 回答"
+msgstr "Standard AI answer"
+
+#: includes/class-metabox.php
+msgid "AI 回答＋站長提示"
+msgstr "AI answer + editor guidance"
+
+#: includes/class-metabox.php
+msgid "人工指定答案"
+msgstr "Editor-written answer"
+
+#: includes/class-metabox.php
+msgid "回答方式"
+msgstr "Answer method"
+
+#: includes/class-metabox.php
+msgid "答案提示／已知事實"
+msgstr "Answer guidance / verified facts"
+
+#: includes/class-metabox.php
+msgid "輸入已確認的設定、名稱或事實，AI 回答不得與此衝突。"
+msgstr "Enter verified settings, names, or facts. The AI answer must not conflict with them."
+
+#: includes/class-metabox.php
+msgid "輸入要直接顯示的完整答案，可使用 Markdown。此模式不會呼叫 AI。"
+msgstr "Enter the complete answer to display. Markdown is supported. This mode does not call AI."
+
+#: includes/class-metabox.php
+msgid "每題可選擇一般 AI、加入站長提示，或直接使用人工答案"
+msgstr "Each question can use standard AI, editor guidance, or an editor-written answer"
+
+#: includes/class-metabox.php
+msgid "這段內容只會傳給 AI，不會原樣顯示在前台。"
+msgstr "This content is only sent to the AI and is not displayed verbatim on the front end."
+
+#: includes/class-metabox.php
+msgid "內容會經過既有的 Markdown 與安全過濾後顯示。"
+msgstr "The content is displayed after the existing Markdown and security filters are applied."

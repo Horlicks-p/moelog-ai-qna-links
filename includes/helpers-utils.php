@@ -234,6 +234,53 @@ function moelog_aiqna_parse_questions($raw)
 }
 
 /**
+ * Get the editor-controlled answer settings for a question.
+ *
+ * Settings are stored as parallel arrays so they move with their question row
+ * when the editor uses drag-and-drop sorting.
+ *
+ * @param int    $post_id  Post ID.
+ * @param string $question Exact saved question text.
+ * @return array{mode:string,hint:string,manual_answer:string}
+ */
+function moelog_aiqna_get_answer_config($post_id, $question)
+{
+    $default = [
+        "mode" => "ai",
+        "hint" => "",
+        "manual_answer" => "",
+    ];
+
+    $questions = moelog_aiqna_parse_questions(
+        get_post_meta($post_id, MOELOG_AIQNA_META_KEY, true)
+    );
+    $index = array_search((string) $question, $questions, true);
+    if ($index === false) {
+        return $default;
+    }
+
+    $modes = get_post_meta($post_id, MOELOG_AIQNA_META_MODE_KEY, true);
+    $hints = get_post_meta($post_id, MOELOG_AIQNA_META_HINT_KEY, true);
+    $manual_answers = get_post_meta($post_id, MOELOG_AIQNA_META_MANUAL_KEY, true);
+    $modes = is_array($modes) ? $modes : [];
+    $hints = is_array($hints) ? $hints : [];
+    $manual_answers = is_array($manual_answers) ? $manual_answers : [];
+
+    $mode = isset($modes[$index]) ? (string) $modes[$index] : "ai";
+    if (!in_array($mode, ["ai", "guided", "manual"], true)) {
+        $mode = "ai";
+    }
+
+    return [
+        "mode" => $mode,
+        "hint" => isset($hints[$index]) ? (string) $hints[$index] : "",
+        "manual_answer" => isset($manual_answers[$index])
+            ? (string) $manual_answers[$index]
+            : "",
+    ];
+}
+
+/**
  * 安全取得陣列值
  *
  * @param array  $array   陣列

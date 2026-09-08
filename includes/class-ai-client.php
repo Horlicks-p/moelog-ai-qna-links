@@ -935,6 +935,7 @@ class Moelog_AIQnA_AI_Client
   {
     $question = $params["question"];
     $context = $params["context"] ?? "";
+    $answer_hint = trim((string) ($params["answer_hint"] ?? ""));
     $post_url = get_permalink($params["post_id"]);
 
     // 檢查是否為本機 URL
@@ -945,6 +946,11 @@ class Moelog_AIQnA_AI_Client
 
     // 組合 Prompt
     $prompt = "問題:{$question}\n\n";
+
+    if ($answer_hint !== "") {
+      $prompt .= "【網站編輯確認的事實】\n{$answer_hint}\n\n";
+      $prompt .= "上述內容是回答本題時的權威依據。答案不得與其衝突，也不得把其中明確指出的名稱、代碼或設定改成其他含義；請以此為核心組織完整回答。\n\n";
+    }
 
     if (!empty($context)) {
       $prompt .= "以下為原文脈絡(可能已截斷;僅供理解,禁止作為引用來源):\n{$context}\n\n";

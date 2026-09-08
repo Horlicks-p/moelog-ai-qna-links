@@ -64,6 +64,9 @@ class Moelog_AIQnA_Lifecycle
         $meta_keys = [
             MOELOG_AIQNA_META_KEY,
             MOELOG_AIQNA_META_LANG_KEY,
+            MOELOG_AIQNA_META_MODE_KEY,
+            MOELOG_AIQNA_META_HINT_KEY,
+            MOELOG_AIQNA_META_MANUAL_KEY,
             "_moelog_aiqna_content_hash",
             "_moelog_aiqna_previous_status",
             Moelog_AIQnA_Feedback_Controller::META_KEY,

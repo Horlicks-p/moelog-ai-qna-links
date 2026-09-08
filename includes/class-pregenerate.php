@@ -205,20 +205,7 @@ class Moelog_AIQnA_Pregenerate
     $params = $this->prepare_params($post_id, $question);
 
     try {
-      // 呼叫 AI 生成答案
-      $answer = $this->ai_client->generate_answer($params);
-
-      // ✅ 優化: 檢查是否為錯誤訊息
-      if ($this->is_error_response($answer)) {
-        throw new Exception($answer);
-      }
-
-      // ✅ 優化: 檢查答案是否為空
-      if (empty(trim($answer))) {
-        throw new Exception("Empty answer returned from AI");
-      }
-
-      // 建立 HTML
+      // 建立 HTML；渲染器會依單題設定選擇 AI、提示 AI 或人工答案。
       $html = $this->renderer->render_for_pregeneration(
         $post_id,
         $question,
