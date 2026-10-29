@@ -630,7 +630,7 @@ class Moelog_AIQnA_AI_Client
   /**
    * OpenAI Chat Completions 的 token / 採樣 / 推理參數
    *
-   * gpt-6-luna、gpt-5.6-luna（前綴比對，含日期快照）改用 max_completion_tokens，
+   * gpt-6-luna、gpt-5.6-luna（只認完整 alias 或 alias-YYYY-MM-DD 快照）改用 max_completion_tokens，
    * 並明確送出 reasoning_effort: none，避免預設推理拖慢回答、超過逾時；
    * 其他模型維持舊格式（max_tokens），舊模型不接受 reasoning_effort。
    *
@@ -641,14 +641,12 @@ class Moelog_AIQnA_AI_Client
    */
   private function openai_generation_params($model, $max_tokens, $temperature)
   {
-    foreach (["gpt-6-luna", "gpt-5.6-luna"] as $prefix) {
-      if (strpos((string) $model, $prefix) === 0) {
-        return [
-          "max_completion_tokens" => (int) $max_tokens,
-          "reasoning_effort" => "none",
-          "temperature" => $temperature,
-        ];
-      }
+    if (preg_match('/^(?:gpt-6-luna|gpt-5\.6-luna)(?:-\d{4}-\d{2}-\d{2})?$/', (string) $model)) {
+      return [
+        "max_completion_tokens" => (int) $max_tokens,
+        "reasoning_effort" => "none",
+        "temperature" => $temperature,
+      ];
     }
 
     return [

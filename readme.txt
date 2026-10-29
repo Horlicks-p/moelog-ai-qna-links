@@ -21,7 +21,7 @@ The answer page features a clean HTML layout, a typing animation effect, a built
 
 == ✨ Key Features ==
 
-* **Multi-provider support:** Integrates with **OpenAI** (e.g., GPT-6 Luna), **Google Gemini** (e.g., Gemini 3.5 Flash-Lite), and **Anthropic Claude**.  
+* **Multi-provider support:** Integrates with **OpenAI** (e.g., GPT-6 Luna), **Google Gemini** (e.g., Gemini 3.5 Flash-Lite), and **Anthropic Claude**.
 * **Highly customizable:** Configure system prompt, model, and temperature.  
 * **Per-question answer control:** Use standard AI, add editor-verified guidance, or display an editor-written answer without calling AI.
 * **Smart language detection:** Built-in rules (Traditional Chinese / Japanese / English), no external API needed.  

@@ -255,6 +255,23 @@ foreach (["gpt-6-luna", "gpt-6-luna-2026-09-30", "gpt-5.6-luna"] as $model) {
     }
 }
 
+// 自訂 ID 只是名稱相近，不能被當成 Luna
+foreach (["gpt-6-lunatic", "gpt-5.6-luna-custom", "gpt-6-luna-mini", "ft:gpt-6-luna"] as $model) {
+    call_private_provider($client, "call_openai", [
+        "api_key" => "openai-secret",
+        "model" => $model,
+        "temperature" => 0.3,
+        "max_tokens" => 3072,
+        "system_prompt" => "system",
+        "lang_hint" => "English",
+        "user_prompt" => "question",
+    ]);
+    $body = json_decode(last_request()["args"]["body"], true);
+    if (($body["max_tokens"] ?? null) !== 3072 || array_key_exists("reasoning_effort", $body)) {
+        fail_provider_contract("Lookalike OpenAI model was treated as Luna: " . $model);
+    }
+}
+
 foreach (["claude-opus-4-7", "claude-opus-4-8", "claude-sonnet-5", "future-custom-model"] as $model) {
     $result = call_private_provider($client, "call_anthropic", anthropic_params($model));
     if (!Moelog_AIQnA_Provider_Result::is_valid($result) || $result["ok"] !== true) {
