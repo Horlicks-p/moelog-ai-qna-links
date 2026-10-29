@@ -450,7 +450,7 @@ class Moelog_AIQnA_Renderer_Template
 <link rel="stylesheet" href="<?php echo esc_url(get_stylesheet_uri()); ?>?ver=<?php echo esc_attr(wp_get_theme()->get('Version')); ?>">
 <title><?php echo esc_html($post_title); ?> - <?php esc_html_e('AI 解答', 'moelog-ai-qna'); ?></title>
 <?php do_action('moelog_aiqna_answer_head', $answer_url, $post_id, $question, $answer); ?>
-<script nonce="<?php echo esc_attr($this->csp_nonce); ?>">
+<script data-cfasync="false" nonce="<?php echo esc_attr($this->csp_nonce); ?>">
 window.MoelogAIQnA = window.MoelogAIQnA || {};
 if (typeof window.MoelogAIQnA.typing_ms === 'undefined') { window.MoelogAIQnA.typing_ms = <?php echo intval(apply_filters('moelog_aiqna_typing_speed', 10)); ?>; }
 if (typeof window.MoelogAIQnA.typing_jitter_ms === 'undefined') { window.MoelogAIQnA.typing_jitter_ms = <?php echo intval(apply_filters('moelog_aiqna_typing_jitter', 6)); ?>; }
@@ -460,7 +460,7 @@ if (typeof window.MoelogAIQnA.typing_fallback === 'undefined') { window.MoelogAI
 window.MoelogAIQnA.feedback = <?php echo wp_json_encode($feedback_config); ?>;
 <?php endif; ?>
 </script>
-<script src="<?php echo esc_url(MOELOG_AIQNA_URL . 'includes/assets/js/typing.js'); ?>?ver=<?php echo esc_attr(MOELOG_AIQNA_VERSION); ?>" defer></script>
+<script data-cfasync="false" src="<?php echo esc_url(MOELOG_AIQNA_URL . 'includes/assets/js/typing.js'); ?>?ver=<?php echo esc_attr(MOELOG_AIQNA_VERSION); ?>" defer></script>
 </head>
 <body class="moe-aiqna-answer">
 <div class="moe-container">
@@ -532,7 +532,7 @@ window.MoelogAIQnA.feedback = <?php echo wp_json_encode($feedback_config); ?>;
 <div class="moe-bottom"></div>
 
 <?php if ($feedback_enabled): ?>
-<script src="<?php echo esc_url(MOELOG_AIQNA_URL . 'includes/assets/js/answer.js'); ?>?ver=<?php echo esc_attr(MOELOG_AIQNA_VERSION); ?>" defer></script>
+<script data-cfasync="false" src="<?php echo esc_url(MOELOG_AIQNA_URL . 'includes/assets/js/answer.js'); ?>?ver=<?php echo esc_attr(MOELOG_AIQNA_VERSION); ?>" defer></script>
 <?php endif; ?>
 
 <p class="moe-disclaimer" style="margin-top:0px;text-align:center;font-size:0.85em; color:#666; line-height:1.5em;">
@@ -557,7 +557,7 @@ window.MoelogAIQnA.feedback = <?php echo wp_json_encode($feedback_config); ?>;
   public function render_inline_scripts()
   {
     ?>
-<script nonce="<?php echo esc_attr($this->csp_nonce); ?>">
+<script data-cfasync="false" nonce="<?php echo esc_attr($this->csp_nonce); ?>">
 window.MoelogAIQnA=window.MoelogAIQnA||{};
 if(typeof window.MoelogAIQnA.typing_ms==='undefined'){window.MoelogAIQnA.typing_ms=10;}  // 改這裡
 window.MoelogAIQnA.typing_jitter_ms=window.MoelogAIQnA.typing_jitter_ms??6;
@@ -594,7 +594,7 @@ document.addEventListener('DOMContentLoaded',function(){
   public function render_typewriter_script()
   {
     ?>
-<script nonce="<?php echo esc_attr($this->csp_nonce); ?>">
+<script data-cfasync="false" nonce="<?php echo esc_attr($this->csp_nonce); ?>">
 (function(){
   const srcTpl=document.getElementById('moe-ans-source');
   const target=document.getElementById('moe-ans-target');

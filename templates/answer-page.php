@@ -116,7 +116,7 @@ $GLOBALS["moe_aiqna_is_answer_page"] = true;
   ];
   ?>
 
-  <script nonce="<?php echo esc_attr($csp_nonce); ?>">
+  <script data-cfasync="false" nonce="<?php echo esc_attr($csp_nonce); ?>">
     // 可在任何頁面先寫入全域預設;之後也能在後台設定頁動態輸出
     window.MoelogAIQnA = window.MoelogAIQnA || {};
     // 站點預設(毫秒/字),不填就走程式內建 12ms
@@ -149,7 +149,7 @@ $GLOBALS["moe_aiqna_is_answer_page"] = true;
       window.MoelogAIQnA.feedback = <?php echo wp_json_encode($feedback_config); ?>;
     <?php endif; ?>
   </script>
-      <script
+      <script data-cfasync="false"
         src="<?php echo esc_url(
                 MOELOG_AIQNA_URL . "includes/assets/js/typing.js"
               ); ?>?ver=<?php echo esc_attr(MOELOG_AIQNA_VERSION); ?>"
@@ -271,7 +271,7 @@ $GLOBALS["moe_aiqna_is_answer_page"] = true;
   </div><!-- /.moe-container -->
 
   <?php if ($feedback_enabled): ?>
-    <script
+    <script data-cfasync="false"
       src="<?php echo esc_url(
               MOELOG_AIQNA_URL . "includes/assets/js/answer.js"
             ); ?>?ver=<?php echo esc_attr(MOELOG_AIQNA_VERSION); ?>"
