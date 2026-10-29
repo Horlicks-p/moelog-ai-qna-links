@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4
 Tested PHP: 8.3
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,7 +21,7 @@ The answer page features a clean HTML layout, a typing animation effect, a built
 
 == ✨ Key Features ==
 
-* **Multi-provider support:** Integrates with **OpenAI** (e.g., GPT-4o-mini), **Google Gemini** (e.g., Gemini 2.5 Flash), and **Anthropic Claude**.  
+* **Multi-provider support:** Integrates with **OpenAI** (e.g., GPT-6 Luna), **Google Gemini** (e.g., Gemini 3.5 Flash-Lite), and **Anthropic Claude**.
 * **Highly customizable:** Configure system prompt, model, and temperature.  
 * **Per-question answer control:** Use standard AI, add editor-verified guidance, or display an editor-written answer without calling AI.
 * **Smart language detection:** Built-in rules (Traditional Chinese / Japanese / English), no external API needed.  
@@ -144,6 +144,16 @@ Visitor IPs, user agents, and other visitor personal data are **not sent to AI p
 ---
 
 == 🧩 Changelog ==
+
+= 2.2.0 (2026-10-29) – Model Refresh =
+* **OpenAI:** The default model is now `gpt-6-luna`; `gpt-4o-mini` retires on 2027-01-14. GPT-6 Luna and GPT-5.6 Luna requests use `max_completion_tokens` and `reasoning_effort: none`, so answers do not stall on reasoning and stay within the request timeout. Other models are sent the same parameters as before.
+* **Google Gemini:** The default model is now `gemini-3.5-flash-lite`; `gemini-2.5-flash` is no longer available to new API keys. Gemini 3 and later are no longer sent `temperature`, and non-Lite models get `thinkingLevel: low`. Gemini 2.5 requests are unchanged.
+* **Gemini endpoint:** Requests go to `v1beta` again. Google documents Gemini 3 thinking settings only on `v1beta`; the API key stays in the `x-goog-api-key` header.
+* **Gemini answers:** Multi-part replies are joined, and thought parts are skipped, instead of reading only the first part.
+* **Anthropic:** The default stays `claude-opus-4-8`. Claude Sonnet 5.5, Haiku 5.5 and Opus 5.5 are listed. Claude 5 models get `effort: low` and at least 1024 output tokens, because their thinking counts toward the limit. Claude 4 requests are unchanged.
+* **Model list:** The model picker now lists recommended and older models with notes, for example the GPT-4o mini retirement date.
+* **Existing sites:** A saved model is never changed. A site using "Use default" follows the new default, as with earlier default changes; define `MOELOG_AIQNA_DEFAULT_MODEL_*` in `wp-config.php` to pin one. Because the model is part of the answer cache key, those sites generate new answers with the new model as pages are requested, within the daily and monthly generation budgets.
+* **Translations:** The Claude model hint (`claude-opus-4-8`) is now translated; it still showed the old `claude-opus-4-7` text.
 
 = 2.1.0 (2026-09-09) – Per-Question Answer Control =
 * **Three answer modes:** Each question can use standard AI, AI with editor guidance, or an editor-written answer.

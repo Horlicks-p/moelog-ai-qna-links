@@ -71,13 +71,14 @@ cd moelog-ai-qna-links
 
 | 供應商 | 模型 | 特性 | 預設 |
 |--------|------|------|------|
-| OpenAI | `gpt-4o-mini` | 快速、經濟 | ✅ |
-| OpenAI | `gpt-4o` | 高品質 | |
-| Google | `gemini-2.5-flash` | 快速、免費額度高 | ✅ |
-| Google | `gemini-2.0-flash-exp` | 實驗版、極快 | |
-| Google | `gemini-2.5-pro` | 高品質、長上下文 | |
-| Anthropic | `claude-opus-4-7` | 最新版本 | ✅ |
-| Anthropic | `claude-3-5-sonnet-20241022` | 高品質 | |
+| OpenAI | `gpt-6-luna` | 快速、經濟 | ✅ |
+| OpenAI | `gpt-4o-mini` | 2027-01-14 停止服務 | |
+| Google | `gemini-3.5-flash-lite` | 快速、免費額度高 | ✅ |
+| Google | `gemini-3.8-flash` | 品質較高，免費方案可能較慢 | |
+| Google | `gemini-2.5-flash` | 僅限既有帳號 | |
+| Anthropic | `claude-opus-4-8` | 高品質 | ✅ |
+| Anthropic | `claude-sonnet-5-5` | 較經濟 | |
+| Anthropic | `claude-haiku-5-5` | 快速、最經濟 | |
 
 ### 內容設定
 
@@ -330,7 +331,7 @@ $ai_client = $core->get_ai_client();
 $result = $ai_client->test_connection(
     'openai',
     'sk-your-api-key',
-    'gpt-4o-mini'
+    'gpt-6-luna'
 );
 
 if ($result['success']) {

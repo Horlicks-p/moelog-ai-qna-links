@@ -182,11 +182,14 @@ class Moelog_AIQnA_AI_Client
   {
     $endpoint = "https://api.openai.com/v1/chat/completions";
 
-    $body = [
-      "model" => $params["model"],
-      "temperature" => $params["temperature"],
-      "max_tokens" => isset($params["max_tokens"]) ? (int) $params["max_tokens"] : 2048,
-      "messages" => [
+    $body = array_merge(
+      ["model" => $params["model"]],
+      $this->openai_generation_params(
+        $params["model"],
+        isset($params["max_tokens"]) ? (int) $params["max_tokens"] : 2048,
+        $params["temperature"]
+      ),
+      ["messages" => [
         [
           "role" => "system",
           "content" =>
@@ -201,8 +204,8 @@ class Moelog_AIQnA_AI_Client
           "role" => "user",
           "content" => $params["user_prompt"],
         ],
-      ],
-    ];
+      ]]
+    );
 
     $args = [
       "headers" => [
@@ -327,7 +330,7 @@ class Moelog_AIQnA_AI_Client
   private function call_gemini($params)
   {
     $endpoint = sprintf(
-      "https://generativelanguage.googleapis.com/v1/models/%s:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent",
       rawurlencode($params["model"]),
     );
 
@@ -345,12 +348,11 @@ class Moelog_AIQnA_AI_Client
           "parts" => [["text" => $full_content]],
         ],
       ],
-      "generationConfig" => [
-        "temperature" => $params["temperature"],
-        "maxOutputTokens" => isset($params["max_tokens"])
-          ? (int) $params["max_tokens"]
-          : 2048,
-      ],
+      "generationConfig" => $this->gemini_generation_config(
+        $params["model"],
+        isset($params["max_tokens"]) ? (int) $params["max_tokens"] : 2048,
+        $params["temperature"]
+      ),
     ];
 
     $args = [
@@ -391,7 +393,13 @@ class Moelog_AIQnA_AI_Client
 
     // 處理成功回應
     if ($code >= 200 && $code < 300) {
-      $content = $json["candidates"][0]["content"]["parts"][0]["text"] ?? "";
+      // Gemini 3 的回應可能有多個 part（含思考摘要），只串接非 thought 的文字
+      $content = "";
+      foreach ((array) ($json["candidates"][0]["content"]["parts"] ?? []) as $part) {
+        if (isset($part["text"]) && empty($part["thought"])) {
+          $content .= $part["text"];
+        }
+      }
       if ($content !== "") {
         return Moelog_AIQnA_Provider_Result::success(
           $content,
@@ -538,6 +546,12 @@ class Moelog_AIQnA_AI_Client
       $body["temperature"] = $temperature;
     }
 
+    // Claude 5 預設會思考，思考也計入 max_tokens：送 effort low，並保留至少 1024
+    if ($this->anthropic_is_claude_5_or_later($model)) {
+      $body["max_tokens"] = max(1024, $max_tokens);
+      $body["output_config"] = ["effort" => "low"];
+    }
+
     $args = [
       "headers" => [
         "Content-Type" => "application/json",
@@ -611,6 +625,77 @@ class Moelog_AIQnA_AI_Client
       $code === 429 || $code >= 500,
       $this->get_response_metadata($response, [], $code === 429 ? 60 : 0)
     );
+  }
+
+  /**
+   * OpenAI Chat Completions 的 token / 採樣 / 推理參數
+   *
+   * gpt-6-luna、gpt-5.6-luna（只認完整 alias 或 alias-YYYY-MM-DD 快照）改用 max_completion_tokens，
+   * 並明確送出 reasoning_effort: none，避免預設推理拖慢回答、超過逾時；
+   * 其他模型維持舊格式（max_tokens），舊模型不接受 reasoning_effort。
+   *
+   * @param string $model
+   * @param int    $max_tokens
+   * @param float  $temperature
+   * @return array
+   */
+  private function openai_generation_params($model, $max_tokens, $temperature)
+  {
+    if (preg_match('/^(?:gpt-6-luna|gpt-5\.6-luna)(?:-\d{4}-\d{2}-\d{2})?$/', (string) $model)) {
+      return [
+        "max_completion_tokens" => (int) $max_tokens,
+        "reasoning_effort" => "none",
+        "temperature" => $temperature,
+      ];
+    }
+
+    return [
+      "temperature" => $temperature,
+      "max_tokens" => (int) $max_tokens,
+    ];
+  }
+
+  /**
+   * Gemini generateContent 的 generationConfig
+   *
+   * Gemini 3 之後（3.x、4.x）忽略自訂 temperature 並回 deprecation warning，因此不送；
+   * 非 Lite 模型送 thinkingConfig.thinkingLevel: low（預設 medium 容易超過逾時），
+   * Flash-Lite 維持預設。2.5 與無法辨識版本的模型維持原本的參數。
+   *
+   * @param string $model
+   * @param int    $max_tokens
+   * @param float  $temperature
+   * @return array
+   */
+  private function gemini_generation_config($model, $max_tokens, $temperature)
+  {
+    $model = strtolower(trim((string) $model));
+
+    if (!preg_match('/^gemini-(\d+)(?:[.-]|$)/', $model, $m) || (int) $m[1] < 3) {
+      return [
+        "temperature" => $temperature,
+        "maxOutputTokens" => (int) $max_tokens,
+      ];
+    }
+
+    $config = ["maxOutputTokens" => (int) $max_tokens];
+    if (strpos($model, "-lite") === false) {
+      $config["thinkingConfig"] = ["thinkingLevel" => "low"];
+    }
+
+    return $config;
+  }
+
+  /**
+   * Whether an Anthropic model is Claude 5 or later (adaptive thinking by default).
+   *
+   * @param string $model
+   * @return bool
+   */
+  private function anthropic_is_claude_5_or_later($model)
+  {
+    return preg_match('/^claude-[a-z]+-(\d+)(?:-|$)/', strtolower(trim((string) $model)), $m) === 1 &&
+      (int) $m[1] >= 5;
   }
 
   /**

@@ -584,7 +584,7 @@ public function test_connection( string $provider, string $api_key, string $mode
 **示例**:
 
 ```php
-$result = $ai_client->test_connection('openai', 'sk-...', 'gpt-4o-mini');
+$result = $ai_client->test_connection('openai', 'sk-...', 'gpt-6-luna');
 
 if ($result['success']) {
     echo '✓ API 連線正常';
@@ -1011,7 +1011,7 @@ jQuery.ajax({
   "success": true,
   "data": {
     "message": "✓ 連線成功",
-    "model": "gpt-4o-mini",
+    "model": "gpt-6-luna",
     "latency": 1250
   }
 }

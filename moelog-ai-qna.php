@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Moelog AI Q&A Links
  * Description: 在每篇文章底部顯示作者預設的問題清單,點擊後開新分頁,由 AI 生成答案的靜態HTML。支持 OpenAI/Gemini,可自訂模型與提示。
- * Version: 2.1.0
+ * Version: 2.2.0
  * Author: Horlicks (moelog.com)
  * Text Domain: moelog-ai-qna
  * Domain Path: /languages
@@ -20,7 +20,7 @@ if (!defined("ABSPATH")) {
 // =========================================
 // 定義常數
 // =========================================
-define("MOELOG_AIQNA_VERSION", "2.1.0");
+define("MOELOG_AIQNA_VERSION", "2.2.0");
 define("MOELOG_AIQNA_FILE", __FILE__);
 define("MOELOG_AIQNA_DIR", plugin_dir_path(__FILE__));
 define("MOELOG_AIQNA_URL", plugin_dir_url(__FILE__));
@@ -130,8 +130,8 @@ function moelog_aiqna_clear_route_cache()
 }
 
 // AI 預設模型
-define("MOELOG_AIQNA_DEFAULT_MODEL_OPENAI", "gpt-4o-mini");
-define("MOELOG_AIQNA_DEFAULT_MODEL_GEMINI", "gemini-2.5-flash");
+define("MOELOG_AIQNA_DEFAULT_MODEL_OPENAI", "gpt-6-luna");
+define("MOELOG_AIQNA_DEFAULT_MODEL_GEMINI", "gemini-3.5-flash-lite");
 define("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-8");
 
 // 常數定義（避免魔術數字）
@@ -652,4 +652,4 @@ add_action(
 // =========================================
 // 結束標記
 // =========================================
-// EOF - Moelog AI Q&A v2.1.0
+// EOF - Moelog AI Q&A v2.2.0
