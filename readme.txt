@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4
 Tested PHP: 8.3
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -144,6 +144,10 @@ Visitor IPs, user agents, and other visitor personal data are **not sent to AI p
 ---
 
 == 🧩 Changelog ==
+
+= 2.2.1 (2026-10-29) – Cloudflare Rocket Loader Fix =
+* **Fix:** On sites behind Cloudflare with Rocket Loader on, answer pages showed "—" instead of view, like and dislike counts, and the feedback buttons did nothing. Rocket Loader re-runs inline scripts without the CSP nonce, so the browser blocked the feedback settings and `answer.js` never started. Answer-page scripts now carry `data-cfasync="false"`, so Rocket Loader leaves them alone.
+* **After updating:** Clear the static answer cache (and the Cloudflare cache) so cached pages pick up the change.
 
 = 2.2.0 (2026-10-29) – Model Refresh =
 * **OpenAI:** The default model is now `gpt-6-luna`; `gpt-4o-mini` retires on 2027-01-14. GPT-6 Luna and GPT-5.6 Luna requests use `max_completion_tokens` and `reasoning_effort: none`, so answers do not stall on reasoning and stay within the request timeout. Other models are sent the same parameters as before.

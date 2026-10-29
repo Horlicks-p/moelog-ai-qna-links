@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4  
 Tested PHP: 8.3  
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 License: GPLv2 or later  
 License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
 
@@ -157,6 +157,11 @@ define('MOELOG_AIQNA_TRUSTED_PROXIES', [
 ---
 
 == 🧩 Changelog ==
+
+= 2.2.1 (2026-10-29) – Cloudflare Rocket Loader 修正 =
+
+- 🐛 **修正:** 網站經過 Cloudflare 並開啟 Rocket Loader 時，回答頁的瀏覽／好評／差評數字顯示為「—」，回饋按鈕點了也沒有反應。原因是 Rocket Loader 重新執行 inline script 時沒有帶 CSP nonce，回饋設定被瀏覽器擋下，`answer.js` 因此沒有啟動。回答頁的 script 現在都加上 `data-cfasync="false"`，Rocket Loader 不會再改寫它們。
+- 🧹 **更新後:** 請清除靜態回答快取（以及 Cloudflare 快取），已快取的頁面才會套用修正。
 
 = 2.2.0 (2026-10-29) – 模型更新 =
 
