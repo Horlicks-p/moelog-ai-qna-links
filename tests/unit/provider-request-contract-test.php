@@ -6,8 +6,8 @@
  */
 
 define("ABSPATH", __DIR__);
-define("MOELOG_AIQNA_DEFAULT_MODEL_OPENAI", "gpt-4o-mini");
-define("MOELOG_AIQNA_DEFAULT_MODEL_GEMINI", "gemini-2.5-flash");
+define("MOELOG_AIQNA_DEFAULT_MODEL_OPENAI", "gpt-6-luna");
+define("MOELOG_AIQNA_DEFAULT_MODEL_GEMINI", "gemini-3.5-flash-lite");
 define("MOELOG_AIQNA_DEFAULT_MODEL_ANTHROPIC", "claude-opus-4-8");
 
 $captured_requests = [];
@@ -44,10 +44,11 @@ function wp_remote_request($url, $args)
     $captured_requests[] = ["url" => $url, "args" => $args];
 
     if (strpos($url, "generativelanguage.googleapis.com") !== false) {
+        global $gemini_multipart_response;
         return [
             "response" => ["code" => 200],
             "body" => json_encode([
-                "candidates" => [["content" => ["parts" => [["text" => "ok"]]]]],
+                "candidates" => [["content" => ["parts" => $gemini_multipart_response ?: [["text" => "ok"]]]]],
             ]),
         ];
     }
@@ -131,15 +132,20 @@ function anthropic_params($model)
 
 $client = new Moelog_AIQnA_AI_Client();
 
-$gemini_result = call_private_provider($client, "call_gemini", [
-    "api_key" => "gemini-secret",
-    "model" => "gemini-2.5-flash",
-    "temperature" => 0.3,
-    "max_tokens" => 3072,
-    "system_prompt" => "system",
-    "lang_hint" => "English",
-    "user_prompt" => "question",
-]);
+function gemini_params($model)
+{
+    return [
+        "api_key" => "gemini-secret",
+        "model" => $model,
+        "temperature" => 0.3,
+        "max_tokens" => 3072,
+        "system_prompt" => "system",
+        "lang_hint" => "English",
+        "user_prompt" => "question",
+    ];
+}
+
+$gemini_result = call_private_provider($client, "call_gemini", gemini_params("gemini-2.5-flash"));
 if (
     !Moelog_AIQnA_Provider_Result::is_valid($gemini_result) ||
     $gemini_result["ok"] !== true
@@ -149,7 +155,7 @@ if (
 $gemini = last_request();
 if (
     $gemini["url"] !==
-    "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent"
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 ) {
     fail_provider_contract("Gemini endpoint path changed unexpectedly");
 }
@@ -163,6 +169,44 @@ $gemini_body = json_decode($gemini["args"]["body"], true);
 if (($gemini_body["generationConfig"]["maxOutputTokens"] ?? null) !== 3072) {
     fail_provider_contract("Gemini max token setting was ignored");
 }
+if (($gemini_body["generationConfig"]["temperature"] ?? null) !== 0.3) {
+    fail_provider_contract("Gemini 2.5 lost its temperature");
+}
+if (isset($gemini_body["generationConfig"]["thinkingConfig"])) {
+    fail_provider_contract("Gemini 2.5 received thinkingConfig");
+}
+
+// Gemini 3：不送 temperature；非 Lite 送 thinkingLevel low，Lite 維持預設
+$gemini3_cases = [
+    "gemini-3.5-flash-lite" => null,
+    "gemini-3.8-flash" => "low",
+    "gemini-4-flash" => "low",
+];
+foreach ($gemini3_cases as $model => $level) {
+    call_private_provider($client, "call_gemini", gemini_params($model));
+    $config = json_decode(last_request()["args"]["body"], true)["generationConfig"] ?? [];
+    if (array_key_exists("temperature", $config)) {
+        fail_provider_contract("Gemini 3 request included temperature for " . $model);
+    }
+    if (($config["maxOutputTokens"] ?? null) !== 3072) {
+        fail_provider_contract("Gemini 3 max token setting was ignored for " . $model);
+    }
+    if (($config["thinkingConfig"]["thinkingLevel"] ?? null) !== $level) {
+        fail_provider_contract("Unexpected Gemini thinking level for " . $model);
+    }
+}
+
+// Gemini 回應有多個 part 時，略過 thought、串接文字
+$gemini_multipart_response = [
+    ["thought" => true, "text" => "thinking"],
+    ["text" => "Hello "],
+    ["text" => "World", "thoughtSignature" => "sig"],
+];
+$multipart = call_private_provider($client, "call_gemini", gemini_params("gemini-3.8-flash"));
+if (($multipart["text"] ?? "") !== "Hello World") {
+    fail_provider_contract("Gemini multi-part answer was not joined without thoughts");
+}
+$gemini_multipart_response = null;
 
 $openai_result = call_private_provider($client, "call_openai", [
     "api_key" => "openai-secret",
@@ -184,6 +228,32 @@ $openai_body = json_decode(last_request()["args"]["body"], true);
 if (($openai_body["max_tokens"] ?? null) !== 3072) {
     fail_provider_contract("OpenAI max token setting was ignored");
 }
+if (array_key_exists("reasoning_effort", $openai_body) || array_key_exists("max_completion_tokens", $openai_body)) {
+    fail_provider_contract("Legacy OpenAI model received new-generation parameters");
+}
+
+// gpt-6-luna / gpt-5.6-luna：max_completion_tokens + reasoning_effort none，保留 temperature
+foreach (["gpt-6-luna", "gpt-6-luna-2026-09-30", "gpt-5.6-luna"] as $model) {
+    call_private_provider($client, "call_openai", [
+        "api_key" => "openai-secret",
+        "model" => $model,
+        "temperature" => 0.3,
+        "max_tokens" => 3072,
+        "system_prompt" => "system",
+        "lang_hint" => "English",
+        "user_prompt" => "question",
+    ]);
+    $body = json_decode(last_request()["args"]["body"], true);
+    if (array_key_exists("max_tokens", $body)) {
+        fail_provider_contract("New-generation OpenAI request kept max_tokens for " . $model);
+    }
+    if (($body["max_completion_tokens"] ?? null) !== 3072 || ($body["reasoning_effort"] ?? null) !== "none") {
+        fail_provider_contract("New-generation OpenAI parameters missing for " . $model);
+    }
+    if (($body["temperature"] ?? null) !== 0.3 || count($body["messages"] ?? []) !== 3) {
+        fail_provider_contract("New-generation OpenAI request lost temperature or messages for " . $model);
+    }
+}
 
 foreach (["claude-opus-4-7", "claude-opus-4-8", "claude-sonnet-5", "future-custom-model"] as $model) {
     $result = call_private_provider($client, "call_anthropic", anthropic_params($model));
@@ -197,6 +267,31 @@ foreach (["claude-opus-4-7", "claude-opus-4-8", "claude-sonnet-5", "future-custo
     if (($body["max_tokens"] ?? null) !== 3072) {
         fail_provider_contract("Anthropic max token setting was ignored for " . $model);
     }
+    $is_claude_5 = strpos($model, "claude-sonnet-5") === 0;
+    if ($is_claude_5 !== (($body["output_config"]["effort"] ?? null) === "low")) {
+        fail_provider_contract("Unexpected Anthropic effort setting for " . $model);
+    }
+}
+
+// Claude 5：effort low，max_tokens 至少 1024（思考也計入），不送 temperature
+foreach (["claude-sonnet-5-5", "claude-haiku-5-5", "claude-opus-5-5", "claude-fable-5-1"] as $model) {
+    $params = anthropic_params($model);
+    $params["max_tokens"] = 256;
+    call_private_provider($client, "call_anthropic", $params);
+    $body = json_decode(last_request()["args"]["body"], true);
+    if (($body["max_tokens"] ?? null) !== 1024 || ($body["output_config"]["effort"] ?? null) !== "low") {
+        fail_provider_contract("Claude 5 request lacks room for thinking for " . $model);
+    }
+    if (array_key_exists("temperature", $body)) {
+        fail_provider_contract("Claude 5 request included temperature for " . $model);
+    }
+}
+$params = anthropic_params("claude-opus-4-8");
+$params["max_tokens"] = 256;
+call_private_provider($client, "call_anthropic", $params);
+$body = json_decode(last_request()["args"]["body"], true);
+if (($body["max_tokens"] ?? null) !== 256 || array_key_exists("output_config", $body)) {
+    fail_provider_contract("Claude 4 request was changed");
 }
 
 call_private_provider(
@@ -220,4 +315,4 @@ if (($filtered_body["temperature"] ?? null) !== 0.7) {
     fail_provider_contract("Site-tested exact model filter was ignored");
 }
 
-fwrite(STDOUT, "Provider request contract tests passed (21 assertions).\n");
+fwrite(STDOUT, "Provider request contract tests passed.\n");

@@ -6,7 +6,7 @@ Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4  
 Tested PHP: 8.3  
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 License: GPLv2 or later  
 License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
 
@@ -25,7 +25,7 @@ License URI: [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/lic
 
 == ✨ Key Features ==
 
-- **多供應商支援:** 可串接 **OpenAI** (GPT-4o-mini 等)、**Google Gemini** (Gemini 2.5 Flash 等) 和 **Anthropic Claude**。
+- **多供應商支援:** 可串接 **OpenAI** (GPT-6 Luna 等)、**Google Gemini** (Gemini 3.5 Flash-Lite 等) 和 **Anthropic Claude**。
 - **高度客製化:** 可自訂系統提示 (System Prompt)、模型、溫度 (Temperature)。
 - **單題答案控制:** 每題可使用一般 AI、加入站長確認的事實提示，或直接顯示人工指定答案（不呼叫 AI）。
 - **智慧語言偵測:** 內建規則自動偵測 (繁中/日文/英文)，無需 API。
@@ -157,6 +157,17 @@ define('MOELOG_AIQNA_TRUSTED_PROXIES', [
 ---
 
 == 🧩 Changelog ==
+
+= 2.2.0 (2026-10-29) – 模型更新 =
+
+- 🤖 **OpenAI:** 預設模型改為 `gpt-6-luna`；`gpt-4o-mini` 將於 2027-01-14 停止服務。GPT-6 Luna 與 GPT-5.6 Luna 改送 `max_completion_tokens` 與 `reasoning_effort: none`，避免推理拖慢回答、超過請求逾時；其他模型的參數不變。
+- 🔷 **Google Gemini:** 預設模型改為 `gemini-3.5-flash-lite`；`gemini-2.5-flash` 已不再開放給新的 API Key。Gemini 3 之後不再送 `temperature`，非 Lite 模型送 `thinkingLevel: low`；Gemini 2.5 的請求不變。
+- 🔗 **Gemini 端點:** 改回 `v1beta`。Google 只在 `v1beta` 文件說明 Gemini 3 的思考設定；API key 仍透過 `x-goog-api-key` header 傳送。
+- 🧩 **Gemini 回答:** 多個 part 的回應會串接起來並略過思考內容，不再只讀第一個 part。
+- 🧠 **Anthropic:** 預設維持 `claude-opus-4-8`，另列出 Claude Sonnet 5.5、Haiku 5.5、Opus 5.5。Claude 5 系列送 `effort: low`，並保留至少 1024 個輸出 tokens（思考也算在上限內）；Claude 4 的請求不變。
+- 📋 **模型選單:** 列出推薦模型與舊模型並附註說明，例如 GPT-4o mini 的停止服務日期。
+- 🏠 **既有網站:** 已保存的模型不會被改寫；選擇「使用預設」的網站會跟著新預設走（與先前調整預設時相同），如需固定可在 `wp-config.php` 定義 `MOELOG_AIQNA_DEFAULT_MODEL_*`。由於模型是答案快取 key 的一部分，這些網站會在頁面被請求時以新模型重新產生答案，並受每日／每月產生額度限制。
+- 🌐 **多語系:** Claude 模型提示（`claude-opus-4-8`）現在有翻譯，先前仍顯示舊的 `claude-opus-4-7` 文字。
 
 = 2.1.0 (2026-09-09) – 單題答案控制 =
 
